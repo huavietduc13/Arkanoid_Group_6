@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "startMenu",
+            "request": "launch",
+            "mainClass": "startMenu",
+            "projectName": "Arkanoid_Group_6_4a893022"
+        },
+        {
+            "type": "java",
+            "name": "Launch Arkanoid",
+            "request": "launch",
+            "mainClass": "startMenu",
+            "vmArgs": "--module-path /Users/haihoang/Downloads/javafx-sdk-21.0.8/lib --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.web,javafx.swing",
+            "projectName": "Arkanoid_Group_6_4a893022"
+        }
+    ]
+}
