@@ -1,143 +1,91 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 import object.Ball;
 import object.Paddle;
-import object.brick.Brick;
-import object.brick.BrickFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main extends Application {
-    private static final double SCREEN_WIDTH = 600;
-    private static final double SCREEN_HEIGHT = 800;
+    private static final int WIDTH = 600;
+    private static final int HEIGHT = 800;
+
+    private Stage priStage;
+    private Scene startMenuScene;
+    private Scene gameScene;
 
     private Paddle paddle;
     private Ball ball;
 
-    @Override
-    public void start(Stage stage) {
-        // Layout
-        Pane root = new Pane();
+    private void createStartMenu() {
+        Image startMenuImg = new Image("file:assets/images/startScreen.png");
+        ImageView startView = new ImageView(startMenuImg);
+        startView.setFitWidth(WIDTH);
+        startView.setFitHeight(HEIGHT);
 
-        // Scene
-        Scene scene = new Scene(root, 600, 800, Color.BLACK);
+        Image buttonImg = new Image("file:assets/images/button.png");
+        ImageView startButton = new ImageView(buttonImg);
+        startButton.setFitWidth(200);
+        startButton.setFitHeight(80);
 
-        // Text
-        Text text = new Text();
-        text.setText("Press 'SPACE' to launch the ball!");
-        text.setX(165);
-        text.setY(360);
-        text.setFont(Font.font("Times New Roman", 20));
-        text.setFill(Color.WHITE);
+        startButton.setOnMouseEntered(e -> startButton.setOpacity(0.9));
+        startButton.setOnMouseExited(e -> startButton.setOpacity(1.0));
+        startButton.setOnMouseClicked(e -> startGame());
 
-        // Paddle
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 764, 120, 40, 6);
+        StackPane root = new StackPane();
+        root.getChildren().addAll(startView, startButton);
 
-        // Ball
-        ball = new Ball("file:assets/images/ball1.png", 280, 724 , 18, 5, -5 );
+        StackPane.setAlignment(startButton, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(startButton, new Insets(0, 0, 50, 0));
+        startMenuScene = new Scene(root, WIDTH, HEIGHT);
+    }
 
-        // Brick
-        List<Brick> bricks = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 6; j++) {
-                double x = 50 + i * (63 + 5);
-                double y = 50 + j * (33 + 5);
-                Brick newBrick;
-                if (i % 2 == 0) {
-                    newBrick = BrickFactory.createBrick("strong", x, y);
-                } else {
-                    newBrick = BrickFactory.createBrick("normal", x, y);
-                }
-                bricks.add(newBrick);
-                root.getChildren().add(newBrick.getImageView());
+    private void startGame() {
+        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Pane root = new Pane(canvas);
+        gameScene = new Scene(root);
+
+        GameManager game = new GameManager(gc, root);
+
+        gameScene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.SPACE && !game.getBall().isLaunched()) {
+                game.getBall().launch();
+                game.text.setVisible(false);
+            } else {
+                game.getPaddle().handleKeyPressed(e.getCode());
             }
-        }
-
-//        for (int i = 0; i < 8; i++) {
-//            double x = 50 + i * (63 + 5);
-//            Brick indestructibleBrick = BrickFactory.createBrick("indestructible", x, 50 + 33 + 5);
-//            bricks.add(indestructibleBrick);
-//            root.getChildren().add(indestructibleBrick.getImageView());
-//        }
-
-        // Root
-        root.getChildren().add(text);
-        root.getChildren().add(paddle.getImageView());
-        root.getChildren().add(paddle.getCollisionShape());
-        root.getChildren().add(ball.getImageView());
-        root.getChildren().add(ball.getCollisionShape());
-
-        for (Brick brick : bricks) {
-            root.getChildren().add(brick.getCollisionShape());
-        }
-
-        // Key events
-        scene.setOnKeyPressed((KeyEvent e) -> paddle.handleKeyPressed(e.getCode()));
-        scene.setOnKeyReleased((KeyEvent e) -> paddle.handleKeyReleased(e.getCode()));
-        scene.setOnKeyReleased((KeyEvent e) -> {
-            if (e.getCode() == KeyCode.SPACE && !ball.isLaunched()) {
-                ball.launch();
-                text.setVisible(false);
-            }
-            paddle.handleKeyPressed(e.getCode());
-            paddle.handleKeyReleased(e.getCode());
         });
+        gameScene.setOnKeyReleased(e -> game.getPaddle().handleKeyReleased(e.getCode()));
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                paddle.update();
-
-                if (!ball.isLaunched()) {
-                    ball.setX(paddle.getX() + 40);
-                    ball.setY(paddle.getY() - 36);
-                }
-
-                ball.update();
-
-                CollisionDetector.handlePaddleCollisionSimple(ball, paddle);
-
-                List<Brick> bricksToRemove = new ArrayList<>();
-                for (Brick brick : bricks) {
-                    if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
-                        if (brick.takeHit()) {
-                            bricksToRemove.add(brick);
-                            // Cộng điểm cho người chơi
-                        }
-
-                        // Va chạm đã xảy ra, không cần kiểm tra với viên gạch khác
-                        break;
-                    }
-                }
-
-                // Xoá gạch
-                for (Brick brick : bricksToRemove) {
-                    root.getChildren().remove(brick.getImageView());
-                    root.getChildren().remove(brick.getCollisionShape());
-                    bricks.remove(brick);
-                }
+                game.update();
+                game.render(root);
             }
         };
         timer.start();
 
+        priStage.setScene(gameScene);
+    }
 
-
-        // Stage
-        stage.setTitle("Ligma Balls");
+    @Override
+    public void start(Stage stage) {
+        priStage = stage;
+        createStartMenu();
+        stage.setTitle("Arkanoid");
         stage.getIcons().add(new Image("file:assets/images/image.png"));
         stage.setResizable(false);
-        stage.setScene(scene);
+        stage.setScene(startMenuScene);
         stage.show();
     }
 

@@ -1,11 +1,8 @@
 package object;
 
 import javafx.geometry.Bounds;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import object.brick.Brick;
 
 public class Ball extends GameObject {
     private double vx;
