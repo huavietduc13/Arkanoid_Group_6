@@ -1,4 +1,4 @@
-package wgame;
+package src;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
