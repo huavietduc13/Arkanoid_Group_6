@@ -26,7 +26,7 @@ public class GameManager {
 
     public void render() {
         gc.setFill(Color.BLACK);
-        gc.fillRect(0, 0, 800, 600);
+        gc.fillRect(0, 0, 600, 800);
 
         // TODO: Vẽ object.
         /*
@@ -62,6 +62,7 @@ public class GameManager {
 
     public void keyPressed(KeyEvent e) {
         // TODO: paddle.keyPressed(e);
+        if (running && e.getCode().toString().equals("ESCAPE"));
         if (!running && e.getCode().toString().equals("R")) {
             restart();
         }

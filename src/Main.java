@@ -10,6 +10,10 @@ import javafx.stage.Stage;
 import javafx.scene.input.KeyEvent;
 
 public class Main extends Application {
+    private Stage stage;
+    private Scene menuScene;
+    private Scene gameScene;
+    private GameManager game;
 
     public static void main(String[] args) {
         launch(args);
@@ -17,20 +21,27 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Canvas canvas = new Canvas(800, 600);
+        stage = primaryStage;
+        //tạo menu scene
+        MenuManager menu = new MenuManager(this);
+        menuScene = menu.getScene();
+
+        //Tạo game scene
+        Canvas canvas = new Canvas(600, 800);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        game = new GameManager(gc);
+        StackPane gameRoot = new StackPane(canvas);
+        gameScene = new Scene(gameRoot);
 
-        GameManager game = new GameManager(gc);
+        stage.setTitle("Arkanoid");
+        stage.setScene(menuScene);
+        stage.show();
 
+        gameScene.setOnKeyPressed(event -> game.keyPressed(event));
+        gameScene.setOnKeyReleased(event -> game.keyReleased(event));
+    }
 
-        Scene scene = new Scene(new StackPane(canvas));
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Arkanoid");
-        primaryStage.show();
-
-        scene.setOnKeyPressed(event->game.keyPressed(event));
-        scene.setOnKeyReleased(event->game.keyReleased(event));
-
+    public void startGame() {
         AnimationTimer loop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -39,5 +50,14 @@ public class Main extends Application {
             }
         };
         loop.start();
+        stage.setScene(gameScene);
+    }
+
+    public void openMenu() {
+        stage.setScene(menuScene);
+    }
+
+    public void exitGame() {
+        stage.close();
     }
 }
