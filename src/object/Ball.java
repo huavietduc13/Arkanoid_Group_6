@@ -155,6 +155,10 @@ public class Ball extends GameObject {
         this.ballLaunched = true;
     }
 
+    public void notLaunch() {
+        this.ballLaunched = false;
+    }
+
     public boolean isLaunched() {
         return ballLaunched;
     }

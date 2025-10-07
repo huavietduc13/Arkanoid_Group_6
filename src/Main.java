@@ -7,7 +7,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -56,15 +55,8 @@ public class Main extends Application {
 
         GameManager game = new GameManager(gc, root);
 
-        gameScene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE && !game.getBall().isLaunched()) {
-                game.getBall().launch();
-                game.text.setVisible(false);
-            } else {
-                game.getPaddle().handleKeyPressed(e.getCode());
-            }
-        });
-        gameScene.setOnKeyReleased(e -> game.getPaddle().handleKeyReleased(e.getCode()));
+        gameScene.setOnKeyPressed(e -> game.keyPressed(e));
+        gameScene.setOnKeyReleased(e -> game.keyReleased(e));
 
         AnimationTimer timer = new AnimationTimer() {
             @Override

@@ -1,4 +1,5 @@
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public class GameManager {
     private GraphicsContext gc;
+    Pane root;
 
     private Paddle paddle;
     private Ball ball;
@@ -26,8 +28,25 @@ public class GameManager {
 
     public GameManager(GraphicsContext gc, Pane root) {
         this.gc = gc;
+        this.root = root;
+        init();
+    }
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 764, 120, 40, 6);
+    private void init() {
+        // Xóa các đối tượng cũ nếu có
+        if (paddle != null) {
+            root.getChildren().removeAll(paddle.getImageView(), paddle.getCollisionShape());
+        }
+        if (ball != null) {
+            root.getChildren().removeAll(ball.getImageView(), ball.getCollisionShape());
+        }
+        for (Brick brick : bricks) {
+            root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
+        }
+        bricks.clear();
+        root.getChildren().remove(text);
+
+        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 755, 120, 40, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 6; j++) {
@@ -99,6 +118,11 @@ public class GameManager {
 
         ball.update();
 
+        // ball rơi xuống đáy -> gameover
+        if (ball.getY() > 760) {
+            gameOver();
+        }
+
         // Kiểm tra va chạm
         CollisionDetector.handlePaddleCollisionSimple(ball, paddle);
     }
@@ -107,19 +131,30 @@ public class GameManager {
         if (!running && e.getCode().toString().equals("R")) {
             restart();
         }
+
+        if (e.getCode() == KeyCode.SPACE && !ball.isLaunched()) {
+            ball.launch();
+            text.setVisible(false);
+        } else {
+            paddle.handleKeyPressed(e.getCode());
+        }
     }
 
     public void keyReleased(KeyEvent e) {
-        // TODO: paddle.keyReleased(e);
+        paddle.handleKeyReleased(e.getCode());
     }
 
     private void restart() {
-        running = true;
         score = 0;
-        /*
-        ball.reset();
-        paddle.reset();
-        */
+        running = true;
+        showLaunchText = true;
+        ball.notLaunch();
+        init();
+    }
+
+    private void gameOver() {
+        running = false;
+        ball.notLaunch();
     }
 
     public Paddle getPaddle() { return paddle; }
