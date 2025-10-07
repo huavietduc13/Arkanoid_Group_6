@@ -38,8 +38,8 @@ public class GameManager {
         
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
-                double x = i * (80);
-                double y = j * (40);
+                double x = i * BrickFactory.BRICK_WIDTH;
+                double y = j * BrickFactory.BRICK_HEIGHT;
                 Brick newBrick;
                 if (i % 2 == 0) {
                     newBrick = BrickFactory.createBrick("strong", x, y);

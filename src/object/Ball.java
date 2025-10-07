@@ -3,6 +3,8 @@ package src.object;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import src.Main;
+import src.object.brick.BrickFactory;
 
 public class Ball extends GameObject {
     private double vx;
@@ -33,46 +35,44 @@ public class Ball extends GameObject {
     }
 
     @Override
-    public void update() {
-        if (ballLaunched) {
-            rotate();
-        }
-
-        if (!ballLaunched) {
-            updateCollisionShape();
-            return;
-        }
-
-        double newX = getX() + vx;
-        double newY = getY() + vy;
-
-        // Collide with left/right boundary
-        if (newX < 0 || newX + getWidth() > 600) {
-            vx *= -1;
-            if (newX < 0) {
-                newX = 0;
-            } else {
-                newX = 600 - getWidth();
-            }
-        }
-
-        // Collide with upper boundary
-        if (newY < 0) {
-            vy *= -1;
-            newY = 0;
-        }
-
-        // Collide with bottom boundary
-        if (newY + getHeight() > 800) {
-            vy *= -1;
-            newY = 800 - getHeight();
-        }
-
-        setX(newX);
-        setY(newY);
-
-        updateCollisionShape();
+public void update() {
+    if (ballLaunched) {
+        rotate();
     }
+
+    if (!ballLaunched) {
+        updateCollisionShape();
+        return;
+    }
+
+    double newX = getX() + vx;
+    double newY = getY() + vy;
+
+    // Collide with left/right boundary
+    if (newX < 0 || newX + getWidth() > Main.WIDTH) {
+        vx *= -1;
+        if (newX < 0) {
+            newX = 0;
+        } else {
+            newX = Main.WIDTH - getWidth();
+        }
+    }
+
+    if (newY < 0) {
+        vy *= -1;
+        newY = 0;
+    }
+
+    if (newY + getHeight() > Main.HEIGHT) {
+        vy *= -1;
+        newY = Main.HEIGHT - getHeight();
+    }
+
+    setX(newX);
+    setY(newY);
+
+    updateCollisionShape();
+}
 
     private void updateCollisionShape() {
         collisionShape.setCenterX(getX() + radius);
