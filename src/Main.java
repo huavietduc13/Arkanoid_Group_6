@@ -7,6 +7,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -20,6 +21,7 @@ public class Main extends Application {
     private Stage priStage;
     private Scene startMenuScene;
     private Scene gameScene;
+    private AnimationTimer timer;
 
     private Paddle paddle;
     private Ball ball;
@@ -47,6 +49,13 @@ public class Main extends Application {
         startMenuScene = new Scene(root, WIDTH, HEIGHT);
     }
 
+    public void returnToMenu() {
+        if (timer != null) {
+            timer.stop();
+        }
+        priStage.setScene(startMenuScene);
+    }
+
     private void startGame() {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -55,10 +64,16 @@ public class Main extends Application {
 
         GameManager game = new GameManager(gc, root);
 
-        gameScene.setOnKeyPressed(e -> game.keyPressed(e));
+        gameScene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                returnToMenu();
+            } else {
+                game.keyPressed(e);
+            }
+        });
         gameScene.setOnKeyReleased(e -> game.keyReleased(e));
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 game.update();

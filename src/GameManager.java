@@ -128,8 +128,11 @@ public class GameManager {
     }
 
     public void keyPressed(KeyEvent e) {
-        if (!running && e.getCode().toString().equals("R")) {
+        if (!running && e.getCode() == KeyCode.R) {
             restart();
+        }
+        if (e.getCode() == KeyCode.ESCAPE) {
+            return;
         }
 
         if (e.getCode() == KeyCode.SPACE && !ball.isLaunched()) {
