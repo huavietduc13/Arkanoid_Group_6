@@ -9,37 +9,31 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import src.object.Ball;
+import src.object.Paddle;
 
 public class Main extends Application {
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 600;
-    
-    private Stage primaryStage;
+    public static final int WIDTH = 560;
+    public static final int HEIGHT = 680;
+
+    private Stage priStage;
     private Scene startMenuScene;
     private Scene gameScene;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    private Paddle paddle;
+    private Ball ball;
 
-    @Override
-    public void start(Stage stage) {
-        this.primaryStage = stage;
-        createStartMenu();
-        primaryStage.setScene(startMenuScene);
-        primaryStage.setTitle("Arkanoid");
-        primaryStage.show();
-    }
-    
     private void createStartMenu() {
-        Image startMenuImg = new Image("assets/startScreen.png");
+        Image startMenuImg = new Image("file:assets/images/startScreen.png");
         ImageView startView = new ImageView(startMenuImg);
         startView.setFitWidth(WIDTH);
         startView.setFitHeight(HEIGHT);
 
-        Image buttonImg = new Image("assets/button.png");
+        Image buttonImg = new Image("file:assets/images/button.png");
         ImageView startButton = new ImageView(buttonImg);
         startButton.setFitWidth(200);
         startButton.setFitHeight(80);
@@ -53,31 +47,51 @@ public class Main extends Application {
 
         StackPane.setAlignment(startButton, Pos.BOTTOM_CENTER);
         StackPane.setMargin(startButton, new Insets(0, 0, 50, 0));
-
         startMenuScene = new Scene(root, WIDTH, HEIGHT);
     }
 
     private void startGame() {
-        if (gameScene == null) {
-            Canvas canvas = new Canvas(WIDTH, HEIGHT);
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            GameManager game = new GameManager(gc);
-            
-            StackPane gameRoot = new StackPane(canvas);
-            gameScene = new Scene(gameRoot);
-            
-            gameScene.setOnKeyPressed(event -> game.keyPressed(event));
-            gameScene.setOnKeyReleased(event -> game.keyReleased(event));
-            
-            AnimationTimer loop = new AnimationTimer() {
-                @Override
-                public void handle(long now) {
-                    game.update();
-                    game.render();
-                }
-            };
-            loop.start();
-        }
-        primaryStage.setScene(gameScene);
+        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Pane root = new Pane(canvas);
+        gameScene = new Scene(root);
+
+        GameManager game = new GameManager(gc, root);
+
+        gameScene.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.SPACE && !game.getBall().isLaunched()) {
+                game.getBall().launch();
+                game.text.setVisible(false);
+            } else {
+                game.getPaddle().handleKeyPressed(e.getCode());
+            }
+        });
+        gameScene.setOnKeyReleased(e -> game.getPaddle().handleKeyReleased(e.getCode()));
+
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                game.update();
+                game.render(root);
+            }
+        };
+        timer.start();
+
+        priStage.setScene(gameScene);
+    }
+
+    @Override
+    public void start(Stage stage) {
+        priStage = stage;
+        createStartMenu();
+        stage.setTitle("Arkanoid");
+        stage.getIcons().add(new Image("file:assets/images/image.png"));
+        stage.setResizable(false);
+        stage.setScene(startMenuScene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
