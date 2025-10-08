@@ -8,6 +8,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.media.Media; 
+import javafx.scene.media.MediaPlayer; 
 import src.object.Ball;
 import src.object.Paddle;
 import src.object.brick.Brick;
@@ -15,9 +17,13 @@ import src.object.brick.BrickFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameManager {
     private GraphicsContext gc;
+    private MediaPlayer backgroundMusic;
+    private Media[] meowSounds; 
+    private Random random; 
 
     private Paddle paddle;
     private Ball ball;
@@ -30,8 +36,29 @@ public class GameManager {
 
     public GameManager(GraphicsContext gc, Pane root) {
         this.gc = gc;
+        this.random = new Random();
+        this.meowSounds = new Media[3]; 
 
-        createCheckerboardBackground(root);
+        ImageView backgroundView = new ImageView(new Image("file:assets/images/background_1.png"));
+        backgroundView.setFitWidth(Main.WIDTH);
+        backgroundView.setFitHeight(Main.HEIGHT);
+        root.getChildren().add(backgroundView);
+        backgroundView.toBack();
+        // Nhạc nền
+        java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
+        String musicPath = musicFile.toURI().toString();
+        
+        Media gameMusic = new Media(musicPath);
+        backgroundMusic = new MediaPlayer(gameMusic);
+        backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
+        backgroundMusic.setVolume(0.5);
+        backgroundMusic.play();
+        
+        for (int i = 0; i < 3; i++) {
+            java.io.File meowFile = new java.io.File("assets/sounds/meow_" + (i + 1) + ".mp3");
+            String meowPath = meowFile.toURI().toString();
+             meowSounds[i] = new Media(meowPath);
+        }
 
         paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 640, 120, 40, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 600, 18, 2, -2);
@@ -54,39 +81,15 @@ public class GameManager {
         root.getChildren().addAll(text, paddle.getImageView(), ball.getImageView());
     }
 
-    // Làm background hình ô cờ
-    private void createCheckerboardBackground(Pane root) {
-
-        Image rect1Img = new Image("file:assets/images/rectangle_1.png");
-        Image rect2Img = new Image("file:assets/images/rectangle_2.png");
-        
-        double tileWidth = 40;
-        double tileHeight = 40;
-        int cols = (int) (Main.WIDTH/ tileWidth); 
-        int rows = (int) (Main.HEIGHT / tileHeight); 
-        
-        for (int i = 0; i < cols; i++) { 
-            for (int j = 0; j < rows; j++) { 
-                double x = i * tileWidth;
-                double y = j * tileHeight;
-                
-                ImageView tileView;
-                
-                // Logic bàn cờ
-                if ((i + j) % 2 == 0) {
-                    tileView = new ImageView(rect1Img);
-                } else {
-                    tileView = new ImageView(rect2Img);
-                }
-                
-                tileView.setX(x);
-                tileView.setY(y);
-                tileView.setFitWidth(tileWidth);
-                tileView.setFitHeight(tileHeight);
-                
-                root.getChildren().add(tileView);
-                
-                tileView.toBack(); 
+    private void playRandomMeowSound() {
+        if (meowSounds != null && meowSounds[0] != null) {
+            try {
+                int randomIndex = random.nextInt(3); 
+                MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
+                meowPlayer.setVolume(0.4);
+                meowPlayer.play();
+            } catch (Exception e) {
+                System.out.println("Lỗi khi phát meow: " + e.getMessage());
             }
         }
     }
@@ -113,6 +116,7 @@ public class GameManager {
                     toRemove.add(brick);
                     score += 10;
                 }
+                playRandomMeowSound(); 
                 break;
             }
         }
@@ -136,7 +140,7 @@ public class GameManager {
             ball.setX(paddle.getX() + 40);
             ball.setY(paddle.getY() - 36);
         } else {
-            showLaunchText = false; // ẩn đi
+            showLaunchText = false; 
         }
 
         ball.update();
