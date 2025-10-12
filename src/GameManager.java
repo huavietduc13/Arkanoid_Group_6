@@ -62,7 +62,11 @@ public class GameManager {
                 root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
             }
         }
-        root.getChildren().addAll(text, paddle.getImageView(), paddle.getCollisionShape(), ball.getImageView(), ball.getCollisionShape());
+        root.getChildren().addAll(
+                text,
+                paddle.getImageView(), paddle.getCollisionShape(),
+                ball.getImageView(), ball.getCollisionShape()
+        );
     }
 
     public void render(Pane root) {
@@ -86,9 +90,9 @@ public class GameManager {
         List<Brick> toRemove = new ArrayList<>();
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
+                score += 10;
                 if (brick.takeHit()) {
                     toRemove.add(brick);
-                    score += 10;
                 }
                 break;
             }

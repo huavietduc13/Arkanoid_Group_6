@@ -21,7 +21,7 @@ public abstract class Brick extends GameObject {
         this.imageView.setStyle("-fx-border-color: gray;");
 
         this.collisionShape = new Rectangle(x, y, width, height);
-        this.collisionShape.setVisible(true);
+        this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
 
