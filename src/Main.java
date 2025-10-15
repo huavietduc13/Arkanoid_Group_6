@@ -53,6 +53,7 @@ public class Main extends Application {
         if (timer != null) {
             timer.stop();
         }
+        GameManager.stopBackgroundMusic();
         priStage.setScene(startMenuScene);
     }
 
