@@ -1,8 +1,10 @@
 package object.brick;
 
+import javafx.animation.TranslateTransition;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import object.GameObject;
 
 public abstract class Brick extends GameObject {
@@ -35,8 +37,15 @@ public abstract class Brick extends GameObject {
 
     public boolean takeHit() {
         if (hitPoints > 0) {
-            hitPoints--;
-            updateAppearance();
+            shake(() -> {
+                hitPoints--;
+                updateAppearance();
+
+                if (hitPoints <= 0) {
+                    imageView.setVisible(false);
+                    collisionShape.setVisible(false);
+                }
+            });
         }
         return hitPoints <= 0;
     }
@@ -77,6 +86,19 @@ public abstract class Brick extends GameObject {
     @Override
     public void update() {
         // Bricks don't move so this method is empty, or we can make it move later :).
+    }
+
+    public void shake(Runnable onFinish) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(60), imageView);
+        tt.setFromX(-2);
+        tt.setToX(2);
+        tt.setCycleCount(4); // đi qua lại 2 lần
+        tt.setAutoReverse(true);
+        tt.setOnFinished(e -> {
+            imageView.setTranslateX(0);
+            if (onFinish != null) onFinish.run();
+        });
+        tt.play();
     }
 
     @Override
