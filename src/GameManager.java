@@ -78,6 +78,8 @@ public class GameManager {
 
         paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 755, 120, 40, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
+        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
+        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 6; j++) {
                 double x = 36 + i * (63 + 5);

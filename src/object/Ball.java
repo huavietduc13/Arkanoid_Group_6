@@ -67,6 +67,7 @@ public class Ball extends GameObject {
         if (newY + getHeight() > 800) {
             vy *= -1;
             newY = 800 - getHeight();
+//            outOfBounds = true;
         }
 
         setX(newX);
