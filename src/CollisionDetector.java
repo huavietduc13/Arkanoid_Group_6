@@ -1,27 +1,18 @@
-import javafx.geometry.Bounds;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
 
 public class CollisionDetector {
-
-    private static final double EPSILON = 0.001;     // avoid floating-point precision errors
+    // Avoid floating-point precision errors
+    private static final double EPSILON = 0.001;
 
     // Safe distance to push ball out of brick after collision
     private static final double SEPARATION_OFFSET = 0.5;
 
-    // Check if ball intersects with brick
-    public static boolean checkCollision(Ball ball, Brick brick) {
-        if (brick.isDestroyed()) {
-            return false;
-        }
-
-        Bounds ballBounds = ball.getCollisionBounds();
-        Bounds brickBounds = brick.getCollisionBounds();
-
-        return ballBounds.intersects(brickBounds);
-    }
+    private static final double MIN_SPEED = 6.5;
+    private static final double MAX_SPEED = 9.0;
 
     // Handle collision between ball and brick
     public static boolean handleCollision(Ball ball, Brick brick) {
@@ -30,9 +21,10 @@ public class CollisionDetector {
         }
 
         // Get ball properties
-        double ballCenterX = ball.getCenterX();
-        double ballCenterY = ball.getCenterY();
-        double radius = ball.getRadius();
+        Circle ballShape = ball.getCollisionShape();
+        double ballCenterX = ballShape.getCenterX();
+        double ballCenterY = ballShape.getCenterY();
+        double radius = ballShape.getRadius();
         double vx = ball.getVx();
         double vy = ball.getVy();
 
@@ -58,7 +50,7 @@ public class CollisionDetector {
         }
 
         // Get collision side
-        CollisionSide side = determineCollisionSide(
+        CollisionSide side = getCollisionSide(
                 ballCenterX, ballCenterY, radius,
                 vx, vy,
                 brickLeft, brickRight, brickTop, brickBottom,
@@ -75,7 +67,7 @@ public class CollisionDetector {
     }
 
     // Determine collision side based on current position and direction
-    private static CollisionSide determineCollisionSide(
+    private static CollisionSide getCollisionSide(
             double ballCenterX, double ballCenterY, double radius,
             double vx, double vy,
             double brickLeft, double brickRight, double brickTop, double brickBottom,
@@ -94,15 +86,16 @@ public class CollisionDetector {
         double relativeX = ballCenterX - brickCenterX;
         double relativeY = ballCenterY - brickCenterY;
 
-//        // Determine if this is a corner collision
-//        boolean isCornerCollision = isCornerHit(
-//                ballCenterX, ballCenterY, radius,
-//                brickLeft, brickRight, brickTop, brickBottom
-//        );
-//
-//        if (isCornerCollision) {
-//            return CollisionSide.CORNER;
-//        }
+        // Determine if this is a corner collision
+        boolean isCornerCollision = isCornerHit(
+                vx, vy,
+                ballCenterX, ballCenterY, radius,
+                brickLeft, brickRight, brickTop, brickBottom
+        );
+
+        if (isCornerCollision) {
+            return CollisionSide.CORNER;
+        }
 
         // If ball is inside brick, use velocity to determine exit direction
         if (insideBrick) {
@@ -150,17 +143,22 @@ public class CollisionDetector {
 
     // Check if ball is hitting a corner of a brick
     private static boolean isCornerHit(
+            double vx, double vy,
             double ballCenterX, double ballCenterY, double radius,
             double brickLeft, double brickRight, double brickTop, double brickBottom
     ) {
         // Check if ball center is in corner regions
-        boolean inLeftRegion = ballCenterX < brickLeft;
-        boolean inRightRegion = ballCenterX > brickRight;
-        boolean inTopRegion = ballCenterY < brickTop;
-        boolean inBottomRegion = ballCenterY > brickBottom;
+        boolean inLeftRegion = ballCenterX + 6 < brickLeft;     // ballRight < brickLeft
+        boolean inRightRegion = ballCenterX - 6 > brickRight;   // ballLeft < brickRight
+        boolean inTopRegion = ballCenterY + 6 < brickTop;       // ballBottom < brickTop
+        boolean inBottomRegion = ballCenterY - 6 > brickBottom; // ballTop > brickBottom
 
         // Corner hit if ball is in both horizontal and vertical outer regions
-        boolean isCorner = (inLeftRegion || inRightRegion) && (inTopRegion || inBottomRegion);
+        boolean isCorner = (
+                (inTopRegion && inLeftRegion && vx > 0 && vy > 0) ||
+                (inTopRegion && inRightRegion && vx < 0 && vy < 0) ||
+                (inBottomRegion && inLeftRegion && vx > 0 && vy < 0) ||
+                (inBottomRegion && inRightRegion && vx < 0 && vy < 0));
 
         if (!isCorner) {
             return false;
@@ -175,7 +173,7 @@ public class CollisionDetector {
         double distanceToCorner = Math.sqrt(dx * dx + dy * dy);
 
         // It's a corner hit if the ball is close enough to the corner
-        return distanceToCorner <= radius * 1.2;
+        return distanceToCorner <= radius * 1.1;
     }
 
     // Apply bounce to ball based on collision side
@@ -190,7 +188,6 @@ public class CollisionDetector {
                 ball.reverseX();
                 break;
 //            case CORNER:
-//                // For corner hits, reverse both directions
 //                ball.reverseX();
 //                ball.reverseY();
 //                break;
@@ -262,7 +259,11 @@ public class CollisionDetector {
     }
 
     enum CollisionSide {
-        TOP, BOTTOM, LEFT, RIGHT, CORNER
+        TOP,
+        BOTTOM,
+        LEFT,
+        RIGHT,
+        CORNER
     }
 
      // Handle collision between ball and paddle with angle variation
@@ -306,103 +307,178 @@ public class CollisionDetector {
         double distanceSquared = distanceX * distanceX + distanceY * distanceY;
 
         // Check collision
-        if (distanceSquared > radius * radius + EPSILON) {
+        if (distanceSquared > radius * radius + EPSILON || vy < 0) {
             return false;
         }
 
-        // Only bounce if ball is moving downward (prevent multiple bounces)
-        if (vy <= 0) {
-            return false;
+        CollisionSide side = getPaddleCollisionSide(
+                ballCenterX, ballCenterY, radius,
+                vx, vy,
+                paddleLeft, paddleRight, paddleTop
+        );
+
+        switch(side) {
+            case TOP:
+                System.out.println("hit top!");
+                handleTopCollision(ball, paddle, paddleLeft, paddleRight, paddleTop, radius);
+                break;
+            case LEFT:
+            case RIGHT:
+                System.out.println("hit side!");
+                ball.reverseX();
+                break;
+            case CORNER:
+                System.out.println("hit corner!");
+                ball.reverseX();
+                ball.reverseY();
+                break;
         }
-
-        // Calculate hit position on paddle (0.0 = left edge, 1.0 = right edge)
-        double paddleWidth = paddleRight - paddleLeft;
-        double hitPosition = (ballCenterX - paddleLeft) / paddleWidth;
-        hitPosition = clamp(hitPosition, 0.0, 1.0);
-
-        // Apply dynamic bounce with angle variation
-        applyPaddleBounce(ball, hitPosition, paddle);
-
-        // Separate ball from paddle
-        ball.setCenterY(paddleTop - radius - SEPARATION_OFFSET);
 
         return true;
+    }
+
+    private static CollisionSide getPaddleCollisionSide(
+            double ballCenterX, double ballCenterY, double radius,
+            double vx, double vy,
+            double paddleLeft, double paddleRight, double paddleTop
+    ) {
+        boolean inLeftRegion = ballCenterX < paddleLeft;
+        boolean inRightRegion = ballCenterX > paddleRight;
+        boolean inTopRegion = ballCenterY < paddleTop;
+
+        if ((inLeftRegion && inTopRegion && vx > 0) ||
+                (inRightRegion && inTopRegion && vx < 0)) {
+            return CollisionSide.CORNER;
+        }
+
+        if (inLeftRegion && !inTopRegion && vx > 0) {
+            return CollisionSide.LEFT;
+        }
+
+        if (inRightRegion && !inTopRegion && vx < 0) {
+            return CollisionSide.RIGHT;
+        }
+
+        return CollisionSide.TOP;
+    }
+
+    public static void handleTopCollision(Ball ball, Paddle paddle,
+                                             double paddleLeft, double paddleRight,
+                                             double paddleTop, double radius) {
+
+        double paddleWidth = paddleRight - paddleLeft;
+        double hitPosition = (ball.getCenterX() - paddleLeft) / paddleWidth;
+
+        if (0 <= hitPosition && hitPosition <= 1.0) {
+
+            System.out.println("hit position: " + hitPosition);
+
+            if (paddle.getVx() <= 0) {
+                ball.reverseY();
+            } else {
+                applyPaddleBounce(ball, hitPosition, paddle);
+            }
+
+            ball.setCenterY(paddleTop - radius - SEPARATION_OFFSET);
+        }
+    }
+
+    public static void handleCornerCollision(
+            Ball ball,
+            double paddleLeft, double paddleRight, double cornerY, double radius,
+            boolean inLeftRegion, boolean inTopRegion
+    ) {
+        double ballCenterX = ball.getCenterX();
+        double ballCenterY = ball.getCenterY();
+        double vx = ball.getVx();
+        double vy = ball.getVy();
+        double cornerX = inLeftRegion ? paddleLeft : paddleRight;
+
+        double dx = ballCenterX - cornerX;
+        double dy = ballCenterY - cornerY;
+
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= radius + EPSILON) {
+            double reflectAngle = Math.atan2(dy, dx) + Math.PI;
+            double currentSpeed = Math.sqrt(vx * vx + vy * vy);
+            double variation = Math.toRadians((Math.random() - 0.5) * 20);
+            reflectAngle += variation;
+
+            double newVx = currentSpeed * Math.cos(reflectAngle);
+            double newVy = -currentSpeed * Math.sin(reflectAngle);
+
+            double boost = 1.1;
+            newVx *= boost;
+            newVy *= boost;
+
+            double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
+
+            if (finalSpeed < MIN_SPEED) {
+                double ratio = MIN_SPEED / finalSpeed;
+
+                newVx *= ratio;
+                newVy *= ratio;
+            }
+
+            if (finalSpeed > MAX_SPEED) {
+
+                double ratio = MAX_SPEED / finalSpeed;
+
+                newVx *= ratio;
+                newVy *= ratio;
+            }
+
+            ball.setVx(newVx);
+            ball.setVy(newVy);
+        }
     }
 
      // Apply paddle bounce with angle variation based on hit position
      // - Center hits: steep angle (mostly vertical)
      // - Edge hits: shallow angle (more horizontal)
-    private static void applyPaddleBounce(Ball ball, double hitPosition, object.Paddle paddle) {
-        // hitPosition: 0.0 (left) to 1.0 (right)
-        // Normalize to -1.0 (left) to 1.0 (right)
-        double normalizedPosition = (hitPosition - 0.5) * 2.0;
+     private static void applyPaddleBounce(Ball ball, double hitPosition, Paddle paddle) {
+         // Normalize hit position (-1.0 = left, +1.0 = right)
+         double normalizedPosition = (hitPosition - 0.5) * 2.0;
 
-        // Get current speed
-        double currentSpeed = Math.sqrt(ball.getVx() * ball.getVx() + ball.getVy() * ball.getVy());
+         // Get current ball speed
+         double currentSpeed = Math.sqrt(ball.getVx() * ball.getVx() + ball.getVy() * ball.getVy());
 
-        // Calculate bounce angle based on hit position
-        // Center: 75-90 degrees (steep)
-        // Edges: 30-60 degrees (shallow)
-        double minAngle = 30.0;  // Minimum angle at edges (degrees)
-        double maxAngle = 85.0;  // Maximum angle at center (degrees)
+         // Calculate bounce angle based on hit position
+         double minAngle = 45.0;  // Minimum angle at edges (degrees)
+         double maxAngle = 65.0;  // Maximum angle at center (degrees)
 
-        // Interpolate angle based on distance from center
-        double angleFromVertical = minAngle + (maxAngle - minAngle) * (1.0 - Math.abs(normalizedPosition));
-        double angleRadians = Math.toRadians(angleFromVertical);
+         double bounceAngle = minAngle + (maxAngle - minAngle) * (1.0 - Math.abs(normalizedPosition));
+         double bounceAngleInRadians = Math.toRadians(bounceAngle);
 
-        // Calculate new velocity components
-        double newVx = currentSpeed * Math.sin(angleRadians) * Math.signum(normalizedPosition);
-        double newVy = -currentSpeed * Math.cos(angleRadians); // Negative for upward
+         // Calculate new velocity components from angle
+         double newVx;
 
-        // Apply velocity with optional speed boost for edge hits
-        double speedMultiplier = 1.0 + Math.abs(normalizedPosition) * 0.1; // Up to 10% boost at edges
+         if (-0.1 <= normalizedPosition && normalizedPosition <= 0.1) {
+             newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
+         } else {
+             newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);
+         }
 
-        ball.setVx(newVx * speedMultiplier);
-        ball.setVy(newVy * speedMultiplier);
+         double newVy = -currentSpeed * Math.cos(bounceAngleInRadians); // Negative = upward
 
-        // Add paddle velocity to ball for moving paddle effect
-        double paddleVelocityInfluence = 0.3; // 30% of paddle speed transfers to ball
-        if (paddle != null) {
-            // Estimate paddle velocity from movement
-            double paddleInfluence = normalizedPosition * 2.0 * paddleVelocityInfluence;
-            ball.setVx(ball.getVx() + paddleInfluence);
-        }
-    }
+         // Transfer 30% of paddle's velocity to ball
+         double paddleVelocity = paddle.getVx();
+         double velocityInfluence = paddleVelocity * 0.3;
+         newVx += velocityInfluence;
 
-    // Simpler version of paddle collision (no angle variation)
-    // For testing purpose
-    public static boolean handlePaddleCollisionSimple(Ball ball, object.Paddle paddle) {
-        double ballCenterX = ball.getCenterX();
-        double ballCenterY = ball.getCenterY();
-        double radius = ball.getRadius();
+         double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
+         if (finalSpeed > MAX_SPEED) {
+    
+             double ratio = MAX_SPEED / finalSpeed;
 
-        double paddleLeft = paddle.getX();
-        double paddleRight = paddle.getX() + paddle.getWidth();
-        double paddleTop = paddle.getY();
-        double paddleBottom = paddle.getY() + paddle.getHeight();
+             newVx *= ratio;
+             newVy *= ratio;
 
-        // Find closest point
-        double closestX = clamp(ballCenterX, paddleLeft, paddleRight);
-        double closestY = clamp(ballCenterY, paddleTop, paddleBottom);
+         }
 
-        // Check distance
-        double distanceX = ballCenterX - closestX;
-        double distanceY = ballCenterY - closestY;
-        double distanceSquared = distanceX * distanceX + distanceY * distanceY;
-
-        if (distanceSquared > radius * radius + EPSILON) {
-            return false;
-        }
-
-        // Only bounce if moving downward
-        if (ball.getVy() <= 0) {
-            return false;
-        }
-
-        // Simple bounce
-        ball.reverseY();
-        ball.setCenterY(paddleTop - radius - SEPARATION_OFFSET);
-
-        return true;
-    }
+         // Apply final velocity
+         ball.setVx(newVx);
+         ball.setVy(newVy);
+     }
 }

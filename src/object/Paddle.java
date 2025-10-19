@@ -14,19 +14,17 @@ public class Paddle extends GameObject {
 
     private Rectangle collisionShape;
 
-    private double vx;
-    private double previousX;
-
     public Paddle(String imagePath, double boundary, double x, double y, double width, double height, double speed) {
         super(imagePath, x, y, width, height);
         this.speed = speed;
         this.boundary = boundary;
-        this.previousX = x;
 
         this.collisionShape = new Rectangle(x, y, width, height);
         this.collisionShape.setVisible(true);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
+        this.collisionShape.setArcWidth(20);
+        this.collisionShape.setArcHeight(20);
 
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
@@ -77,7 +75,13 @@ public class Paddle extends GameObject {
     }
 
     public double getVx() {
-        return vx;
+        if (movingLeft) {
+            return -speed;
+        }
+        if (movingRight) {
+            return speed;
+        }
+        return 0;
     }
 
     public double getSpeed() {
