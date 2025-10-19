@@ -13,6 +13,7 @@ public class Ball extends GameObject {
     private double rotationAngle = 0;
 
     private boolean ballLaunched = false;
+    public boolean outOfBounds = false;
 
     private Circle collisionShape;
 
@@ -60,6 +61,13 @@ public class Ball extends GameObject {
         if (newY < 0) {
             vy *= -1;
             newY = 0;
+        }
+
+        // Collide with bottom boundary
+        if (newY + getHeight() > 800) {
+            vy *= -1;
+            newY = 800 - getHeight();
+//            outOfBounds = true;
         }
 
         setX(newX);

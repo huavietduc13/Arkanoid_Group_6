@@ -6,6 +6,9 @@ import javafx.scene.shape.Rectangle;
 import object.GameObject;
 
 public abstract class Brick extends GameObject {
+    private static int BRICK_WIDTH = 63;
+    private static int BRICK_HEIGHT = 33;
+
     protected int hitPoints;
     protected int score;
 
@@ -58,6 +61,17 @@ public abstract class Brick extends GameObject {
 
     public Rectangle getCollisionShape() {
         return collisionShape;
+    }
+
+    public static Brick createBrick(String type, double x, double y) {
+        switch (type.toLowerCase()) {
+            case "strong":
+                return new StrongBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+            case "indestructible":
+                return new IndestructibleBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+            default:
+                return new NormalBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+        }
     }
 
     @Override

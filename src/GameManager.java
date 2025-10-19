@@ -11,7 +11,6 @@ import javafx.scene.text.Text;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
-import object.brick.BrickFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +62,8 @@ public class GameManager {
         java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
         String musicPath = musicFile.toURI().toString();
 
+        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
+        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
         Media gameMusic = new Media(musicPath);
         backgroundMusic = new MediaPlayer(gameMusic);
         backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
@@ -77,15 +78,17 @@ public class GameManager {
 
         paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 755, 120, 40, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
+        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
+        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 6; j++) {
-                double x = 50 + i * (63 + 5);
-                double y = 50 + j * (33 + 5);
+                double x = 36 + i * (63 + 5);
+                double y = 36 + j * (33 + 5);
                 Brick newBrick;
                 if (i % 2 == 0) {
-                    newBrick = BrickFactory.createBrick("strong", x, y);
+                    newBrick = Brick.createBrick("strong", x, y);
                 } else {
-                    newBrick = BrickFactory.createBrick("normal", x, y);
+                    newBrick = Brick.createBrick("normal", x, y);
                 }
                 bricks.add(newBrick);
                 root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
@@ -159,6 +162,10 @@ public class GameManager {
     }
 
     public void update() {
+        if (ball.outOfBounds) {
+            running = false;
+        }
+
         if (!running) return;
 
         paddle.update();
@@ -178,7 +185,7 @@ public class GameManager {
         }
 
         // Kiểm tra va chạm
-        CollisionDetector.handlePaddleCollisionSimple(ball, paddle);
+        CollisionDetector.handlePaddleCollision(ball, paddle);
     }
 
     public void keyPressed(KeyEvent e) {
