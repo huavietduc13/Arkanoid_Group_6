@@ -29,13 +29,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/.idea
-/.idea
-/.idea
-/.idea
-/.idea
 *.xml
-/.idea
-/.idea
 .idea/checkstyle-idea.xml
 .idea/workspace.xml
