@@ -319,16 +319,13 @@ public class CollisionDetector {
 
         switch(side) {
             case TOP:
-                System.out.println("hit top!");
                 handleTopCollision(ball, paddle, paddleLeft, paddleRight, paddleTop, radius);
                 break;
             case LEFT:
             case RIGHT:
-                System.out.println("hit side!");
                 ball.reverseX();
                 break;
             case CORNER:
-                System.out.println("hit corner!");
                 ball.reverseX();
                 ball.reverseY();
                 break;
@@ -370,9 +367,6 @@ public class CollisionDetector {
         double hitPosition = (ball.getCenterX() - paddleLeft) / paddleWidth;
 
         if (0 <= hitPosition && hitPosition <= 1.0) {
-
-            System.out.println("hit position: " + hitPosition);
-
             if (paddle.getVx() <= 0) {
                 ball.reverseY();
             } else {
@@ -468,8 +462,14 @@ public class CollisionDetector {
          newVx += velocityInfluence;
 
          double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
+         if (finalSpeed < MIN_SPEED) {
+             double ratio = MIN_SPEED / finalSpeed;
+
+             newVx *= ratio;
+             newVy *= ratio;
+         }
+
          if (finalSpeed > MAX_SPEED) {
-    
              double ratio = MAX_SPEED / finalSpeed;
 
              newVx *= ratio;

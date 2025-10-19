@@ -63,12 +63,12 @@ public class Ball extends GameObject {
             newY = 0;
         }
 
-        // Collide with bottom boundary
-        if (newY + getHeight() > 800) {
-            vy *= -1;
-            newY = 800 - getHeight();
+//        // Collide with bottom boundary
+//        if (newY + getHeight() > 800) {
+//            vy *= -1;
+//            newY = 800 - getHeight();
 //            outOfBounds = true;
-        }
+//        }
 
         setX(newX);
         setY(newY);

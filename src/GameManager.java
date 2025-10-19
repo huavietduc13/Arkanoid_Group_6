@@ -62,8 +62,6 @@ public class GameManager {
         java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
         String musicPath = musicFile.toURI().toString();
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
-        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
         Media gameMusic = new Media(musicPath);
         backgroundMusic = new MediaPlayer(gameMusic);
         backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
@@ -76,8 +74,6 @@ public class GameManager {
             meowSounds[i] = new Media(meowPath);
         }
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 755, 120, 40, 6);
-        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
         paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
         for (int i = 0; i < 8; i++) {
@@ -162,9 +158,6 @@ public class GameManager {
     }
 
     public void update() {
-        if (ball.outOfBounds) {
-            running = false;
-        }
 
         if (!running) return;
 
@@ -218,6 +211,7 @@ public class GameManager {
 
     private void gameOver() {
         running = false;
+        stopBackgroundMusic();
         ball.notLaunch();
     }
 
