@@ -161,7 +161,7 @@ public class GameManager {
                             case "3": brickTypeStr = "indestructible"; break;
                         }
                         if (!brickTypeStr.equals("empty")) {
-                            Brick newBrick = BrickFactory.createBrick(brickTypeStr, currentX, currentY);
+                            Brick newBrick = Brick.createBrick(brickTypeStr, currentX, currentY);
                             bricks.add(newBrick);
                             root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
                         }
@@ -193,7 +193,7 @@ public class GameManager {
                         double x = startX + i * (brickWidth + padding);
                         double y = startY + j * (brickHeight + padding);
 
-                        Brick newBrick = BrickFactory.createBrick(brickTypeStr, x, y);
+                        Brick newBrick = Brick.createBrick(brickTypeStr, x, y);
                         bricks.add(newBrick);
                         root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
                     }
@@ -231,7 +231,7 @@ public class GameManager {
                 brickType = (i % 2 == 0) ? "normal" : "strong";
             }
 
-            Brick newBrick = BrickFactory.createBrick(brickType, x, y);
+            Brick newBrick = Brick.createBrick(brickType, x, y);
             bricks.add(newBrick);
             root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
         }
