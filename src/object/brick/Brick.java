@@ -31,6 +31,7 @@ public abstract class Brick extends GameObject {
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
+        
     }
 
     public boolean takeHit() {

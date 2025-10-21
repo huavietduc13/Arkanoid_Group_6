@@ -1,12 +1,25 @@
 package src.object.brick;
 
-public class NormalBrick extends Brick{
-    private static int INITIAL_STRENGTH = 1;
-    private static int SCORE = 10;
-    private static String IMAGE_PATH = "file:assets/images/brick_strong_1.png";
+import java.util.Random;
+
+public class NormalBrick extends Brick {
+    private static final int INITIAL_STRENGTH = 1;
+    private static final int SCORE = 10;
+
+    private static final String[] IMAGE_PATHS =  {
+        "file:assets/images/normalBrick1.png",
+        "file:assets/images/normalBrick2.png",
+        "file:assets/images/normalBrick3.png"
+    };
+
+    private static String getRandomImagePath() {
+        Random random = new Random();
+        int randomIndex = random.nextInt(IMAGE_PATHS.length);
+        return IMAGE_PATHS[randomIndex];
+    }
 
     public NormalBrick(double x, double y, double width, double height) {
-        super(IMAGE_PATH, x, y, width, height, INITIAL_STRENGTH, SCORE);
+        super(getRandomImagePath(), x, y, width, height, INITIAL_STRENGTH, SCORE);
     }
 
     @Override
