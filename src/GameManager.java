@@ -51,7 +51,7 @@ public class GameManager {
         Media gameMusic = new Media(musicPath);
         backgroundMusic = new MediaPlayer(gameMusic);
         backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
-        backgroundMusic.setVolume(0.5);
+        backgroundMusic.setVolume(0.4);
         backgroundMusic.play();
         
         for (int i = 0; i < 3; i++) {
@@ -86,7 +86,7 @@ public class GameManager {
             try {
                 int randomIndex = random.nextInt(3); 
                 MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
-                meowPlayer.setVolume(0.4);
+                meowPlayer.setVolume(0.2);
                 meowPlayer.play();
             } catch (Exception e) {
                 System.out.println("Lỗi khi phát meow: " + e.getMessage());
