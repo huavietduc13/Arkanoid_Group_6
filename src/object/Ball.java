@@ -3,6 +3,7 @@ package object;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import static utils.Constants.*;
 
 public class Ball extends GameObject {
     private double vx;
@@ -13,7 +14,7 @@ public class Ball extends GameObject {
     private double rotationAngle = 0;
 
     private boolean ballLaunched = false;
-    public boolean outOfBounds = false;
+    private boolean outOfBounds = false;
 
     private Circle collisionShape;
 
@@ -24,7 +25,7 @@ public class Ball extends GameObject {
         this.radius = radius;
 
         this.collisionShape = new Circle(x + radius, y + radius, radius);
-        this.collisionShape.setVisible(false);
+        this.collisionShape.setVisible(true);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
 
@@ -48,12 +49,12 @@ public class Ball extends GameObject {
         double newY = getY() + vy;
 
         // Collide with left/right boundary
-        if (newX < 0 || newX + getWidth() > 600) {
+        if (newX < 0 || newX + getWidth() > SCREEN_WIDTH) {
             vx *= -1;
             if (newX < 0) {
                 newX = 0;
             } else {
-                newX = 600 - getWidth();
+                newX = SCREEN_WIDTH - getWidth();
             }
         }
 
@@ -63,12 +64,10 @@ public class Ball extends GameObject {
             newY = 0;
         }
 
-//        // Collide with bottom boundary
-//        if (newY + getHeight() > 800) {
-//            vy *= -1;
-//            newY = 800 - getHeight();
-//            outOfBounds = true;
-//        }
+        // Collide with bottom boundary
+        if (newY + getHeight() > SCREEN_HEIGHT) {
+            outOfBounds = true;
+        }
 
         setX(newX);
         setY(newY);
@@ -145,6 +144,17 @@ public class Ball extends GameObject {
         imageView.setY(y - radius);
     }
 
+    public void reset(double x, double y) {
+        setCenterX(x + radius);
+        setCenterY(y + radius);
+        setVx(BALL_VX);
+        setVy(BALL_VY);
+        imageView.setRotate(0);
+        rotationAngle = 0;
+        ballLaunched = false;
+        outOfBounds = false;
+    }
+
     public void reverseX() {
         vx *= -1;
     }
@@ -154,15 +164,19 @@ public class Ball extends GameObject {
     }
 
     public void launch() {
-        this.ballLaunched = true;
+        ballLaunched = true;
     }
 
     public void notLaunch() {
-        this.ballLaunched = false;
+        ballLaunched = false;
     }
 
     public boolean isLaunched() {
         return ballLaunched;
+    }
+
+    public boolean isOutOfBounds() {
+        return outOfBounds;
     }
 
     public Bounds getCollisionBounds() {

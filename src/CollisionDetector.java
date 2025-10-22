@@ -367,11 +367,8 @@ public class CollisionDetector {
         double hitPosition = (ball.getCenterX() - paddleLeft) / paddleWidth;
 
         if (0 <= hitPosition && hitPosition <= 1.0) {
-            if (paddle.getVx() <= 0) {
-                ball.reverseY();
-            } else {
-                applyPaddleBounce(ball, hitPosition, paddle);
-            }
+
+            applyPaddleBounce(ball, hitPosition, paddle);
 
             ball.setCenterY(paddleTop - radius - SEPARATION_OFFSET);
         }
@@ -448,7 +445,7 @@ public class CollisionDetector {
          // Calculate new velocity components from angle
          double newVx;
 
-         if (-0.1 <= normalizedPosition && normalizedPosition <= 0.1) {
+         if (-0.05 <= normalizedPosition && normalizedPosition <= 0.05) {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
          } else {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);

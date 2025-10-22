@@ -11,14 +11,14 @@ import javafx.scene.text.Text;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import static utils.Constants.*;
 
 public class GameManager {
     private GraphicsContext gc;
-    Pane root;
+    private Pane root;
     private Image backgroundImage;
     private static MediaPlayer backgroundMusic = null;
     private Media[] meowSounds;
@@ -31,7 +31,7 @@ public class GameManager {
     private int score = 0;
     private boolean running = true;
     private boolean showLaunchText = true;
-    public Text text = new Text();
+    public Text launchText = new Text();
 
     public GameManager(GraphicsContext gc, Pane root) {
         this.gc = gc;
@@ -51,12 +51,12 @@ public class GameManager {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
         bricks.clear();
-        root.getChildren().remove(text);
+        root.getChildren().remove(launchText);
 
         backgroundImage = new Image("file:assets/images/background_1.png");
 
         this.random = new Random();
-        this.meowSounds = new Media[3];
+        this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
 
         // Nhạc nền
         java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
@@ -74,12 +74,23 @@ public class GameManager {
             meowSounds[i] = new Media(meowPath);
         }
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
-        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 5, -5);
+        paddle = new Paddle("file:assets/images/paddle1.png",
+                PADDLE_BOUNDARY,
+                PADDLE_POS_X,
+                PADDLE_POS_Y,
+                PADDLE_WIDTH,
+                PADDLE_HEIGHT,
+                PADDLE_SPEED);
+        ball = new Ball("file:assets/images/ball1.png",
+                BALL_POS_X,
+                BALL_POS_Y,
+                BALL_RADIUS,
+                BALL_VX,
+                BALL_VY);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 6; j++) {
-                double x = 36 + i * (63 + 5);
-                double y = 36 + j * (33 + 5);
+                double x = 36 + i * (BRICK_WIDTH + BRICK_GAP);
+                double y = 36 + j * (BRICK_HEIGHT + BRICK_GAP);
                 Brick newBrick;
                 if (i % 2 == 0) {
                     newBrick = Brick.createBrick("strong", x, y);
@@ -91,7 +102,7 @@ public class GameManager {
             }
         }
         root.getChildren().addAll(
-                text,
+                launchText,
                 paddle.getImageView(), paddle.getCollisionShape(),
                 ball.getImageView(), ball.getCollisionShape()
         );
@@ -119,26 +130,28 @@ public class GameManager {
     }
 
     public void render(Pane root) {
-        gc.drawImage(backgroundImage, 0, 0, 600, 800);
+        gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        gc.setFill(Color.WHITE);
-        gc.fillText("Score: " + score, 10, 20);
+        gc.setFont(Font.font("Times New Roman", TEXT_SIZE));
+        gc.setFill(Color.BLACK);
+        gc.fillText("Score: " + score, SCORE_POS_X, SCORE_POS_Y);
+        gc.fillText("Lives: " + paddle.getLives(), LIVES_POS_X, LIVES_POS_Y);
 
-        text.setText("Press 'SPACE' to launch the ball!");
-        text.setX(165);
-        text.setY(360);
-        text.setFont(Font.font("Times New Roman", 20));
-        text.setFill(Color.WHITE);
+        launchText.setText("Press 'SPACE' to launch the ball!");
+        launchText.setX(LAUNCH_TEXT_POS_X);
+        launchText.setY(LAUNCH_TEXT_POS_Y);
+        launchText.setFont(Font.font("Times New Roman", TEXT_SIZE));
+        launchText.setFill(Color.BLACK);
         if (showLaunchText) {
-            text.setVisible(true);
+            launchText.setVisible(true);
         } else {
-            text.setVisible(false);
+            launchText.setVisible(false);
         }
 
         List<Brick> toRemove = new ArrayList<>();
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
-                score += 10;
+                score += SCORE;
                 if (brick.takeHit()) {
                     toRemove.add(brick);
                 }
@@ -153,7 +166,9 @@ public class GameManager {
         }
 
         if (!running) {
-            gc.fillText("GAME OVER - Press R to Restart", 250, 300);
+            gc.fillText("GAME OVER - Press R to Restart",
+                    GAME_OVER_POS_X,
+                    GAME_OVER_POS_Y);
         }
     }
 
@@ -173,7 +188,17 @@ public class GameManager {
         ball.update();
 
         // ball rơi xuống đáy -> gameover
-        if (ball.getY() > 760) {
+        if (ball.isOutOfBounds()) {
+            System.out.println("Ball fell out!");
+            paddle.loseLife();
+            System.out.println("Lives left: " + paddle.getLives());
+            if (paddle.getLives() > 0) {
+                ball.reset(paddle.getX() + 40, paddle.getY() - 36);
+            }
+        }
+
+        if (paddle.isOutOfLives()) {
+            System.out.println("Game over!");
             gameOver();
         }
 
@@ -191,7 +216,7 @@ public class GameManager {
 
         if (e.getCode() == KeyCode.SPACE && !ball.isLaunched()) {
             ball.launch();
-            text.setVisible(false);
+            launchText.setVisible(false);
         } else {
             paddle.handleKeyPressed(e.getCode());
         }
