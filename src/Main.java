@@ -7,11 +7,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import src.object.Ball;
 import src.object.Paddle;
@@ -23,6 +25,8 @@ public class Main extends Application {
     private Stage priStage;
     private Scene startMenuScene;
     private Scene gameScene;
+    private Scene levelSelectionScene;
+    private AnimationTimer timer;
 
     private Paddle paddle;
     private Ball ball;
@@ -40,7 +44,8 @@ public class Main extends Application {
 
         startButton.setOnMouseEntered(e -> startButton.setOpacity(0.9));
         startButton.setOnMouseExited(e -> startButton.setOpacity(1.0));
-        startButton.setOnMouseClicked(e -> startGame());
+
+        startButton.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
 
         StackPane root = new StackPane();
         root.getChildren().addAll(startView, startButton);
@@ -50,28 +55,68 @@ public class Main extends Application {
         startMenuScene = new Scene(root, WIDTH, HEIGHT);
     }
 
-    private void startGame() {
+    private void createLevelSelectionScene() {
+        Image startMenuImg = new Image("file:assets/images/startScreen.png");
+        ImageView startView = new ImageView(startMenuImg);
+        startView.setFitWidth(WIDTH);
+        startView.setFitHeight(HEIGHT);
+
+        Button level0Button = new Button("Level 0 (Sinh gạch)");
+        level0Button.setPrefSize(200, 50);
+        level0Button.setOnAction(e -> startGame(0)); // Bắt đầu màn 0
+
+        Button level1Button = new Button("Level 1");
+        level1Button.setPrefSize(200, 50);
+        level1Button.setOnAction(e -> startGame(1));
+
+        Button level2Button = new Button("Level 2");
+        level2Button.setPrefSize(200, 50);
+        level2Button.setOnAction(e -> startGame(2));
+
+        Button backButton = new Button("Quay lại Menu");
+        backButton.setPrefSize(200, 50);
+        backButton.setOnAction(e -> priStage.setScene(startMenuScene));
+
+        VBox buttonLayout = new VBox(20);
+        buttonLayout.setAlignment(Pos.CENTER);
+        buttonLayout.getChildren().addAll(level0Button, level1Button, level2Button, backButton);
+
+        StackPane root = new StackPane();
+        root.getChildren().addAll(startView, buttonLayout);
+
+        levelSelectionScene = new Scene(root, WIDTH, HEIGHT);
+    }
+
+    public void returnToMenu() {
+        if (timer != null) {
+            timer.stop();
+        }
+        GameManager.stopBackgroundMusic();
+        priStage.setScene(startMenuScene);
+    }
+
+    private void startGame(int levelNumber) {
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
         gameScene = new Scene(root);
 
-        GameManager game = new GameManager(gc, root);
+        GameManager game = new GameManager(gc, root, levelNumber);
 
         gameScene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.SPACE && !game.getBall().isLaunched()) {
-                game.getBall().launch();
-                game.text.setVisible(false);
+            if (e.getCode() == KeyCode.ESCAPE) {
+                returnToMenu();
             } else {
-                game.getPaddle().handleKeyPressed(e.getCode());
+                game.keyPressed(e);
             }
         });
-        gameScene.setOnKeyReleased(e -> game.getPaddle().handleKeyReleased(e.getCode()));
+        gameScene.setOnKeyReleased(e -> game.keyReleased(e));
 
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                game.update();
+                // <-- THAY ĐỔI QUAN TRỌNG: Truyền 'now' vào update
+                game.update(now);
                 game.render(root);
             }
         };
@@ -84,6 +129,7 @@ public class Main extends Application {
     public void start(Stage stage) {
         priStage = stage;
         createStartMenu();
+        createLevelSelectionScene();
         stage.setTitle("Arkanoid");
         stage.getIcons().add(new Image("file:assets/images/image.png"));
         stage.setResizable(false);

@@ -1,8 +1,9 @@
 ### IntelliJ IDEA ###
+.idea/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-.idea/
+*.iml
 
 ### Eclipse ###
 .apt_generated
@@ -28,8 +29,3 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-/.idea
-/.idea
-/.idea
-/.idea
-Arkanoid_Group_6.iml

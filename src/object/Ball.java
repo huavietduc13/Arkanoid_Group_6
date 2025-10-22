@@ -15,6 +15,7 @@ public class Ball extends GameObject {
     private double rotationAngle = 0;
 
     private boolean ballLaunched = false;
+    public boolean outOfBounds = false;
 
     private Circle collisionShape;
 
@@ -25,7 +26,7 @@ public class Ball extends GameObject {
         this.radius = radius;
 
         this.collisionShape = new Circle(x + radius, y + radius, radius);
-        this.collisionShape.setVisible(true);
+        this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
 
@@ -35,44 +36,47 @@ public class Ball extends GameObject {
     }
 
     @Override
-public void update() {
-    if (ballLaunched) {
-        rotate();
-    }
-
-    if (!ballLaunched) {
-        updateCollisionShape();
-        return;
-    }
-
-    double newX = getX() + vx;
-    double newY = getY() + vy;
-
-    // Collide with left/right boundary
-    if (newX < 0 || newX + getWidth() > Main.WIDTH) {
-        vx *= -1;
-        if (newX < 0) {
-            newX = 0;
-        } else {
-            newX = Main.WIDTH - getWidth();
+    public void update() {
+        if (ballLaunched) {
+            rotate();
         }
+
+        if (!ballLaunched) {
+            updateCollisionShape();
+            return;
+        }
+
+        double newX = getX() + vx;
+        double newY = getY() + vy;
+
+        // Collide with left/right boundary
+        if (newX < 0 || newX + getWidth() > 600) {
+            vx *= -1;
+            if (newX < 0) {
+                newX = 0;
+            } else {
+                newX = 600 - getWidth();
+            }
+        }
+
+        // Collide with upper boundary
+        if (newY < 0) {
+            vy *= -1;
+            newY = 0;
+        }
+
+//        // Collide with bottom boundary
+//        if (newY + getHeight() > 800) {
+//            vy *= -1;
+//            newY = 800 - getHeight();
+////            outOfBounds = true;
+//        }
+
+        setX(newX);
+        setY(newY);
+
+        updateCollisionShape();
     }
-
-    if (newY < 0) {
-        vy *= -1;
-        newY = 0;
-    }
-
-    if (newY + getHeight() > Main.HEIGHT) {
-        vy *= -1;
-        newY = Main.HEIGHT - getHeight();
-    }
-
-    setX(newX);
-    setY(newY);
-
-    updateCollisionShape();
-}
 
     private void updateCollisionShape() {
         collisionShape.setCenterX(getX() + radius);
@@ -153,6 +157,10 @@ public void update() {
 
     public void launch() {
         this.ballLaunched = true;
+    }
+
+    public void notLaunch() {
+        this.ballLaunched = false;
     }
 
     public boolean isLaunched() {
