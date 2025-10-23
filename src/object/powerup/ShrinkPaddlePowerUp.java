@@ -1,18 +1,18 @@
 package object.powerup;
 
+import enums.PowerUpType;
 import object.Ball;
 import object.Paddle;
 import utils.Constants;
 import static enums.PowerUpType.*;
 
-
-public class ExpandPaddlePowerUp extends PowerUp {
-    private static final double SIZE_MULTIPLIER = 1.5;
+public class ShrinkPaddlePowerUp extends PowerUp {
+    private static final double SIZE_MULTIPLIER = 0.6;
     private double originalWidth;
 
-    public ExpandPaddlePowerUp(double x, double y) {
-        super("file:assets/images/powerup_expand_1.png", x, y, 12, 2, 12000);
-        this.type = EXPAND_PADDLE;
+    public ShrinkPaddlePowerUp(double x, double y) {
+        super("file:assets/images/powerup_warp_1.png", x, y, 12, 2, 12000);
+        this.type = SHRINK_PADDLE;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class ExpandPaddlePowerUp extends PowerUp {
         double newWidth = originalWidth * SIZE_MULTIPLIER;
         paddle.getImageView().setFitWidth(newWidth);
         paddle.getCollisionShape().setWidth(newWidth);
-        System.out.println("Paddle Expanded!");
+        System.out.println("Paddle Shrunk!");
     }
 
     @Override

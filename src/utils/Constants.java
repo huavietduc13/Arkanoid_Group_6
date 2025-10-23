@@ -7,6 +7,7 @@ public class Constants {
     public static final int START_BUTTON_HEIGHT = 80;
     public static final int NUMBER_OF_RANDOM_SOUND = 3;
     public static final int SCORE = 10;
+    public static int SCORE_MULTIPLIER = 1;
     public static final int DEFAULT_LIVES = 3;
 
     public static final double EPSILON = 0.001;

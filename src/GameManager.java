@@ -57,6 +57,7 @@ public class GameManager {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
         bricks.clear();
+        powerUps.clear();
         root.getChildren().remove(launchText);
 
         backgroundImage = new Image("file:assets/images/background_1.png");
@@ -157,7 +158,7 @@ public class GameManager {
         List<Brick> brickToRemove = new ArrayList<>();
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
-                score += SCORE;
+                score += SCORE * SCORE_MULTIPLIER;
                 brick.takeHit(() -> {
                     if (Math.random() < 0.5) {
                         System.out.println("Power up dropped!");
@@ -182,10 +183,20 @@ public class GameManager {
 
         List<PowerUp> powerUpToRemove = new ArrayList<>();
         for (PowerUp powerUp : powerUps) {
-            powerUp.update();
+            if (running) {
+                powerUp.update();
+            }
 
             if (powerUp.intersects(paddle)) {
                 if (powerUp.getDuration() > 0) {
+                    // Expand and shrink at the same time is not allowed
+                    if (powerUp.getType() == PowerUpType.EXPAND_PADDLE) {
+                        activePowerUps.removeIf(p -> p.getType() == PowerUpType.SHRINK_PADDLE);
+                    }
+                    if (powerUp.getType() == PowerUpType.SHRINK_PADDLE) {
+                        activePowerUps.removeIf(p -> p.getType() == PowerUpType.EXPAND_PADDLE);
+                    }
+
                     // Kiểm tra xem đã có power up cùng loại đang active chưa
                     PowerUp existingPowerUp = null;
                     for (PowerUp active : activePowerUps) {
@@ -237,6 +248,7 @@ public class GameManager {
             gc.fillText("GAME OVER - Press R to Restart",
                     GAME_OVER_POS_X,
                     GAME_OVER_POS_Y);
+            return;
         }
     }
 

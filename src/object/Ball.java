@@ -23,6 +23,7 @@ public class Ball extends GameObject {
         this.vx = vx;
         this.vy = vy;
         this.radius = radius;
+        this.ballLaunched = ballLaunched;
 
         this.collisionShape = new Circle(x + radius, y + radius, radius);
         this.collisionShape.setVisible(true);

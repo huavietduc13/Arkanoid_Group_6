@@ -87,16 +87,16 @@ public class CollisionDetector {
         double relativeX = ballCenterX - brickCenterX;
         double relativeY = ballCenterY - brickCenterY;
 
-        // Determine if this is a corner collision
-        boolean isCornerCollision = isCornerHit(
-                vx, vy,
-                ballCenterX, ballCenterY, radius,
-                brickLeft, brickRight, brickTop, brickBottom
-        );
-
-        if (isCornerCollision) {
-            return CollisionSide.CORNER;
-        }
+//        // Determine if this is a corner collision
+//        boolean isCornerCollision = isCornerHit(
+//                vx, vy,
+//                ballCenterX, ballCenterY, radius,
+//                brickLeft, brickRight, brickTop, brickBottom
+//        );
+//
+//        if (isCornerCollision) {
+//            return CollisionSide.CORNER;
+//        }
 
         // If ball is inside brick, use velocity to determine exit direction
         if (insideBrick) {
@@ -188,10 +188,10 @@ public class CollisionDetector {
             case RIGHT:
                 ball.reverseX();
                 break;
-            case CORNER:
-                ball.reverseX();
-                ball.reverseY();
-                break;
+//            case CORNER:
+//                ball.reverseX();
+//                ball.reverseY();
+//                break;
         }
     }
 
@@ -218,38 +218,38 @@ public class CollisionDetector {
             case RIGHT:
                 ball.setCenterX(brickRight + radius + SEPARATION_OFFSET);
                 break;
-            case CORNER:
-                // Push ball away from nearest corner
-                double dx = ball.getCenterX() - brickCenterX;
-                double dy = ball.getCenterY() - brickCenterY;
-
-                // Normalize and push ball out
-                double distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance > EPSILON) {
-                    double pushX = (dx / distance) * (radius + SEPARATION_OFFSET);
-                    double pushY = (dy / distance) * (radius + SEPARATION_OFFSET);
-
-                    // Determine which corner
-                    double cornerX = dx > 0 ? brickRight : brickLeft;
-                    double cornerY = dy > 0 ? brickBottom : brickTop;
-
-                    ball.setCenterX(cornerX + pushX);
-                    ball.setCenterY(cornerY + pushY);
-                } else {
-                    // Fallback: push based on velocity direction
-                    if (ball.getVx() > 0) {
-                        ball.setCenterX(brickRight + radius + SEPARATION_OFFSET);
-                    } else {
-                        ball.setCenterX(brickLeft - radius - SEPARATION_OFFSET);
-                    }
-
-                    if (ball.getVy() > 0) {
-                        ball.setCenterY(brickBottom + radius + SEPARATION_OFFSET);
-                    } else {
-                        ball.setCenterY(brickTop - radius - SEPARATION_OFFSET);
-                    }
-                }
-                break;
+//            case CORNER:
+//                // Push ball away from nearest corner
+//                double dx = ball.getCenterX() - brickCenterX;
+//                double dy = ball.getCenterY() - brickCenterY;
+//
+//                // Normalize and push ball out
+//                double distance = Math.sqrt(dx * dx + dy * dy);
+//                if (distance > EPSILON) {
+//                    double pushX = (dx / distance) * (radius + SEPARATION_OFFSET);
+//                    double pushY = (dy / distance) * (radius + SEPARATION_OFFSET);
+//
+//                    // Determine which corner
+//                    double cornerX = dx > 0 ? brickRight : brickLeft;
+//                    double cornerY = dy > 0 ? brickBottom : brickTop;
+//
+//                    ball.setCenterX(cornerX + pushX);
+//                    ball.setCenterY(cornerY + pushY);
+//                } else {
+//                    // Fallback: push based on velocity direction
+//                    if (ball.getVx() > 0) {
+//                        ball.setCenterX(brickRight + radius + SEPARATION_OFFSET);
+//                    } else {
+//                        ball.setCenterX(brickLeft - radius - SEPARATION_OFFSET);
+//                    }
+//
+//                    if (ball.getVy() > 0) {
+//                        ball.setCenterY(brickBottom + radius + SEPARATION_OFFSET);
+//                    } else {
+//                        ball.setCenterY(brickTop - radius - SEPARATION_OFFSET);
+//                    }
+//                }
+//                break;
         }
     }
 
