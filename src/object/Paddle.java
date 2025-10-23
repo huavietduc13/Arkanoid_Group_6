@@ -38,7 +38,7 @@ public class Paddle extends GameObject {
     }
 
     public void moveRight() {
-        setX(Math.min(boundary, getX() + speed));
+        setX(Math.min(boundary - getWidth(), getX() + speed));
     }
 
     @Override
@@ -63,7 +63,7 @@ public class Paddle extends GameObject {
         collisionShape.setY(y);
     }
 
-    public void updateCollisionShape() {
+    private void updateCollisionShape() {
         collisionShape.setX(getX());
         collisionShape.setY(getY());
     }

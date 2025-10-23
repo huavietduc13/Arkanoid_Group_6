@@ -1,3 +1,5 @@
+import enums.BrickType;
+import enums.PowerUpType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -11,6 +13,8 @@ import javafx.scene.text.Text;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
+import object.powerup.PowerUp;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,6 +31,8 @@ public class GameManager {
     private Paddle paddle;
     private Ball ball;
     private List<Brick> bricks = new ArrayList<>();
+    private List<PowerUp> powerUps = new ArrayList<>();
+    List<PowerUp> activePowerUps = new ArrayList<>();
 
     private int score = 0;
     private boolean running = true;
@@ -93,9 +99,9 @@ public class GameManager {
                 double y = 36 + j * (BRICK_HEIGHT + BRICK_GAP);
                 Brick newBrick;
                 if (i % 2 == 0) {
-                    newBrick = Brick.createBrick("strong", x, y);
+                    newBrick = Brick.createBrick(BrickType.NORMAL, x, y);
                 } else {
-                    newBrick = Brick.createBrick("normal", x, y);
+                    newBrick = Brick.createBrick(BrickType.NORMAL, x, y);
                 }
                 bricks.add(newBrick);
                 root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
@@ -148,21 +154,83 @@ public class GameManager {
             launchText.setVisible(false);
         }
 
-        List<Brick> toRemove = new ArrayList<>();
+        List<Brick> brickToRemove = new ArrayList<>();
         for (Brick brick : bricks) {
-            if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
+            if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
                 score += SCORE;
-                if (brick.takeHit()) {
-                    toRemove.add(brick);
-                }
+                brick.takeHit(() -> {
+                    if (Math.random() < 0.5) {
+                        System.out.println("Power up dropped!");
+                        PowerUp powerUp = PowerUp.createRandomPowerUp(
+                                brick.getX() + brick.getWidth() / 2,
+                                brick.getY()
+                        );
+                        powerUps.add(powerUp);
+                        root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
+                    }
+                    brickToRemove.add(brick);
+                });
                 playRandomMeowSound();
                 break;
             }
         }
-        for (Brick brick : toRemove) {
+        for (Brick brick : brickToRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
             bricks.remove(brick);
+        }
+
+        List<PowerUp> powerUpToRemove = new ArrayList<>();
+        for (PowerUp powerUp : powerUps) {
+            powerUp.update();
+
+            if (powerUp.intersects(paddle)) {
+                if (powerUp.getDuration() > 0) {
+                    // Kiểm tra xem đã có power up cùng loại đang active chưa
+                    PowerUp existingPowerUp = null;
+                    for (PowerUp active : activePowerUps) {
+                        if (active.getType() == powerUp.getType()) {
+                            existingPowerUp = active;
+                            break;
+                        }
+                    }
+
+                    if (existingPowerUp != null) {
+                        // Đã có power up cùng loại -> reset thời gian
+                        System.out.println("Reset activation time!");
+                        existingPowerUp.setActivationTime(System.currentTimeMillis());
+                    } else {
+                        // Chưa có -> thêm mới
+                        powerUp.collect(paddle, ball);
+                        activePowerUps.add(powerUp);
+                    }
+                } else {
+                    // Instant power up (duration = 0)
+                    powerUp.collect(paddle, ball);
+                }
+                powerUpToRemove.add(powerUp);
+            }
+
+            if (powerUp.getY() > SCREEN_HEIGHT) {
+                powerUpToRemove.add(powerUp);
+            }
+        }
+
+        // Kiểm tra power up hết hạn
+        List<PowerUp> expiredPowerUps = new ArrayList<>();
+        for (PowerUp active : activePowerUps) {
+            if (active.isExpired()) {
+                active.deactivate(paddle, ball);
+                expiredPowerUps.add(active);
+            }
+        }
+        activePowerUps.removeAll(expiredPowerUps);
+
+        // Xóa power up đã collect hoặc rơi ra ngoài màn hình
+        for (PowerUp powerUp : powerUpToRemove) {
+            root.getChildren().remove(powerUp.getImageView());
+            root.getChildren().remove(powerUp.getCollisionShape());
+            powerUps.remove(powerUp);
         }
 
         if (!running) {
@@ -179,21 +247,22 @@ public class GameManager {
         paddle.update();
 
         if (!ball.isLaunched()) {
-            ball.setX(paddle.getX() + 40);
-            ball.setY(paddle.getY() - 36);
+            ball.setX(paddle.getX() + paddle.getWidth() / 2 - ball.getRadius());
+            ball.setY(paddle.getY() - ball.getRadius() * 2); // Dock ball to paddle
         } else {
             showLaunchText = false; // ẩn đi
         }
 
         ball.update();
 
-        // ball rơi xuống đáy -> gameover
+        // Ball rơi xuống đáy -> mất một mạng
         if (ball.isOutOfBounds()) {
             System.out.println("Ball fell out!");
             paddle.loseLife();
             System.out.println("Lives left: " + paddle.getLives());
             if (paddle.getLives() > 0) {
-                ball.reset(paddle.getX() + 40, paddle.getY() - 36);
+                ball.reset(paddle.getX() + paddle.getWidth() / 2 - ball.getRadius(),
+                        paddle.getY() - ball.getRadius() * 2);
             }
         }
 

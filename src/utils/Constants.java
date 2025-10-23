@@ -16,9 +16,9 @@ public class Constants {
 
     public static final double BRICK_WIDTH = 63.0;
     public static final double BRICK_HEIGHT = 33.0;
-    public static final double BRICK_GAP = 3.0;
+    public static final double BRICK_GAP = 0.0;
 
-    public static final double PADDLE_BOUNDARY = 480.0;
+    public static final double PADDLE_BOUNDARY = 600.0;
     public static final double PADDLE_POS_X = 240.0;
     public static final double PADDLE_POS_Y = 760.0;
     public static final double PADDLE_WIDTH = 120.0;
