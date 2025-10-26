@@ -1,8 +1,9 @@
-package object;
+package src.object;
 
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import src.Main;
 
 public class Ball extends GameObject {
     private double vx;
@@ -48,12 +49,12 @@ public class Ball extends GameObject {
         double newY = getY() + vy;
 
         // Collide with left/right boundary
-        if (newX < 0 || newX + getWidth() > 600) {
+        if (newX < 0 || newX + getWidth() > Main.WIDTH) {
             vx *= -1;
             if (newX < 0) {
                 newX = 0;
             } else {
-                newX = 600 - getWidth();
+                newX = Main.WIDTH - getWidth();
             }
         }
 

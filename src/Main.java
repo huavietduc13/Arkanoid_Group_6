@@ -1,3 +1,5 @@
+package src;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -13,12 +15,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import object.Ball;
-import object.Paddle;
+import src.object.Ball;
+import src.object.Paddle;
 
 public class Main extends Application {
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 800;
+    public static final int WIDTH = 640;
+    public static final int HEIGHT = 800;
 
     private Stage priStage;
     private Scene startMenuScene;

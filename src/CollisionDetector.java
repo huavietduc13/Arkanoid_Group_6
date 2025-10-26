@@ -1,8 +1,10 @@
+package src;
+
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import object.Ball;
-import object.Paddle;
-import object.brick.Brick;
+import src.object.Ball;
+import src.object.Paddle;
+import src.object.brick.Brick;
 
 public class CollisionDetector {
     // Avoid floating-point precision errors

@@ -1,15 +1,15 @@
-package object.brick;
+package src.object.brick;
 
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import object.GameObject;
+import src.object.GameObject;
 
 public abstract class Brick extends GameObject {
-    private static int BRICK_WIDTH = 63;
-    private static int BRICK_HEIGHT = 33;
+    public static int BRICK_WIDTH = 80;
+    public static int BRICK_HEIGHT = 40;
 
     protected int hitPoints;
     protected int score;
@@ -33,6 +33,7 @@ public abstract class Brick extends GameObject {
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
+        
     }
 
     public boolean takeHit() {

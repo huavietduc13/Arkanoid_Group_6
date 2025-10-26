@@ -1,4 +1,4 @@
-package object.brick;
+package src.object.brick;
 
 import javafx.scene.image.Image;
 
