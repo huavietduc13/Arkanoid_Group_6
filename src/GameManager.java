@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import src.object.Ball;
 import src.object.Paddle;
 import src.object.brick.Brick;
+import src.Main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,10 +45,10 @@ public class GameManager {
     private final double SPAWN_INTERVAL = 30.0;
     private boolean nextSpawnPattern = true;
 
-    private final int brickWidth = 63;
-    private final int brickHeight = 33;
-    private final int padding = 5;
-    private final int startX = 50;
+    private final int brickWidth = Brick.BRICK_WIDTH;
+    private final int brickHeight = Brick.BRICK_HEIGHT;
+    private final int padding = 0;
+    private final int startX = 0;
     private final int startY = 50;
 
 
@@ -72,7 +73,7 @@ public class GameManager {
         bricks.clear();
         root.getChildren().remove(text);
 
-        backgroundImage = new Image("file:assets/images/background_1.png");
+        backgroundImage = new Image("file:assets/images/background.png");
 
         this.random = new Random();
         this.meowSounds = new Media[3];
@@ -93,8 +94,8 @@ public class GameManager {
             meowSounds[i] = new Media(meowPath);
         }
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
-        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
+        paddle = new Paddle("file:assets/images/paddle_left.png", 480, 240, 760, 120, 36, 6);
+        ball = new Ball("file:assets/images/ball.png", 280, 724, 18, 2, -2);
 
         loadLevel(this.levelNumber);
 
@@ -192,8 +193,8 @@ public class GameManager {
                     }
 
                     if (!brickTypeStr.equals("empty")) {
-                        double x = startX + i * (brickWidth + padding);
-                        double y = startY + j * (brickHeight + padding);
+                        double x = startX + i * (brickWidth);
+                        double y = startY + j * (brickHeight);
 
                         Brick newBrick = Brick.createBrick(brickTypeStr, x, y);
                         bricks.add(newBrick);
@@ -224,8 +225,8 @@ public class GameManager {
     private void addNewRowAtTop(boolean strongFirst) {
         System.out.println("Đang sinh hàng gạch mới ở trên cùng");
         double y = startY;
-        for (int i = 0; i < 8; i++) {
-            double x = startX + i * (brickWidth + padding);
+        for (int i = 0; i < 7; i++) {
+            double x = startX + i * (brickWidth);
             String brickType;
             if (strongFirst) {
                 brickType = (i % 2 == 0) ? "strong" : "normal";
@@ -262,7 +263,7 @@ public class GameManager {
     }
 
     public void render(Pane root) {
-        gc.drawImage(backgroundImage, 0, 0, 600, 800);
+        gc.drawImage(backgroundImage, 0, 0, Main.WIDTH, Main.HEIGHT);
 
         gc.setFill(Color.WHITE);
         gc.fillText("Score: " + score, 10, 20);

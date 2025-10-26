@@ -1,9 +1,11 @@
 package src.object;
 
 import javafx.geometry.Bounds;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.image.ImageView;
 
 public class Paddle extends GameObject {
     private double speed;
@@ -14,10 +16,16 @@ public class Paddle extends GameObject {
 
     private Rectangle collisionShape;
 
+    private Image paddleLeftImage;
+    private Image paddleRightImage;
+
     public Paddle(String imagePath, double boundary, double x, double y, double width, double height, double speed) {
         super(imagePath, x, y, width, height);
         this.speed = speed;
         this.boundary = boundary;
+
+        this.paddleLeftImage = new Image("file:assets/images/paddle_left.png");
+        this.paddleRightImage = new Image("file:assets/images/paddle_right.png");
 
         this.collisionShape = new Rectangle(x, y, width, height);
         this.collisionShape.setVisible(false);
@@ -26,6 +34,8 @@ public class Paddle extends GameObject {
         this.collisionShape.setArcWidth(20);
         this.collisionShape.setArcHeight(20);
 
+        this.image = paddleLeftImage;
+        this.imageView.setImage(paddleLeftImage);
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
@@ -88,14 +98,16 @@ public class Paddle extends GameObject {
         return speed;
     }
 
-    public void handleKeyPressed(KeyCode code) {
-        if (code == KeyCode.LEFT || code == KeyCode.A) {
+    public void handleKeyPressed(KeyCode keyCode) {
+        if (keyCode == KeyCode.LEFT) {
             movingLeft = true;
-        }
-        if (code == KeyCode.RIGHT || code == KeyCode.D) {
+            imageView.setImage(paddleLeftImage);
+        } else if (keyCode == KeyCode.RIGHT) {
             movingRight = true;
+            imageView.setImage(paddleRightImage);
         }
     }
+
 
     public void handleKeyReleased(KeyCode code) {
         if (code == KeyCode.LEFT || code == KeyCode.A) {

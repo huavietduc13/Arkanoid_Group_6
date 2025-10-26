@@ -19,8 +19,8 @@ import src.object.Ball;
 import src.object.Paddle;
 
 public class Main extends Application {
-    public static final int WIDTH = 560;
-    public static final int HEIGHT = 680;
+    public static final int WIDTH = 640;
+    public static final int HEIGHT = 800;
 
     private Stage priStage;
     private Scene startMenuScene;
