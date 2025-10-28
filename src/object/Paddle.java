@@ -4,10 +4,12 @@ import javafx.geometry.Bounds;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import static utils.Constants.*;
 
 public class Paddle extends GameObject {
     private double speed;
     private double boundary;
+    private int lives = DEFAULT_LIVES;
 
     private boolean movingLeft = false;
     private boolean movingRight = false;
@@ -20,7 +22,7 @@ public class Paddle extends GameObject {
         this.boundary = boundary;
 
         this.collisionShape = new Rectangle(x, y, width, height);
-        this.collisionShape.setVisible(false);
+        this.collisionShape.setVisible(true);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
         this.collisionShape.setArcWidth(20);
@@ -36,7 +38,7 @@ public class Paddle extends GameObject {
     }
 
     public void moveRight() {
-        setX(Math.min(boundary, getX() + speed));
+        setX(Math.min(boundary - getWidth(), getX() + speed));
     }
 
     @Override
@@ -66,6 +68,27 @@ public class Paddle extends GameObject {
         collisionShape.setY(getY());
     }
 
+    public void reset() {
+        setX(PADDLE_POS_X);
+        setY(PADDLE_POS_Y);
+    }
+
+    public void loseLife() {
+        if (lives > 0) {
+            lives--;
+        }
+    }
+
+    public void gainLife() {
+        if (lives < 3) {
+            lives++;
+        }
+    }
+
+    public boolean isOutOfLives() {
+        return lives <= 0;
+    }
+
     public Bounds getCollisionBounds() {
         return collisionShape.getBoundsInParent();
     }
@@ -86,6 +109,10 @@ public class Paddle extends GameObject {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public int getLives() {
+        return lives;
     }
 
     public void handleKeyPressed(KeyCode code) {

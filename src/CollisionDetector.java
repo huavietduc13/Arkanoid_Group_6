@@ -3,6 +3,7 @@ import javafx.scene.shape.Rectangle;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
+import enums.CollisionSide;
 
 public class CollisionDetector {
     // Avoid floating-point precision errors
@@ -11,8 +12,8 @@ public class CollisionDetector {
     // Safe distance to push ball out of brick after collision
     private static final double SEPARATION_OFFSET = 0.5;
 
-    private static final double MIN_SPEED = 6.5;
-    private static final double MAX_SPEED = 9.0;
+    private static final double MIN_SPEED = 6.0;
+    private static final double MAX_SPEED = 8.0;
 
     // Handle collision between ball and brick
     public static boolean handleCollision(Ball ball, Brick brick) {
@@ -86,16 +87,16 @@ public class CollisionDetector {
         double relativeX = ballCenterX - brickCenterX;
         double relativeY = ballCenterY - brickCenterY;
 
-        // Determine if this is a corner collision
-        boolean isCornerCollision = isCornerHit(
-                vx, vy,
-                ballCenterX, ballCenterY, radius,
-                brickLeft, brickRight, brickTop, brickBottom
-        );
-
-        if (isCornerCollision) {
-            return CollisionSide.CORNER;
-        }
+//        // Determine if this is a corner collision
+//        boolean isCornerCollision = isCornerHit(
+//                vx, vy,
+//                ballCenterX, ballCenterY, radius,
+//                brickLeft, brickRight, brickTop, brickBottom
+//        );
+//
+//        if (isCornerCollision) {
+//            return CollisionSide.CORNER;
+//        }
 
         // If ball is inside brick, use velocity to determine exit direction
         if (insideBrick) {
@@ -258,14 +259,6 @@ public class CollisionDetector {
         return Math.max(min, Math.min(max, value));
     }
 
-    enum CollisionSide {
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT,
-        CORNER
-    }
-
      // Handle collision between ball and paddle with angle variation
      // Bounce angle depends on hit position
      // Still developing
@@ -319,16 +312,13 @@ public class CollisionDetector {
 
         switch(side) {
             case TOP:
-                System.out.println("hit top!");
                 handleTopCollision(ball, paddle, paddleLeft, paddleRight, paddleTop, radius);
                 break;
             case LEFT:
             case RIGHT:
-                System.out.println("hit side!");
                 ball.reverseX();
                 break;
             case CORNER:
-                System.out.println("hit corner!");
                 ball.reverseX();
                 ball.reverseY();
                 break;
@@ -371,13 +361,7 @@ public class CollisionDetector {
 
         if (0 <= hitPosition && hitPosition <= 1.0) {
 
-            System.out.println("hit position: " + hitPosition);
-
-            if (paddle.getVx() <= 0) {
-                ball.reverseY();
-            } else {
-                applyPaddleBounce(ball, hitPosition, paddle);
-            }
+            applyPaddleBounce(ball, hitPosition, paddle);
 
             ball.setCenterY(paddleTop - radius - SEPARATION_OFFSET);
         }
@@ -454,7 +438,7 @@ public class CollisionDetector {
          // Calculate new velocity components from angle
          double newVx;
 
-         if (-0.1 <= normalizedPosition && normalizedPosition <= 0.1) {
+         if (-0.05 <= normalizedPosition && normalizedPosition <= 0.05) {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
          } else {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);
@@ -468,8 +452,14 @@ public class CollisionDetector {
          newVx += velocityInfluence;
 
          double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
+         if (finalSpeed < MIN_SPEED) {
+             double ratio = MIN_SPEED / finalSpeed;
+
+             newVx *= ratio;
+             newVy *= ratio;
+         }
+
          if (finalSpeed > MAX_SPEED) {
-    
              double ratio = MAX_SPEED / finalSpeed;
 
              newVx *= ratio;

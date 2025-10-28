@@ -1,3 +1,5 @@
+import enums.BrickType;
+import enums.PowerUpType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -8,17 +10,17 @@ import javafx.scene.media.MediaPlayer;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
+import object.powerup.PowerUp;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import static utils.Constants.*;
 
 public class GameManager {
     private GraphicsContext gc;
-    Pane root;
+    private Pane root;
     private Image backgroundImage;
     private static MediaPlayer backgroundMusic = null;
     private Media[] meowSounds;
@@ -27,6 +29,8 @@ public class GameManager {
     private Paddle paddle;
     private Ball ball;
     private List<Brick> bricks = new ArrayList<>();
+    private List<PowerUp> powerUps = new ArrayList<>();
+    List<PowerUp> activePowerUps = new ArrayList<>();
 
     private int score = 0;
     private int levelNumber;
@@ -65,6 +69,7 @@ public class GameManager {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
         bricks.clear();
+        powerUps.clear();
         if (textManager != null) {
             textManager.removeText(root);
         }
@@ -72,7 +77,7 @@ public class GameManager {
         backgroundImage = new Image("file:assets/images/background_1.png");
 
         this.random = new Random();
-        this.meowSounds = new Media[3];
+        this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
 
         // Nhạc nền
         java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
@@ -90,8 +95,19 @@ public class GameManager {
             meowSounds[i] = new Media(meowPath);
         }
 
-        paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
-        ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
+        paddle = new Paddle("file:assets/images/paddle1.png",
+                PADDLE_BOUNDARY,
+                PADDLE_POS_X,
+                PADDLE_POS_Y,
+                PADDLE_WIDTH,
+                PADDLE_HEIGHT,
+                PADDLE_SPEED);
+        ball = new Ball("file:assets/images/ball1.png",
+                BALL_POS_X,
+                BALL_POS_Y,
+                BALL_RADIUS,
+                BALL_VX,
+                BALL_VY);
 
         textManager = new TextManager(root);
 
@@ -260,24 +276,116 @@ public class GameManager {
     }
 
     public void render(Pane root) {
-        gc.drawImage(backgroundImage, 0, 0, 600, 800);
+        gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         List<Brick> toRemove = new ArrayList<>();
+        gc.setFont(Font.font("Times New Roman", TEXT_SIZE));
+        gc.setFill(Color.BLACK);
+        gc.fillText("Score: " + score, SCORE_POS_X, SCORE_POS_Y);
+        gc.fillText("Lives: " + paddle.getLives(), LIVES_POS_X, LIVES_POS_Y);
+
+        if (showLaunchText) {
+            launchText.setVisible(true);
+        } else {
+            launchText.setVisible(false);
+        }
+
+        List<Brick> brickToRemove = new ArrayList<>();
         for (Brick brick : bricks) {
-            if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
-                score += 10;
-                if (brick.takeHit()) {
-                    toRemove.add(brick);
-                }
+            if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
+                score += SCORE * SCORE_MULTIPLIER;
+                brick.takeHit(() -> {
+                    if (Math.random() < 0.5) {
+                        System.out.println("Power up dropped!");
+                        PowerUp powerUp = PowerUp.createRandomPowerUp(
+                                brick.getX() + brick.getWidth() / 2,
+                                brick.getY()
+                        );
+                        powerUps.add(powerUp);
+                        root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
+                    }
+                    brickToRemove.add(brick);
+                });
                 playRandomMeowSound();
                 break;
             }
         }
 
         for (Brick brick : toRemove) {
+        for (Brick brick : brickToRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
             bricks.remove(brick);
+        }
+
+        List<PowerUp> powerUpToRemove = new ArrayList<>();
+        for (PowerUp powerUp : powerUps) {
+            if (running) {
+                powerUp.update();
+            }
+
+            if (powerUp.intersects(paddle)) {
+                if (powerUp.getDuration() > 0) {
+                    // Expand and shrink at the same time is not allowed
+                    if (powerUp.getType() == PowerUpType.EXPAND_PADDLE) {
+                        activePowerUps.removeIf(p -> p.getType() == PowerUpType.SHRINK_PADDLE);
+                    }
+                    if (powerUp.getType() == PowerUpType.SHRINK_PADDLE) {
+                        activePowerUps.removeIf(p -> p.getType() == PowerUpType.EXPAND_PADDLE);
+                    }
+
+                    // Kiểm tra xem đã có power up cùng loại đang active chưa
+                    PowerUp existingPowerUp = null;
+                    for (PowerUp active : activePowerUps) {
+                        if (active.getType() == powerUp.getType()) {
+                            existingPowerUp = active;
+                            break;
+                        }
+                    }
+
+                    if (existingPowerUp != null) {
+                        // Đã có power up cùng loại -> reset thời gian
+                        System.out.println("Reset activation time!");
+                        existingPowerUp.setActivationTime(System.currentTimeMillis());
+                    } else {
+                        // Chưa có -> thêm mới
+                        powerUp.collect(paddle, ball);
+                        activePowerUps.add(powerUp);
+                    }
+                } else {
+                    // Instant power up (duration = 0)
+                    powerUp.collect(paddle, ball);
+                }
+                powerUpToRemove.add(powerUp);
+            }
+
+            if (powerUp.getY() > SCREEN_HEIGHT) {
+                powerUpToRemove.add(powerUp);
+            }
+        }
+
+        // Kiểm tra power up hết hạn
+        List<PowerUp> expiredPowerUps = new ArrayList<>();
+        for (PowerUp active : activePowerUps) {
+            if (active.isExpired()) {
+                active.deactivate(paddle, ball);
+                expiredPowerUps.add(active);
+            }
+        }
+        activePowerUps.removeAll(expiredPowerUps);
+
+        // Xóa power up đã collect hoặc rơi ra ngoài màn hình
+        for (PowerUp powerUp : powerUpToRemove) {
+            root.getChildren().remove(powerUp.getImageView());
+            root.getChildren().remove(powerUp.getCollisionShape());
+            powerUps.remove(powerUp);
+        }
+
+        if (!running) {
+            gc.fillText("GAME OVER - Press R to Restart",
+                    GAME_OVER_POS_X,
+                    GAME_OVER_POS_Y);
+            return;
         }
     }
 
@@ -306,16 +414,27 @@ public class GameManager {
         paddle.update();
 
         if (!ball.isLaunched()) {
-            ball.setX(paddle.getX() + 40);
-            ball.setY(paddle.getY() - 36);
+            ball.setX(paddle.getX() + paddle.getWidth() / 2 - ball.getRadius());
+            ball.setY(paddle.getY() - ball.getRadius() * 2); // Dock ball to paddle
         } else {
             showLaunchText = false; // ẩn đi
         }
 
         ball.update();
 
-        // ball rơi xuống đáy -> gameover
-        if (ball.getY() > 760) {
+        // Ball rơi xuống đáy -> mất một mạng
+        if (ball.isOutOfBounds()) {
+            System.out.println("Ball fell out!");
+            paddle.loseLife();
+            System.out.println("Lives left: " + paddle.getLives());
+            if (paddle.getLives() > 0) {
+                ball.reset(paddle.getX() + paddle.getWidth() / 2 - ball.getRadius(),
+                        paddle.getY() - ball.getRadius() * 2);
+            }
+        }
+
+        if (paddle.isOutOfLives()) {
+            System.out.println("Game over!");
             gameOver();
         }
 
