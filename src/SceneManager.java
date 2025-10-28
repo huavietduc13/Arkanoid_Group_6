@@ -14,10 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import object.Ball;
 import object.Paddle;
+import utils.Constants;
 
 public class SceneManager {
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 800;
 
     private Stage priStage;
     private Scene startMenuScene;
@@ -35,8 +34,8 @@ public class SceneManager {
     public void createStartMenu() {
         Image startMenuImg = new Image("file:assets/images/startScreen.png");
         ImageView startView = new ImageView(startMenuImg);
-        startView.setFitWidth(WIDTH);
-        startView.setFitHeight(HEIGHT);
+        startView.setFitWidth(Constants.SCREEN_WIDTH);
+        startView.setFitHeight(Constants.SCREEN_HEIGHT);
 
         Image buttonImg = new Image("file:assets/images/startButton.png");
         ImageView startButton = new ImageView(buttonImg);
@@ -65,14 +64,14 @@ public class SceneManager {
         StackPane.setMargin(startButton, new Insets(0, 0, 140, 0));
         StackPane.setAlignment(exitButton, Pos.BOTTOM_CENTER);
         StackPane.setMargin(exitButton, new Insets(0, 0, 50, 0));
-        startMenuScene = new Scene(root, WIDTH, HEIGHT);
+        startMenuScene = new Scene(root, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
     }
 
     public void createLevelSelectionScene() {
         Image startMenuImg = new Image("file:assets/images/startScreen.png");
         ImageView startView = new ImageView(startMenuImg);
-        startView.setFitWidth(WIDTH);
-        startView.setFitHeight(HEIGHT);
+        startView.setFitWidth(Constants.SCREEN_WIDTH);
+        startView.setFitHeight(Constants.SCREEN_HEIGHT);
 
         Button level0Button = new Button("Level 0 (Sinh gạch)");
         level0Button.setPrefSize(200, 50);
@@ -97,7 +96,7 @@ public class SceneManager {
         StackPane root = new StackPane();
         root.getChildren().addAll(startView, buttonLayout);
 
-        levelSelectionScene = new Scene(root, WIDTH, HEIGHT);
+        levelSelectionScene = new Scene(root, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
     }
 
     public void returnToMenu() {
@@ -109,7 +108,7 @@ public class SceneManager {
     }
 
     public void startGame(int levelNumber) {
-        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        Canvas canvas = new Canvas(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
         gameScene = new Scene(root);

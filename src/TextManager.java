@@ -4,12 +4,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import object.Paddle;
+import utils.Constants;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 public class TextManager {
     private Text scoreText;
+    private Text livesText;
     private Text launchHint;
     private Text gameOverText;
     private Font customFont;
@@ -19,30 +23,36 @@ public class TextManager {
         this.root = root;
         loadFont();
 
-        // --- Score ---
+        // Lives
+        livesText = new Text("Score: 3");
+        livesText.setX(Constants.LIVES_POS_X);
+        livesText.setY(Constants.LIVES_POS_Y);
+        livesText.setFill(Color.BLACK);
+        livesText.setFont(customFont);
+
+        // Score
         scoreText = new Text("Score: 0");
         scoreText.setFill(Color.BLACK);
         scoreText.setFont(customFont);
         scoreText.setTextOrigin(VPos.TOP);
         scoreText.setTextAlignment(TextAlignment.LEFT);
 
-        // --- Hướng dẫn ---
+        // Hint
         launchHint = new Text("Press 'SPACE' to launch the ball!");
         launchHint.setFill(Color.BLACK);
         launchHint.setFont(customFont);
         launchHint.setTextAlignment(TextAlignment.CENTER);
 
-        // --- Game Over ---
+        // Game Over
         gameOverText = new Text("GAME OVER - Press R to Restart");
         gameOverText.setFill(Color.RED);
         gameOverText.setFont(customFont);
         gameOverText.setTextAlignment(TextAlignment.CENTER);
         gameOverText.setVisible(false);
 
-        // Thêm vào root
-        root.getChildren().addAll(scoreText, launchHint, gameOverText);
+        root.getChildren().addAll(livesText, scoreText, launchHint, gameOverText);
 
-        // Cập nhật vị trí ban đầu
+        // Align to the right pos
         alignTexts();
     }
 
@@ -58,23 +68,21 @@ public class TextManager {
     }
 
     private void alignTexts() {
-        double paneWidth = root.getWidth();
-        double paneHeight = root.getHeight();
+        livesText.setX(Constants.LIVES_POS_X);
+        livesText.setY(Constants.LIVES_POS_Y);
 
-        // Score: canh trên cùng bên trái
-        scoreText.setX(10);
-        scoreText.setY(10);
+        scoreText.setX(Constants.SCORE_POS_X);
+        scoreText.setX(Constants.SCORE_POS_Y);
 
-        // Hint: căn giữa màn hình
-        launchHint.setX((paneWidth - launchHint.getLayoutBounds().getWidth()) / 2);
-        launchHint.setY(paneHeight / 2 - 40);
+        launchHint.setX((Constants.SCREEN_WIDTH - launchHint.getLayoutBounds().getWidth()) / 2);
+        launchHint.setY(Constants.SCREEN_HEIGHT / 2 - 40);
 
-        // Game Over: căn giữa
-        gameOverText.setX((paneWidth - gameOverText.getLayoutBounds().getWidth()) / 2);
-        gameOverText.setY(paneHeight / 2 + 20);
+        gameOverText.setX((Constants.SCREEN_WIDTH - gameOverText.getLayoutBounds().getWidth()) / 2);
+        gameOverText.setY(Constants.SCREEN_HEIGHT / 2 + 20);
     }
 
-    public void updateScore(int score) {
+    public void updateScoreAndLives(int score, Paddle paddle) {
+        livesText.setText("Lives: " + paddle.getLives());
         scoreText.setText("Score: " + score);
         alignTexts();
     }
@@ -88,6 +96,6 @@ public class TextManager {
     }
 
     public void removeText(Pane root) {
-        root.getChildren().removeAll(scoreText, launchHint, gameOverText);
+        root.getChildren().removeAll(livesText, scoreText, launchHint, gameOverText);
     }
 }

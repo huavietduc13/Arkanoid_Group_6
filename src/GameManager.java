@@ -12,10 +12,13 @@ import object.Paddle;
 import object.brick.Brick;
 import object.powerup.PowerUp;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+
 import static utils.Constants.*;
 
 public class GameManager {
@@ -169,17 +172,22 @@ public class GameManager {
                     String line = scanner.nextLine();
                     String[] brickTypes = line.split(" ");
                     int currentX = startX;
+
                     for (String type : brickTypes) {
-                        String brickTypeStr = "empty";
+                        BrickType brickType = null;
                         switch (type) {
-                            case "1": brickTypeStr = "normal"; break;
-                            case "2": brickTypeStr = "strong"; break;
-                            case "3": brickTypeStr = "indestructible"; break;
+                            case "1": brickType = BrickType.NORMAL; break;
+                            case "2": brickType = BrickType.STRONG; break;
+                            case "3": brickType = BrickType.INDESTRUCTIBLE; break;
                         }
-                        if (!brickTypeStr.equals("empty")) {
-                            Brick newBrick = Brick.createBrick(brickTypeStr, currentX, currentY);
+
+                        if (brickType != null) {
+                            Brick newBrick = Brick.createBrick(brickType, currentX, currentY);
                             bricks.add(newBrick);
-                            root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
+                            root.getChildren().addAll(
+                                    newBrick.getImageView(),
+                                    newBrick.getCollisionShape()
+                            );
                         }
                         currentX += brickWidth + padding;
                     }
@@ -195,23 +203,25 @@ public class GameManager {
         if (selectedMap != null) {
             for (int j = 0; j < selectedMap.length; j++) {
                 for (int i = 0; i < selectedMap[j].length; i++) {
+                    int brickCode = selectedMap[j][i];
+                    BrickType brickType = null;
 
-                    int brickType = selectedMap[j][i];
-                    String brickTypeStr = "empty";
-
-                    switch (brickType) {
-                        case 1: brickTypeStr = "normal"; break;
-                        case 2: brickTypeStr = "strong"; break;
-                        case 3: brickTypeStr = "indestructible"; break;
+                    switch (brickCode) {
+                        case 1: brickType = BrickType.NORMAL; break;
+                        case 2: brickType = BrickType.STRONG; break;
+                        case 3: brickType = BrickType.INDESTRUCTIBLE; break;
                     }
 
-                    if (!brickTypeStr.equals("empty")) {
+                    if (brickType != null) {
                         double x = startX + i * (brickWidth + padding);
                         double y = startY + j * (brickHeight + padding);
 
-                        Brick newBrick = Brick.createBrick(brickTypeStr, x, y);
+                        Brick newBrick = Brick.createBrick(brickType, x, y);
                         bricks.add(newBrick);
-                        root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
+                        root.getChildren().addAll(
+                                newBrick.getImageView(),
+                                newBrick.getCollisionShape()
+                        );
                     }
                 }
             }
@@ -240,11 +250,11 @@ public class GameManager {
         double y = startY;
         for (int i = 0; i < 8; i++) {
             double x = startX + i * (brickWidth + padding);
-            String brickType;
+            BrickType brickType;
             if (strongFirst) {
-                brickType = (i % 2 == 0) ? "strong" : "normal";
+                brickType = (i % 2 == 0) ? BrickType.STRONG : BrickType.NORMAL;
             } else {
-                brickType = (i % 2 == 0) ? "normal" : "strong";
+                brickType = (i % 2 == 0) ? BrickType.NORMAL : BrickType.STRONG;
             }
 
             Brick newBrick = Brick.createBrick(brickType, x, y);
@@ -278,18 +288,6 @@ public class GameManager {
     public void render(Pane root) {
         gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        List<Brick> toRemove = new ArrayList<>();
-        gc.setFont(Font.font("Times New Roman", TEXT_SIZE));
-        gc.setFill(Color.BLACK);
-        gc.fillText("Score: " + score, SCORE_POS_X, SCORE_POS_Y);
-        gc.fillText("Lives: " + paddle.getLives(), LIVES_POS_X, LIVES_POS_Y);
-
-        if (showLaunchText) {
-            launchText.setVisible(true);
-        } else {
-            launchText.setVisible(false);
-        }
-
         List<Brick> brickToRemove = new ArrayList<>();
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
@@ -311,7 +309,6 @@ public class GameManager {
             }
         }
 
-        for (Brick brick : toRemove) {
         for (Brick brick : brickToRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
@@ -380,13 +377,6 @@ public class GameManager {
             root.getChildren().remove(powerUp.getCollisionShape());
             powerUps.remove(powerUp);
         }
-
-        if (!running) {
-            gc.fillText("GAME OVER - Press R to Restart",
-                    GAME_OVER_POS_X,
-                    GAME_OVER_POS_Y);
-            return;
-        }
     }
 
     public void update(long now) {
@@ -438,14 +428,14 @@ public class GameManager {
             gameOver();
         }
 
-        textManager.updateScore(score);
+        textManager.updateScoreAndLives(score, paddle);
         textManager.showLaunchHint(showLaunchText);
 
         // Kiểm tra va chạm
         CollisionDetector.handlePaddleCollision(ball, paddle);
     }
 
-    public void keyPressed(KeyEvent e) {
+    void keyPressed(KeyEvent e) {
         if (!running && e.getCode() == KeyCode.R) {
             restart();
             textManager.showGameOver(false);
@@ -471,6 +461,7 @@ public class GameManager {
         showLaunchText = true;
         ball.notLaunch();
         textManager.showGameOver(false);
+        paddle.reset();
 
         if (dynamicSpawning) {
             dynamicSpawning = false;

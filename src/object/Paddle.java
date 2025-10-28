@@ -71,6 +71,7 @@ public class Paddle extends GameObject {
     public void reset() {
         setX(PADDLE_POS_X);
         setY(PADDLE_POS_Y);
+        lives = DEFAULT_LIVES;
     }
 
     public void loseLife() {
