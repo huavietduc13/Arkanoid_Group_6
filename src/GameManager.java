@@ -5,9 +5,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
@@ -34,12 +31,12 @@ public class GameManager {
     private int score = 0;
     private int levelNumber;
     private boolean running = true;
+    private TextManager textManager;
     private boolean showLaunchText = true;
-    public Text text = new Text();
 
     private boolean dynamicSpawning = false;
     private long lastSpawnTime = 0;
-    private final double SPAWN_INTERVAL = 30.0;
+    private final double SPAWN_INTERVAL = 15;
     private boolean nextSpawnPattern = true;
 
     private final int brickWidth = 63;
@@ -68,7 +65,9 @@ public class GameManager {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
         bricks.clear();
-        root.getChildren().remove(text);
+        if (textManager != null) {
+            textManager.removeText(root);
+        }
 
         backgroundImage = new Image("file:assets/images/background_1.png");
 
@@ -94,10 +93,11 @@ public class GameManager {
         paddle = new Paddle("file:assets/images/paddle1.png", 480, 240, 760, 120, 36, 6);
         ball = new Ball("file:assets/images/ball1.png", 280, 724, 18, 2, -2);
 
+        textManager = new TextManager(root);
+
         loadLevel(this.levelNumber);
 
         root.getChildren().addAll(
-                text,
                 paddle.getImageView(), paddle.getCollisionShape(),
                 ball.getImageView(), ball.getCollisionShape()
         );
@@ -262,20 +262,6 @@ public class GameManager {
     public void render(Pane root) {
         gc.drawImage(backgroundImage, 0, 0, 600, 800);
 
-        gc.setFill(Color.WHITE);
-        gc.fillText("Score: " + score, 10, 20);
-
-        text.setText("Press 'SPACE' to launch the ball!");
-        text.setX(165);
-        text.setY(360);
-        text.setFont(Font.font("Times New Roman", 20));
-        text.setFill(Color.WHITE);
-        if (showLaunchText) {
-            text.setVisible(true);
-        } else {
-            text.setVisible(false);
-        }
-
         List<Brick> toRemove = new ArrayList<>();
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && CollisionDetector.handleCollision(ball, brick)) {
@@ -287,14 +273,11 @@ public class GameManager {
                 break;
             }
         }
+
         for (Brick brick : toRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
             bricks.remove(brick);
-        }
-
-        if (!running) {
-            gc.fillText("GAME OVER - Press R to Restart", 250, 300);
         }
     }
 
@@ -336,6 +319,9 @@ public class GameManager {
             gameOver();
         }
 
+        textManager.updateScore(score);
+        textManager.showLaunchHint(showLaunchText);
+
         // Kiểm tra va chạm
         CollisionDetector.handlePaddleCollision(ball, paddle);
     }
@@ -343,6 +329,7 @@ public class GameManager {
     public void keyPressed(KeyEvent e) {
         if (!running && e.getCode() == KeyCode.R) {
             restart();
+            textManager.showGameOver(false);
         }
         if (e.getCode() == KeyCode.ESCAPE) {
             return;
@@ -350,7 +337,6 @@ public class GameManager {
 
         if (e.getCode() == KeyCode.SPACE && !ball.isLaunched()) {
             ball.launch();
-            text.setVisible(false);
         } else {
             paddle.handleKeyPressed(e.getCode());
         }
@@ -365,6 +351,7 @@ public class GameManager {
         running = true;
         showLaunchText = true;
         ball.notLaunch();
+        textManager.showGameOver(false);
 
         if (dynamicSpawning) {
             dynamicSpawning = false;
@@ -377,6 +364,7 @@ public class GameManager {
         running = false;
         stopBackgroundMusic();
         ball.notLaunch();
+        textManager.showGameOver(true);
     }
 
     public Paddle getPaddle() { return paddle; }
