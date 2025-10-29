@@ -72,7 +72,12 @@ public class GameManager {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
         bricks.clear();
+
+        for (PowerUp powerUp: powerUps) {
+            root.getChildren().removeAll(powerUp.getCollisionShape(), powerUp.getImageView());
+        }
         powerUps.clear();
+        root.getChildren().remove(powerUps);
         if (textManager != null) {
             textManager.removeText(root);
         }
@@ -381,6 +386,8 @@ public class GameManager {
 
     public void update(long now) {
         if (!running) return;
+
+        System.out.println(ball.getVx() + " " + ball.getVy());
 
         if (dynamicSpawning) {
             if (lastSpawnTime == 0) {

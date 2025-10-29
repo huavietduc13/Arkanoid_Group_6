@@ -29,8 +29,8 @@ public class Constants {
     public static final double BALL_POS_X = 280.0;
     public static final double BALL_POS_Y = 724.0;
     public static final double BALL_RADIUS = 18.0;
-    public static final double BALL_VX = 5.0;
-    public static final double BALL_VY = -5.0;
+    public static final double BALL_VX = 3.0;
+    public static final double BALL_VY = -BALL_VX;
     public static final double BALL_BOUNDARY = 760.0;
 
     public static final double TEXT_SIZE = 20.0;
