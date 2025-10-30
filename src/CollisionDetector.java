@@ -5,16 +5,9 @@ import object.Paddle;
 import object.brick.Brick;
 import enums.CollisionSide;
 
+import static utils.Constants.*;
+
 public class CollisionDetector {
-    // Avoid floating-point precision errors
-    private static final double EPSILON = 0.05;
-
-    // Safe distance to push ball out of brick after collision
-    private static final double SEPARATION_OFFSET = 0.5;
-
-    private static final double MIN_SPEED = 6.0;
-    private static final double MAX_SPEED = 8.0;
-
     // Handle collision between ball and brick
     public static boolean handleCollision(Ball ball, Brick brick) {
         if (brick.isDestroyed()) {
@@ -54,8 +47,7 @@ public class CollisionDetector {
         CollisionSide side = getCollisionSide(
                 ballCenterX, ballCenterY, radius,
                 vx, vy,
-                brickLeft, brickRight, brickTop, brickBottom,
-                closestX, closestY
+                brickLeft, brickRight, brickTop, brickBottom
         );
 
         // Apply bounce based on collision side
@@ -71,21 +63,14 @@ public class CollisionDetector {
     private static CollisionSide getCollisionSide(
             double ballCenterX, double ballCenterY, double radius,
             double vx, double vy,
-            double brickLeft, double brickRight, double brickTop, double brickBottom,
-            double closestX, double closestY
+            double brickLeft, double brickRight, double brickTop, double brickBottom
     ) {
         double brickCenterX = (brickLeft + brickRight) / 2;
         double brickCenterY = (brickTop + brickBottom) / 2;
-        double brickHalfWidth = (brickRight - brickLeft) / 2;
-        double brickHalfHeight = (brickBottom - brickTop) / 2;
 
         // Check if ball center is inside brick (should be rare but possible with high speed)
         boolean insideBrick = (ballCenterX > brickLeft && ballCenterX < brickRight &&
                 ballCenterY > brickTop && ballCenterY < brickBottom);
-
-        // Calculate relative position from brick center
-        double relativeX = ballCenterX - brickCenterX;
-        double relativeY = ballCenterY - brickCenterY;
 
 //        // Determine if this is a corner collision
 //        boolean isCornerCollision = isCornerHit(
@@ -108,37 +93,39 @@ public class CollisionDetector {
         }
 
         // Calculate penetration depth for each side
-        double penetrationLeft = (ballCenterX + radius) - brickLeft;
-        double penetrationRight = brickRight - (ballCenterX - radius);
-        double penetrationTop = (ballCenterY + radius) - brickTop;
-        double penetrationBottom = brickBottom - (ballCenterY - radius);
+        double penetrationLeft = Math.abs((ballCenterX + radius) - brickLeft);
+        double penetrationRight = Math.abs(brickRight - (ballCenterX - radius));
+        double penetrationTop = Math.abs((ballCenterY + radius) - brickTop);
+        double penetrationBottom = Math.abs(brickBottom - (ballCenterY - radius));
 
         // Find minimum penetration
         double minPenetration = Math.min(
                 Math.min(penetrationLeft, penetrationRight),
                 Math.min(penetrationTop, penetrationBottom)
         );
+        CollisionSide side = CollisionSide.TOP;
 
         // Use velocity direction as a tiebreaker
-        if (minPenetration == penetrationTop && vy > 0) {
-            return CollisionSide.TOP;
-        } else if (minPenetration == penetrationBottom && vy < 0) {
-            return CollisionSide.BOTTOM;
-        } else if (minPenetration == penetrationLeft && vx > 0) {
-            return CollisionSide.LEFT;
-        } else if (minPenetration == penetrationRight && vx < 0) {
-            return CollisionSide.RIGHT;
+        if (minPenetration == penetrationTop) {
+            side = CollisionSide.TOP;
+            System.out.println("TOP");
+        }
+        if (minPenetration == penetrationBottom) {
+            side = CollisionSide.BOTTOM;
+            System.out.println("BOTTOM");
+        }
+        if (minPenetration == penetrationLeft) {
+            side = CollisionSide.LEFT;
+            System.out.println("LEFT");
+        }
+        if (minPenetration == penetrationRight) {
+            side = CollisionSide.RIGHT;
+            System.out.println("RIGHT");
         }
 
-        // Fallback: use aspect ratio to determine side
-        double normalizedX = relativeX / brickHalfWidth;
-        double normalizedY = relativeY / brickHalfHeight;
+        System.out.println("========================");
 
-        if (Math.abs(normalizedX) > Math.abs(normalizedY)) {
-            return relativeX > 0 ? CollisionSide.RIGHT : CollisionSide.LEFT;
-        } else {
-            return relativeY > 0 ? CollisionSide.BOTTOM : CollisionSide.TOP;
-        }
+        return side;
     }
 
 
@@ -264,17 +251,19 @@ public class CollisionDetector {
      // Still developing
     public static boolean handlePaddleCollision(Ball ball, Paddle paddle) {
         // Get ball properties
-        double ballCenterX = ball.getCenterX();
-        double ballCenterY = ball.getCenterY();
-        double radius = ball.getRadius();
+        Circle ballShape = ball.getCollisionShape();
+        double ballCenterX = ballShape.getCenterX();
+        double ballCenterY = ballShape.getCenterY();
+        double radius = ballShape.getRadius();
         double vx = ball.getVx();
         double vy = ball.getVy();
 
-        // Get paddle bounds from ImageView
-        double paddleLeft = paddle.getX();
-        double paddleRight = paddle.getX() + paddle.getWidth();
-        double paddleTop = paddle.getY();
-        double paddleBottom = paddle.getY() + paddle.getHeight();
+        // Get paddle bounds
+        Rectangle paddleShape = paddle.getCollisionShape();
+        double paddleLeft = paddleShape.getX();
+        double paddleRight = paddleShape.getX() + paddleShape.getWidth();
+        double paddleTop = paddleShape.getY();
+        double paddleBottom = paddleShape.getY() + paddleShape.getHeight();
 
         // Quick rejection test
         if (ballCenterY - radius > paddleBottom) {
@@ -318,10 +307,10 @@ public class CollisionDetector {
             case RIGHT:
                 ball.reverseX();
                 break;
-//            case CORNER:
-//                ball.reverseX();
-//                ball.reverseY();
-//                break;
+            case CORNER:
+                ball.reverseX();
+                ball.reverseY();
+                break;
         }
 
         return true;
@@ -336,10 +325,10 @@ public class CollisionDetector {
         boolean inRightRegion = ballCenterX > paddleRight;
         boolean inTopRegion = ballCenterY < paddleTop;
 
-//        if ((inLeftRegion && inTopRegion && vx > 0) ||
-//                (inRightRegion && inTopRegion && vx < 0)) {
-//            return CollisionSide.CORNER;
-//        }
+        if ((inLeftRegion && inTopRegion && vx > 0) ||
+                (inRightRegion && inTopRegion && vx < 0)) {
+            return CollisionSide.CORNER;
+        }
 
         if (inLeftRegion && !inTopRegion && vx > 0) {
             return CollisionSide.LEFT;

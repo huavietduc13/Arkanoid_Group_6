@@ -145,6 +145,18 @@ public class Ball extends GameObject {
         imageView.setY(y - radius);
     }
 
+    public double getRotationSpeed() {
+        return rotationSpeed;
+    }
+
+    public void setRotationSpeed(double rotationSpeed) {
+        this.rotationSpeed = rotationSpeed;
+    }
+
+    public void resetRotationSpeed() {
+        this.rotationSpeed = 5;
+    }
+
     public void reset(double x, double y) {
         setCenterX(x + radius);
         setCenterY(y + radius);

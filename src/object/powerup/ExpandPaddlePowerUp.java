@@ -2,7 +2,7 @@ package object.powerup;
 
 import object.Ball;
 import object.Paddle;
-import utils.Constants;
+import static utils.Constants.*;
 import static enums.PowerUpType.*;
 
 
@@ -17,7 +17,7 @@ public class ExpandPaddlePowerUp extends PowerUp {
 
     @Override
     public void activate(Paddle paddle, Ball ball) {
-        originalWidth = Constants.PADDLE_WIDTH;
+        originalWidth = PADDLE_WIDTH;
         double newWidth = originalWidth * SIZE_MULTIPLIER;
         paddle.getImageView().setFitWidth(newWidth);
         paddle.getCollisionShape().setWidth(newWidth);

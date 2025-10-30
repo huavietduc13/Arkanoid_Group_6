@@ -54,10 +54,6 @@ public abstract class PowerUp extends GameObject {
         double newY = getY() + fallSpeed;
         setY(newY);
         updateCollisionShape();
-
-//        if (newY > SCREEN_HEIGHT - PADDLE_HEIGHT) {
-//            collected = true;
-//        }
     }
 
     private void updateCollisionShape() {
@@ -94,9 +90,9 @@ public abstract class PowerUp extends GameObject {
     }
 
     public void collect(Paddle paddle, Ball ball) {
-        if (collected) {
-            return;
-        }
+//        if (collected) {
+//            return;
+//        }
 
         collected = true;
         activationTime = System.currentTimeMillis();
@@ -111,8 +107,8 @@ public abstract class PowerUp extends GameObject {
         return collected;
     }
 
-    public boolean isActivated() {
-        return activated;
+    public void setCollected(boolean collected) {
+        this.collected = collected;
     }
 
     public double getDuration() {
@@ -131,14 +127,6 @@ public abstract class PowerUp extends GameObject {
         this.activationTime = activationTime;
     }
 
-    public void setActivated() {
-        activated = true;
-    }
-
-    public void setNotActivated() {
-        activated = false;
-    }
-
     public void setCenterX(double x) {
         collisionShape.setCenterX(x);
         imageView.setX(x + radius);
@@ -155,6 +143,10 @@ public abstract class PowerUp extends GameObject {
                 return new ExpandPaddlePowerUp(x, y);
             case SHRINK_PADDLE:
                 return new ShrinkPaddlePowerUp(x, y);
+            case SLOW_BALL:
+                return new SlowBallPowerUp(x, y);
+            case FAST_BALL:
+                return new FastBallPowerUp(x, y);
             case MULTI_BALL:
                 return new MultiBallPowerUp(x, y);
             case POINTS_MULTIPLIER:
@@ -168,25 +160,5 @@ public abstract class PowerUp extends GameObject {
         PowerUpType[] types = PowerUpType.values();
         int randomIndex = (int) (Math.random() * types.length);
         return createPowerUp(types[randomIndex], x, y);
-    }
-
-    public void addActivePowerUp(PowerUp powerUp, List<PowerUp> activePowerUps) {
-        for (PowerUp active : activePowerUps) {
-            if (active.getType() == powerUp.getType()) {
-                active.setActivationTime(System.currentTimeMillis());
-                return;
-            }
-        }
-        activePowerUps.add(powerUp);
-    }
-
-    public void updateState(Paddle paddle, Ball ball, List<PowerUp> activePowerUps, List<PowerUp> powerUpToRemove) {
-        for (PowerUp powerUp : activePowerUps) {
-            if (powerUp.isExpired()) {
-                powerUp.deactivate(paddle, ball);
-                powerUpToRemove.add(powerUp);
-            }
-        }
-        activePowerUps.removeAll(powerUpToRemove);
     }
 }

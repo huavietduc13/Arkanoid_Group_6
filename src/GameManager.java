@@ -149,12 +149,12 @@ public class GameManager {
         } else if (levelNumber == 1) {
             System.out.println("Đang tải Level 1 (Hard-code map xen kẽ)");
             selectedMap = new int[][] {
-                    {2, 1, 2, 1, 2, 1, 2, 1},
-                    {2, 1, 2, 1, 2, 1, 2, 1},
-                    {2, 1, 2, 1, 2, 1, 2, 1},
-                    {2, 1, 2, 1, 2, 1, 2, 1},
-                    {2, 1, 2, 1, 2, 1, 2, 1},
-                    {2, 1, 2, 1, 2, 1, 2, 1}
+                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 1, 1}
             };
 
         } else if (levelNumber == 2) {
@@ -311,6 +311,12 @@ public class GameManager {
                     vy);
             newBall.launch();
 
+            for (PowerUp powerUp : activePowerUps) {
+                if (powerUp.getType() == SLOW_BALL || powerUp.getType() == FAST_BALL) {
+                    powerUp.activate(paddle, newBall);
+                }
+            }
+
             balls.add(newBall);
             root.getChildren().addAll(newBall.getImageView(), newBall.getCollisionShape());
         }
@@ -356,12 +362,44 @@ public class GameManager {
 
             if (powerUp.intersects(paddle)) {
                 if (powerUp.getDuration() > 0) {
-                    // Expand and shrink at the same time is not allowed
+                    // Expand and Shrink at the same time is not allowed
                     if (powerUp.getType() == EXPAND_PADDLE) {
                         activePowerUps.removeIf(p -> p.getType() == SHRINK_PADDLE);
                     }
                     if (powerUp.getType() == SHRINK_PADDLE) {
                         activePowerUps.removeIf(p -> p.getType() == EXPAND_PADDLE);
+                    }
+
+                    // Same with Fast and Slow
+                    if (powerUp.getType() == FAST_BALL) {
+                        PowerUp slowBall = null;
+                        for (PowerUp active : activePowerUps) {
+                            if (active.getType() == SLOW_BALL) {
+                                slowBall = active;
+                                break;
+                            }
+                        }
+                        if (slowBall != null) {
+                            for (Ball ball : balls) {
+                                slowBall.deactivate(paddle, ball);
+                            }
+                            activePowerUps.remove(slowBall);
+                        }
+                    }
+                    if (powerUp.getType() == SLOW_BALL) {
+                        PowerUp fastBall = null;
+                        for (PowerUp active : activePowerUps) {
+                            if (active.getType() == FAST_BALL) {
+                                fastBall = active;
+                                break;
+                            }
+                        }
+                        if (fastBall != null) {
+                            for (Ball ball : balls) {
+                                fastBall.deactivate(paddle, ball);
+                            }
+                            activePowerUps.remove(fastBall);
+                        }
                     }
 
                     // Check if there is already an active power up of the same type
@@ -379,7 +417,9 @@ public class GameManager {
                         existingPowerUp.setActivationTime(System.currentTimeMillis());
                     } else {
                         // Collect new power up
-                        powerUp.collect(paddle, balls.get(0));
+                        for (Ball ball : balls) {
+                            powerUp.collect(paddle, ball);
+                        }
                         activePowerUps.add(powerUp);
                     }
                 } else {
@@ -389,8 +429,9 @@ public class GameManager {
                         if (mainBall.isLaunched()) {
                             createExtraBalls(mainBall, EXTRA_BALLS);
                         }
+                    } else {
+                        powerUp.collect(paddle, balls.get(0));
                     }
-                    powerUp.collect(paddle, balls.get(0));
                 }
                 powerUpToRemove.add(powerUp);
             }
@@ -404,7 +445,9 @@ public class GameManager {
         List<PowerUp> expiredPowerUps = new ArrayList<>();
         for (PowerUp active : activePowerUps) {
             if (active.isExpired()) {
-                active.deactivate(paddle, balls.get(0));
+                for (Ball ball : balls) {
+                    active.deactivate(paddle, ball);
+                }
                 expiredPowerUps.add(active);
             }
         }
@@ -419,7 +462,9 @@ public class GameManager {
     }
 
     public void update(long now) {
-        if (!running) return;
+        if (!running) {
+            return;
+        }
 
         if (dynamicSpawning) {
             if (lastSpawnTime == 0) {

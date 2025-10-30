@@ -8,10 +8,9 @@ import javafx.util.Duration;
 import object.GameObject;
 import enums.BrickType;
 
-public abstract class Brick extends GameObject {
-    private static int BRICK_WIDTH = 63;
-    private static int BRICK_HEIGHT = 33;
+import static utils.Constants.*;
 
+public abstract class Brick extends GameObject {
     protected int hitPoints;
     protected int score;
     private boolean isBeingHit = false;
