@@ -9,8 +9,8 @@ public class IndestructibleBrick extends Brick{
         super(IMAGE_PATH, x, y, width, height, INITIAL_STRENGTH, SCORE);
     }
 
-    public void takeHit() {
-        // Do nothing
+    public boolean takeHit() {
+        return false;
     }
 
     @Override

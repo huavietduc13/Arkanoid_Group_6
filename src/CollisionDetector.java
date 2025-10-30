@@ -7,7 +7,7 @@ import enums.CollisionSide;
 
 public class CollisionDetector {
     // Avoid floating-point precision errors
-    private static final double EPSILON = 0.001;
+    private static final double EPSILON = 0.05;
 
     // Safe distance to push ball out of brick after collision
     private static final double SEPARATION_OFFSET = 0.5;
@@ -318,10 +318,10 @@ public class CollisionDetector {
             case RIGHT:
                 ball.reverseX();
                 break;
-            case CORNER:
-                ball.reverseX();
-                ball.reverseY();
-                break;
+//            case CORNER:
+//                ball.reverseX();
+//                ball.reverseY();
+//                break;
         }
 
         return true;
@@ -336,10 +336,10 @@ public class CollisionDetector {
         boolean inRightRegion = ballCenterX > paddleRight;
         boolean inTopRegion = ballCenterY < paddleTop;
 
-        if ((inLeftRegion && inTopRegion && vx > 0) ||
-                (inRightRegion && inTopRegion && vx < 0)) {
-            return CollisionSide.CORNER;
-        }
+//        if ((inLeftRegion && inTopRegion && vx > 0) ||
+//                (inRightRegion && inTopRegion && vx < 0)) {
+//            return CollisionSide.CORNER;
+//        }
 
         if (inLeftRegion && !inTopRegion && vx > 0) {
             return CollisionSide.LEFT;
@@ -438,7 +438,7 @@ public class CollisionDetector {
          // Calculate new velocity components from angle
          double newVx;
 
-         if (-0.05 <= normalizedPosition && normalizedPosition <= 0.05) {
+         if (-0.01 <= normalizedPosition && normalizedPosition <= 0.01 && paddle.getVx() > 0) {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
          } else {
              newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);

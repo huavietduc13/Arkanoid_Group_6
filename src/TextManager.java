@@ -5,11 +5,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import object.Paddle;
-import utils.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+
+import static utils.Constants.*;
 
 public class TextManager {
     private Text scoreText;
@@ -25,8 +26,8 @@ public class TextManager {
 
         // Lives
         livesText = new Text("Score: 3");
-        livesText.setX(Constants.LIVES_POS_X);
-        livesText.setY(Constants.LIVES_POS_Y);
+        livesText.setX(LIVES_POS_X);
+        livesText.setY(LIVES_POS_Y);
         livesText.setFill(Color.BLACK);
         livesText.setFont(customFont);
 
@@ -68,17 +69,17 @@ public class TextManager {
     }
 
     private void alignTexts() {
-        livesText.setX(Constants.LIVES_POS_X);
-        livesText.setY(Constants.LIVES_POS_Y);
+        livesText.setX(LIVES_POS_X);
+        livesText.setY(LIVES_POS_Y);
 
-        scoreText.setX(Constants.SCORE_POS_X);
-        scoreText.setX(Constants.SCORE_POS_Y);
+        scoreText.setX(SCORE_POS_X);
+        scoreText.setX(SCORE_POS_Y);
 
-        launchHint.setX((Constants.SCREEN_WIDTH - launchHint.getLayoutBounds().getWidth()) / 2);
-        launchHint.setY(Constants.SCREEN_HEIGHT / 2 - 40);
+        launchHint.setX((SCREEN_WIDTH - launchHint.getLayoutBounds().getWidth()) / 2);
+        launchHint.setY(SCREEN_HEIGHT / 2 - 40);
 
-        gameOverText.setX((Constants.SCREEN_WIDTH - gameOverText.getLayoutBounds().getWidth()) / 2);
-        gameOverText.setY(Constants.SCREEN_HEIGHT / 2 + 20);
+        gameOverText.setX((SCREEN_WIDTH - gameOverText.getLayoutBounds().getWidth()) / 2);
+        gameOverText.setY(SCREEN_HEIGHT / 2 + 20);
     }
 
     public void updateScoreAndLives(int score, Paddle paddle) {

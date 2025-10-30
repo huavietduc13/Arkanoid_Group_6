@@ -155,8 +155,8 @@ public abstract class PowerUp extends GameObject {
                 return new ExpandPaddlePowerUp(x, y);
             case SHRINK_PADDLE:
                 return new ShrinkPaddlePowerUp(x, y);
-//            case MULTI_BALL:
-//                return new MultiBallPowerUp(x, y);
+            case MULTI_BALL:
+                return new MultiBallPowerUp(x, y);
             case POINTS_MULTIPLIER:
                 return new PointMultiplierPowerUp(x, y);
             default:
