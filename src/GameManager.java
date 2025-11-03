@@ -28,6 +28,7 @@ public class GameManager {
     private static MediaPlayer backgroundMusic = null;
     private Media[] meowSounds;
     private Random random;
+    private TextManager textManager;
 
     private Paddle paddle;
     private Ball ball;
@@ -38,8 +39,8 @@ public class GameManager {
     private int score = 0;
     private int levelNumber;
     private boolean running = true;
-    private TextManager textManager;
     private boolean showLaunchText = true;
+    private boolean isPaused = false;
 
     private boolean dynamicSpawning = false;
     private long lastSpawnTime = 0;
@@ -53,12 +54,15 @@ public class GameManager {
     private final int startY = 50;
 
 
+
     public GameManager(GraphicsContext gc, Pane root, int levelNumber) {
         this.gc = gc;
         this.root = root;
         this.levelNumber = levelNumber;
         init();
     }
+
+
 
     private void init() {
         // Xóa các đối tượng cũ nếu có
@@ -126,6 +130,8 @@ public class GameManager {
                 ball.getImageView(), ball.getCollisionShape()
         );
     }
+
+
 
     private void loadLevel(int levelNumber) {
 
@@ -233,6 +239,8 @@ public class GameManager {
         }
     }
 
+
+
     private void moveAllBricksDown() {
         System.out.println("Đang đẩy gạch xuống...");
         double paddleTopY = paddle.getY();
@@ -249,6 +257,8 @@ public class GameManager {
             brick.setY(newY);
         }
     }
+
+
 
     private void addNewRowAtTop(boolean strongFirst) {
         System.out.println("Đang sinh hàng gạch mới ở trên cùng");
@@ -269,6 +279,7 @@ public class GameManager {
     }
 
 
+
     public static void stopBackgroundMusic() {
         if (backgroundMusic != null) {
             backgroundMusic.stop();
@@ -276,6 +287,8 @@ public class GameManager {
             backgroundMusic = null;
         }
     }
+
+
 
     private void playRandomMeowSound() {
         if (meowSounds != null && meowSounds[0] != null) {
@@ -289,6 +302,8 @@ public class GameManager {
             }
         }
     }
+
+
 
     public void render(Pane root) {
         gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -384,8 +399,10 @@ public class GameManager {
         }
     }
 
+
+
     public void update(long now) {
-        if (!running) return;
+        if (!running || isPaused) return;
 
         System.out.println(ball.getVx() + " " + ball.getVy());
 
@@ -442,11 +459,16 @@ public class GameManager {
         CollisionDetector.handlePaddleCollision(ball, paddle);
     }
 
+
+
     void keyPressed(KeyEvent e) {
+        if (isPaused) return;
+        
         if (!running && e.getCode() == KeyCode.R) {
             restart();
             textManager.showGameOver(false);
         }
+
         if (e.getCode() == KeyCode.ESCAPE) {
             return;
         }
@@ -458,9 +480,13 @@ public class GameManager {
         }
     }
 
+
+
     public void keyReleased(KeyEvent e) {
         paddle.handleKeyReleased(e.getCode());
     }
+
+
 
     private void restart() {
         score = 0;
@@ -477,6 +503,8 @@ public class GameManager {
         init();
     }
 
+
+
     private void gameOver() {
         running = false;
         stopBackgroundMusic();
@@ -484,7 +512,23 @@ public class GameManager {
         textManager.showGameOver(true);
     }
 
-    public Paddle getPaddle() { return paddle; }
-    public Ball getBall() { return ball; }
-    public List<Brick> getBricks() { return bricks; }
+
+
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+
+
+    public void pause() {
+        isPaused = true;
+        if(backgroundMusic != null) backgroundMusic.pause();
+    }
+
+
+
+    public void resume() {
+        isPaused = false;
+        if(backgroundMusic != null) backgroundMusic.play();
+    }
 }
