@@ -1,4 +1,4 @@
-package src.object.brick;
+package object.brick;
 
 import java.util.Random;
 

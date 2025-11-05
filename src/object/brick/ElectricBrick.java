@@ -1,4 +1,4 @@
-package src.object.brick;
+package object.brick;
 
 public class ElectricBrick extends Brick{
     private static int INITIAL_STRENGTH = 1;

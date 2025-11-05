@@ -86,7 +86,7 @@ public class GameManager {
             textManager.removeText(root);
         }
 
-        backgroundImage = new Image("file:assets/images/background_1.png");
+        backgroundImage = new Image("file:assets/images/background.png");
 
         this.random = new Random();
         this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
@@ -463,7 +463,7 @@ public class GameManager {
 
     void keyPressed(KeyEvent e) {
         if (isPaused) return;
-        
+
         if (!running && e.getCode() == KeyCode.R) {
             restart();
             textManager.showGameOver(false);

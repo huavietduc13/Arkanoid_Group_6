@@ -136,7 +136,7 @@ public class SceneManager {
         level1Button.setFitHeight(80);
         level1Button.setOnMouseEntered(e -> level1Button.setOpacity(0.9));
         level1Button.setOnMouseExited(e -> level1Button.setOpacity(1.0));
-        level1Button.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
+        level1Button.setOnMouseClicked(e -> startGame(1));
 
         //Lvl 3
         Image level2 = new Image("file:assets/images/Level_2.png");
@@ -145,9 +145,9 @@ public class SceneManager {
         level2Button.setFitHeight(80);
         level2Button.setOnMouseEntered(e -> level2Button.setOpacity(0.9));
         level2Button.setOnMouseExited(e -> level2Button.setOpacity(1.0));
-        level2Button.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
+        level2Button.setOnMouseClicked(e -> startGame(2));
 
-        //Back to main menu
+        //Back
         Image back = new Image("file:assets/images/mainMenuButton.png");
         ImageView backButton = new ImageView(back);
         backButton.setFitWidth(200);

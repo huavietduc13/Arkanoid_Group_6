@@ -157,9 +157,9 @@ public class CollisionDetector {
         // Corner hit if ball is in both horizontal and vertical outer regions
         boolean isCorner = (
                 (inTopRegion && inLeftRegion && vx > 0 && vy > 0) ||
-                (inTopRegion && inRightRegion && vx < 0 && vy < 0) ||
-                (inBottomRegion && inLeftRegion && vx > 0 && vy < 0) ||
-                (inBottomRegion && inRightRegion && vx < 0 && vy < 0));
+                        (inTopRegion && inRightRegion && vx < 0 && vy < 0) ||
+                        (inBottomRegion && inLeftRegion && vx > 0 && vy < 0) ||
+                        (inBottomRegion && inRightRegion && vx < 0 && vy < 0));
 
         if (!isCorner) {
             return false;
@@ -259,9 +259,9 @@ public class CollisionDetector {
         return Math.max(min, Math.min(max, value));
     }
 
-     // Handle collision between ball and paddle with angle variation
-     // Bounce angle depends on hit position
-     // Still developing
+    // Handle collision between ball and paddle with angle variation
+    // Bounce angle depends on hit position
+    // Still developing
     public static boolean handlePaddleCollision(Ball ball, Paddle paddle) {
         // Get ball properties
         double ballCenterX = ball.getCenterX();
@@ -353,8 +353,8 @@ public class CollisionDetector {
     }
 
     public static void handleTopCollision(Ball ball, Paddle paddle,
-                                             double paddleLeft, double paddleRight,
-                                             double paddleTop, double radius) {
+                                          double paddleLeft, double paddleRight,
+                                          double paddleTop, double radius) {
 
         double paddleWidth = paddleRight - paddleLeft;
         double hitPosition = (ball.getCenterX() - paddleLeft) / paddleWidth;
@@ -418,57 +418,57 @@ public class CollisionDetector {
         }
     }
 
-     // Apply paddle bounce with angle variation based on hit position
-     // - Center hits: steep angle (mostly vertical)
-     // - Edge hits: shallow angle (more horizontal)
-     private static void applyPaddleBounce(Ball ball, double hitPosition, Paddle paddle) {
-         // Normalize hit position (-1.0 = left, +1.0 = right)
-         double normalizedPosition = (hitPosition - 0.5) * 2.0;
+    // Apply paddle bounce with angle variation based on hit position
+    // - Center hits: steep angle (mostly vertical)
+    // - Edge hits: shallow angle (more horizontal)
+    private static void applyPaddleBounce(Ball ball, double hitPosition, Paddle paddle) {
+        // Normalize hit position (-1.0 = left, +1.0 = right)
+        double normalizedPosition = (hitPosition - 0.5) * 2.0;
 
-         // Get current ball speed
-         double currentSpeed = Math.sqrt(ball.getVx() * ball.getVx() + ball.getVy() * ball.getVy());
+        // Get current ball speed
+        double currentSpeed = Math.sqrt(ball.getVx() * ball.getVx() + ball.getVy() * ball.getVy());
 
-         // Calculate bounce angle based on hit position
-         double minAngle = 45.0;  // Minimum angle at edges (degrees)
-         double maxAngle = 65.0;  // Maximum angle at center (degrees)
+        // Calculate bounce angle based on hit position
+        double minAngle = 45.0;  // Minimum angle at edges (degrees)
+        double maxAngle = 65.0;  // Maximum angle at center (degrees)
 
-         double bounceAngle = minAngle + (maxAngle - minAngle) * (1.0 - Math.abs(normalizedPosition));
-         double bounceAngleInRadians = Math.toRadians(bounceAngle);
+        double bounceAngle = minAngle + (maxAngle - minAngle) * (1.0 - Math.abs(normalizedPosition));
+        double bounceAngleInRadians = Math.toRadians(bounceAngle);
 
-         // Calculate new velocity components from angle
-         double newVx;
+        // Calculate new velocity components from angle
+        double newVx;
 
-         if (-0.05 <= normalizedPosition && normalizedPosition <= 0.05) {
-             newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
-         } else {
-             newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);
-         }
+        if (-0.05 <= normalizedPosition && normalizedPosition <= 0.05) {
+            newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(paddle.getVx());
+        } else {
+            newVx = currentSpeed * Math.sin(bounceAngleInRadians) * Math.signum(normalizedPosition);
+        }
 
-         double newVy = -currentSpeed * Math.cos(bounceAngleInRadians); // Negative = upward
+        double newVy = -currentSpeed * Math.cos(bounceAngleInRadians); // Negative = upward
 
-         // Transfer 30% of paddle's velocity to ball
-         double paddleVelocity = paddle.getVx();
-         double velocityInfluence = paddleVelocity * 0.3;
-         newVx += velocityInfluence;
+        // Transfer 30% of paddle's velocity to ball
+        double paddleVelocity = paddle.getVx();
+        double velocityInfluence = paddleVelocity * 0.3;
+        newVx += velocityInfluence;
 
-         double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
-         if (finalSpeed < MIN_SPEED) {
-             double ratio = MIN_SPEED / finalSpeed;
+        double finalSpeed = Math.sqrt(newVx * newVx + newVy * newVy);
+        if (finalSpeed < MIN_SPEED) {
+            double ratio = MIN_SPEED / finalSpeed;
 
-             newVx *= ratio;
-             newVy *= ratio;
-         }
+            newVx *= ratio;
+            newVy *= ratio;
+        }
 
-         if (finalSpeed > MAX_SPEED) {
-             double ratio = MAX_SPEED / finalSpeed;
+        if (finalSpeed > MAX_SPEED) {
+            double ratio = MAX_SPEED / finalSpeed;
 
-             newVx *= ratio;
-             newVy *= ratio;
+            newVx *= ratio;
+            newVy *= ratio;
 
-         }
+        }
 
-         // Apply final velocity
-         ball.setVx(newVx);
-         ball.setVy(newVy);
-     }
+        // Apply final velocity
+        ball.setVx(newVx);
+        ball.setVy(newVy);
+    }
 }

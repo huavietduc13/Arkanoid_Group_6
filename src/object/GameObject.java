@@ -1,4 +1,4 @@
-package src.object;
+package object;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
