@@ -1,3 +1,6 @@
+package engine;
+
+import effect.ParticleEngine;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -5,9 +8,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.paint.Color;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
+import object.brick.ElectricBrick;
 import object.powerup.PowerUp;
 
 import java.io.File;
@@ -52,16 +57,16 @@ public class GameManager {
     private final int startX = 50;
     private final int startY = 50;
 
-
+    private ParticleEngine effect;
+    private long lastFrameTime = 0;
 
     public GameManager(GraphicsContext gc, Pane root, int levelNumber) {
         this.gc = gc;
         this.root = root;
         this.levelNumber = levelNumber;
+        this.effect = new ParticleEngine(gc);
         init();
     }
-
-
 
     private void init() {
         // Xóa các đối tượng cũ nếu có
@@ -134,8 +139,6 @@ public class GameManager {
         );
     }
 
-
-
     private void loadLevel(int levelNumber) {
 
         int[][] selectedMap = null;
@@ -160,7 +163,7 @@ public class GameManager {
                     {1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1}
+                    {1, 1, 1    , 4, 4, 1, 1, 1}
             };
 
         } else if (levelNumber == 2) {
@@ -193,6 +196,7 @@ public class GameManager {
                             case "1": brickType = NORMAL; break;
                             case "2": brickType = STRONG; break;
                             case "3": brickType = INDESTRUCTIBLE; break;
+                            case "4": brickType = ELECTRIC; break;
                         }
 
                         if (brickType != null) {
@@ -224,6 +228,7 @@ public class GameManager {
                         case 1: brickType = NORMAL; break;
                         case 2: brickType = STRONG; break;
                         case 3: brickType = INDESTRUCTIBLE; break;
+                        case 4: brickType = ELECTRIC; break;
                     }
 
                     if (brickType != null) {
@@ -242,8 +247,6 @@ public class GameManager {
         }
     }
 
-
-
     private void moveAllBricksDown() {
         System.out.println("Đang đẩy gạch xuống...");
         double paddleTopY = paddle.getY();
@@ -260,8 +263,6 @@ public class GameManager {
             brick.setY(newY);
         }
     }
-
-
 
     private void addNewRowAtTop(boolean strongFirst) {
         System.out.println("Đang sinh hàng gạch mới ở trên cùng");
@@ -281,8 +282,6 @@ public class GameManager {
         }
     }
 
-
-
     public static void stopBackgroundMusic() {
         if (backgroundMusic != null) {
             backgroundMusic.stop();
@@ -290,8 +289,6 @@ public class GameManager {
             backgroundMusic = null;
         }
     }
-
-
 
     private void playRandomMeowSound() {
         if (meowSounds != null && meowSounds[0] != null) {
@@ -343,11 +340,24 @@ public class GameManager {
             for (Brick brick : bricks) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
                     score += SCORE * SCORE_MULTIPLIER;
+                    Color brickColor = brick.getColor();
+                    final boolean isElectric = brick instanceof ElectricBrick;
+
                     brick.takeHit(() -> {
+                        effect.brickExplosion(
+                                brick.getCenterX(),
+                                brick.getCenterY(),
+                                brickColor
+                        );
+
+                        if (isElectric) {
+                            handleElectricBrickDestruction((ElectricBrick) brick);
+                        }
+
                         if (Math.random() < 0.5) { // 50% chance
                             System.out.println("Power up dropped!");
                             PowerUp powerUp = PowerUp.createRandomPowerUp(
-                                    brick.getX() + brick.getWidth() / 2,
+                                    brick.getCenterX(),
                                     brick.getY()
                             );
                             powerUps.add(powerUp);
@@ -356,7 +366,7 @@ public class GameManager {
                         brickToRemove.add(brick);
                     });
                     playRandomMeowSound();
-//                    break;
+                    break;
                 }
             }
         }
@@ -374,6 +384,13 @@ public class GameManager {
             }
 
             if (powerUp.intersects(paddle)) {
+                Color powerUpColor = powerUp.getColor();
+                effect.powerUpCollect(
+                        powerUp.getCenterX(),
+                        powerUp.getCenterY(),
+                        powerUpColor
+                );
+
                 if (powerUp.getDuration() > 0) {
                     // Expand and Shrink at the same time is not allowed
                     if (powerUp.getType() == EXPAND_PADDLE) {
@@ -472,6 +489,7 @@ public class GameManager {
             root.getChildren().remove(powerUp.getCollisionShape());
             powerUps.remove(powerUp);
         }
+        effect.render();
     }
 
 
@@ -480,6 +498,12 @@ public class GameManager {
         if (!running || isPaused) {
             return;
         }
+
+        double deltaTime = 0.016; // ~60 FPS
+        if (lastFrameTime != 0) {
+            deltaTime = (now - lastFrameTime) / 1_000_000_000.0;
+        }
+        lastFrameTime = now;
 
         if (dynamicSpawning) {
             if (lastSpawnTime == 0) {
@@ -500,6 +524,7 @@ public class GameManager {
             }
         }
 
+        effect.update(deltaTime);
         paddle.update();
 
         Ball mainBall = balls.get(0);
@@ -516,7 +541,12 @@ public class GameManager {
             if (ball.isOutOfBounds()) {
                 ballToRemove.add(ball);
             }
-            CollisionDetector.handlePaddleCollision(ball, paddle);
+            if (ball.isLaunched()) {
+                effect.ballTrail(ball.getCenterX(), ball.getCenterY());
+            }
+            if (CollisionDetector.handlePaddleCollision(ball, paddle)) {
+                effect.paddleHit(ball.getCenterX(), paddle.getY());
+            }
         }
 
         for (Ball ball : ballToRemove) {
@@ -552,6 +582,29 @@ public class GameManager {
     }
 
 
+    public void handleElectricBrickDestruction(ElectricBrick electricBrick) {
+        List<Brick> diagonalBricks = electricBrick.getDiagonalBricks(bricks);
+
+        double centerX = electricBrick.getCenterX();
+        double centerY = electricBrick.getCenterY();
+
+        for (int i = 0; i < diagonalBricks.size(); i++) {
+            Brick targetBrick = diagonalBricks.get(i);
+            if (targetBrick.isDestroyed() ||targetBrick.isBeingHit()) {
+                continue;
+            }
+            final int index = 1;
+
+            if (!targetBrick.isDestroyed()) {
+                score += SCORE * SCORE_MULTIPLIER;
+                targetBrick.takeHit(() -> {
+                    root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
+                    bricks.remove(targetBrick);
+                });
+            }
+        }
+    }
+
 
     void keyPressed(KeyEvent e) {
         if (isPaused) return;
@@ -563,6 +616,14 @@ public class GameManager {
 
         if (e.getCode() == KeyCode.ESCAPE) {
             return;
+        }
+
+        if (e.getCode() == KeyCode.F) {
+            for (int i = 0; i < 5; i++) {
+                double x = 100 + Math.random() * 400;
+                double y = 100 + Math.random() * 200;
+                effect.firework(x, y);
+            }
         }
 
         if (e.getCode() == KeyCode.SPACE) {

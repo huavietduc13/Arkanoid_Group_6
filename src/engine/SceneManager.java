@@ -1,3 +1,5 @@
+package engine;
+
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,13 +29,10 @@ public class SceneManager {
     private Paddle paddle;
     private Ball ball;
 
-
-
-    SceneManager(Stage priStage) {
+    public SceneManager(Stage priStage) {
         this.priStage = priStage;
         createPauseMenu();
     }
-
 
     public void createPauseMenu() {
         // Resume button
@@ -55,13 +54,11 @@ public class SceneManager {
         // Pause menu layout
         pauseMenu = new VBox(20, resumeButton, menuButton);
         pauseMenu.setAlignment(Pos.CENTER);
-        pauseMenu.setPrefSize(SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        pauseMenu.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         pauseMenu.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
 
         pauseMenu.setVisible(false);
     }
-
-
 
     private void togglePauseMenu() {
         if(game == null) return;
@@ -77,8 +74,6 @@ public class SceneManager {
             timer.stop();
         }
     }
-
-
 
     public void createStartMenu() {
         Image startMenuImg = new Image("file:assets/images/startScreen.png");
@@ -111,8 +106,6 @@ public class SceneManager {
         StackPane.setMargin(exitButton, new Insets(0, 0, 50, 0));
         startMenuScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
-
-
 
     public void createLevelSelectionScene() {
         Image startMenuImg = new Image("file:assets/images/startScreen.png");
@@ -166,8 +159,6 @@ public class SceneManager {
         levelSelectionScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-
-
     public void returnToMenu() {
         if (timer != null) {
             timer.stop();
@@ -182,8 +173,6 @@ public class SceneManager {
         GameManager.stopBackgroundMusic();
         priStage.setScene(startMenuScene);
     }
-
-
 
     public void startGame(int levelNumber) {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -216,8 +205,6 @@ public class SceneManager {
 
         priStage.setScene(gameScene);
     }
-
-
 
     public Scene getStartMenuScene() {
         return startMenuScene;

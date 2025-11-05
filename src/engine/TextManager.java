@@ -1,3 +1,5 @@
+package engine;
+
 import javafx.geometry.VPos;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -57,7 +59,6 @@ public class TextManager {
         alignTexts();
     }
 
-    //
     private void loadFont() {
         try {
             File fontFile = new File("assets/fonts/game.ttf");

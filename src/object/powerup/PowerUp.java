@@ -8,10 +8,6 @@ import object.Ball;
 import object.GameObject;
 import object.Paddle;
 
-import java.util.List;
-
-import static utils.Constants.*;
-
 public abstract class PowerUp extends GameObject {
     protected PowerUpType type;
 
@@ -132,9 +128,17 @@ public abstract class PowerUp extends GameObject {
         imageView.setX(x + radius);
     }
 
+    public double getCenterX() {
+        return getX() + radius;
+    }
+
     public void setCenterY(double y) {
         collisionShape.setCenterY(y);
         imageView.setY(y + radius);
+    }
+
+    public double getCenterY() {
+        return getY() + radius;
     }
 
     public static PowerUp createPowerUp(PowerUpType type, double x, double y) {
@@ -160,5 +164,26 @@ public abstract class PowerUp extends GameObject {
         PowerUpType[] types = PowerUpType.values();
         int randomIndex = (int) (Math.random() * types.length);
         return createPowerUp(types[randomIndex], x, y);
+    }
+
+    public Color getColor() {
+        switch (this.type) {
+            case EXPAND_PADDLE:
+                return Color.GREEN;
+            case SHRINK_PADDLE:
+                return Color.ORANGE;
+            case SLOW_BALL:
+                return Color.BLUE;
+            case FAST_BALL:
+                return Color.RED;
+            case MULTI_BALL:
+                return Color.CYAN;
+            case POINTS_MULTIPLIER:
+                return Color.GOLD;
+            case EXTRA_LIFE:
+                return Color.PINK;
+            default:
+                return Color.WHITE;
+        }
     }
 }

@@ -12,13 +12,15 @@ public class Constants {
     public static int SCORE_MULTIPLIER = 1;
 
     public static final double EPSILON = 0.05;
-    public static final double SEPARATION_OFFSET = 0.5;
+    public static final double SEPARATION_OFFSET = 0.05;
     public static double MIN_SPEED = 6.0;
     public static double MAX_SPEED = 9.0;
 
     public static final double BRICK_WIDTH = 63.0;
     public static final double BRICK_HEIGHT = 33.0;
-    public static final double BRICK_PADDING = 0.0;
+    public static final double BRICK_PADDING = 0.1;
+    public static final double BRICK_START_X = 50.0;
+    public static final double BRICK_START_Y = 50.0;
 
     public static final double PADDLE_BOUNDARY = 600.0;
     public static final double PADDLE_POS_X = 240.0;

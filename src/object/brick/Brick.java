@@ -88,8 +88,38 @@ public abstract class Brick extends GameObject {
                 return new StrongBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
             case INDESTRUCTIBLE:
                 return new IndestructibleBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+            case ELECTRIC:
+                return new ElectricBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
             default:
                 return new NormalBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+        }
+    }
+
+    public int getRow() {
+        double centerY = getY() + getHeight() / 2;
+
+        int row = (int) Math.round((centerY - BRICK_START_Y) / (BRICK_HEIGHT + BRICK_PADDING));
+
+        return row;
+    }
+
+    public int getCol() {
+        double centerX = getX() + getWidth() / 2;
+
+        int col = (int) Math.round((centerX - BRICK_START_X) / (BRICK_WIDTH + BRICK_PADDING));
+
+        return col;
+    }
+
+    public Color getColor() {
+        if (this instanceof ElectricBrick) {
+            return Color.YELLOW;
+        } else if (this instanceof StrongBrick) {
+            return Color.BLUE;
+        } else if (this instanceof IndestructibleBrick) {
+            return Color.GRAY;
+        } else {
+            return Color.RED;
         }
     }
 
@@ -121,5 +151,13 @@ public abstract class Brick extends GameObject {
     public void setY(double y) {
         super.setY(y);
         collisionShape.setY(y);
+    }
+
+    public double getCenterX() {
+        return getX() + getWidth() / 2;
+    }
+
+    public double getCenterY() {
+        return getY() + getHeight() / 2;
     }
 }

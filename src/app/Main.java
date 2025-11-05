@@ -1,3 +1,6 @@
+package app;
+
+import engine.SceneManager;
 import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
