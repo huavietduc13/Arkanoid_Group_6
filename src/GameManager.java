@@ -30,6 +30,7 @@ public class GameManager {
     private static MediaPlayer backgroundMusic = null;
     private Media[] meowSounds;
     private Random random;
+    private TextManager textManager;
 
     private Paddle paddle;
     private List<Ball> balls = new ArrayList<>();
@@ -40,8 +41,8 @@ public class GameManager {
     private int score = 0;
     private int levelNumber;
     private boolean running = true;
-    private TextManager textManager;
     private boolean showLaunchText = true;
+    private boolean isPaused = false;
 
     private boolean dynamicSpawning = false;
     private long lastSpawnTime = 0;
@@ -52,12 +53,15 @@ public class GameManager {
     private final int startY = 50;
 
 
+
     public GameManager(GraphicsContext gc, Pane root, int levelNumber) {
         this.gc = gc;
         this.root = root;
         this.levelNumber = levelNumber;
         init();
     }
+
+
 
     private void init() {
         // Xóa các đối tượng cũ nếu có
@@ -79,12 +83,12 @@ public class GameManager {
             root.getChildren().removeAll(powerUp.getImageView(), powerUp.getCollisionShape());
         }
         powerUps.clear();
-        
+
         if (textManager != null) {
             textManager.removeText(root);
         }
 
-        backgroundImage = new Image("file:assets/images/background_1.png");
+        backgroundImage = new Image("file:assets/images/background.png");
 
         this.random = new Random();
         this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
@@ -129,6 +133,8 @@ public class GameManager {
                 mainBall.getImageView(), mainBall.getCollisionShape()
         );
     }
+
+
 
     private void loadLevel(int levelNumber) {
 
@@ -236,6 +242,8 @@ public class GameManager {
         }
     }
 
+
+
     private void moveAllBricksDown() {
         System.out.println("Đang đẩy gạch xuống...");
         double paddleTopY = paddle.getY();
@@ -252,6 +260,8 @@ public class GameManager {
             brick.setY(newY);
         }
     }
+
+
 
     private void addNewRowAtTop(boolean strongFirst) {
         System.out.println("Đang sinh hàng gạch mới ở trên cùng");
@@ -272,6 +282,7 @@ public class GameManager {
     }
 
 
+
     public static void stopBackgroundMusic() {
         if (backgroundMusic != null) {
             backgroundMusic.stop();
@@ -279,6 +290,8 @@ public class GameManager {
             backgroundMusic = null;
         }
     }
+
+
 
     private void playRandomMeowSound() {
         if (meowSounds != null && meowSounds[0] != null) {
@@ -453,7 +466,7 @@ public class GameManager {
         }
         activePowerUps.removeAll(expiredPowerUps);
 
-        // Remove collected or fell out of the screen
+        // Xóa power up đã collect hoặc rơi ra ngoài màn hình
         for (PowerUp powerUp : powerUpToRemove) {
             root.getChildren().remove(powerUp.getImageView());
             root.getChildren().remove(powerUp.getCollisionShape());
@@ -461,8 +474,10 @@ public class GameManager {
         }
     }
 
+
+
     public void update(long now) {
-        if (!running) {
+        if (!running || isPaused) {
             return;
         }
 
@@ -536,11 +551,16 @@ public class GameManager {
         textManager.showLaunchHint(showLaunchText);
     }
 
+
+
     void keyPressed(KeyEvent e) {
+        if (isPaused) return;
+
         if (!running && e.getCode() == KeyCode.R) {
             restart();
             textManager.showGameOver(false);
         }
+
         if (e.getCode() == KeyCode.ESCAPE) {
             return;
         }
@@ -556,9 +576,13 @@ public class GameManager {
         }
     }
 
+
+
     public void keyReleased(KeyEvent e) {
         paddle.handleKeyReleased(e.getCode());
     }
+
+
 
     private void restart() {
         score = 0;
@@ -578,6 +602,8 @@ public class GameManager {
         init();
     }
 
+
+
     private void gameOver() {
         running = false;
         stopBackgroundMusic();
@@ -588,15 +614,23 @@ public class GameManager {
         }
     }
 
-    public Paddle getPaddle() {
-        return paddle;
+
+
+    public boolean isPaused() {
+        return isPaused;
     }
 
-    public List<Ball> getBalls() {
-        return balls;
+
+
+    public void pause() {
+        isPaused = true;
+        if(backgroundMusic != null) backgroundMusic.pause();
     }
 
-    public List<Brick> getBricks() {
-        return bricks;
+
+
+    public void resume() {
+        isPaused = false;
+        if(backgroundMusic != null) backgroundMusic.play();
     }
 }

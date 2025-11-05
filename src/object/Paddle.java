@@ -1,9 +1,11 @@
 package object;
 
 import javafx.geometry.Bounds;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+
 import static utils.Constants.*;
 
 public class Paddle extends GameObject {
@@ -14,6 +16,9 @@ public class Paddle extends GameObject {
     private boolean movingLeft = false;
     private boolean movingRight = false;
 
+    private Image paddleLeftImage;
+    private Image paddleRightImage;
+
     private Rectangle collisionShape;
 
     public Paddle(String imagePath, double boundary, double x, double y, double width, double height, double speed) {
@@ -21,13 +26,18 @@ public class Paddle extends GameObject {
         this.speed = speed;
         this.boundary = boundary;
 
+        this.paddleLeftImage = new Image("file:assets/images/paddle_left.png");
+        this.paddleRightImage = new Image("file:assets/images/paddle_right.png");
+
         this.collisionShape = new Rectangle(x, y, width, height);
-        this.collisionShape.setVisible(true);
+        this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
         this.collisionShape.setArcWidth(20);
         this.collisionShape.setArcHeight(20);
 
+        this.image = paddleLeftImage;
+        this.imageView.setImage(paddleLeftImage);
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
@@ -119,9 +129,11 @@ public class Paddle extends GameObject {
     public void handleKeyPressed(KeyCode code) {
         if (code == KeyCode.LEFT || code == KeyCode.A) {
             movingLeft = true;
+            imageView.setImage(paddleLeftImage);
         }
         if (code == KeyCode.RIGHT || code == KeyCode.D) {
             movingRight = true;
+            imageView.setImage(paddleRightImage);
         }
     }
 
