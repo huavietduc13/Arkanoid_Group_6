@@ -1,6 +1,7 @@
 # Arkanoid_Group_6
 ========================================================
 # Arkanoid: Bài tập lớn môn Lập trình hướng đối tượng
+https://github.com/user-attachments/assets/6778b18d-0170-45d4-97ed-3c1913ccc3f0
 # Các thành viên nhóm
 |#|MSSV|Họ và tên|Trưởng nhóm|
 |--|----|--------|----------|

@@ -1,18 +1,20 @@
-package src.object.brick;
+package object.brick;
 
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import src.object.GameObject;
+import object.GameObject;
+import enums.BrickType;
 
 public abstract class Brick extends GameObject {
-    public static int BRICK_WIDTH = 80;
-    public static int BRICK_HEIGHT = 40;
+    private static int BRICK_WIDTH = 63;
+    private static int BRICK_HEIGHT = 33;
 
     protected int hitPoints;
     protected int score;
+    private boolean isBeingHit = false;
 
     private Rectangle collisionShape;
 
@@ -22,22 +24,23 @@ public abstract class Brick extends GameObject {
         this.hitPoints = hitPoints;
         this.score = score;
 
-        this.imageView.setPreserveRatio(false);
-        this.imageView.setStyle("-fx-border-color: gray;");
-
         this.collisionShape = new Rectangle(x, y, width, height);
         this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
+        this.collisionShape.setArcWidth(20);
+        this.collisionShape.setArcHeight(20);
 
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
-        
+        this.imageView.setStyle("-fx-border-color: gray;");
     }
 
-    public boolean takeHit() {
-        if (hitPoints > 0) {
+    public void takeHit(Runnable onDestroyed) {
+        if (hitPoints > 0 && !isBeingHit) {
+            isBeingHit = true;
+
             shake(() -> {
                 hitPoints--;
                 updateAppearance();
@@ -45,16 +48,23 @@ public abstract class Brick extends GameObject {
                 if (hitPoints <= 0) {
                     imageView.setVisible(false);
                     collisionShape.setVisible(false);
+                    if (onDestroyed != null) {
+                        onDestroyed.run();
+                    }
                 }
+                isBeingHit = false;
             });
         }
-        return hitPoints <= 0;
     }
 
     public abstract void updateAppearance();
 
     public boolean isDestroyed() {
         return hitPoints <= 0;
+    }
+
+    public boolean isBeingHit() {
+        return isBeingHit;
     }
 
     public int getHitPoints() {
@@ -73,11 +83,11 @@ public abstract class Brick extends GameObject {
         return collisionShape;
     }
 
-    public static Brick createBrick(String type, double x, double y) {
-        switch (type.toLowerCase()) {
-            case "strong":
+    public static Brick createBrick(BrickType type, double x, double y) {
+        switch (type) {
+            case STRONG:
                 return new StrongBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
-            case "indestructible":
+            case INDESTRUCTIBLE:
                 return new IndestructibleBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
             default:
                 return new NormalBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
@@ -90,7 +100,7 @@ public abstract class Brick extends GameObject {
     }
 
     public void shake(Runnable onFinish) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(60), imageView);
+        TranslateTransition tt = new TranslateTransition(Duration.millis(36), imageView);
         tt.setFromX(-2);
         tt.setToX(2);
         tt.setCycleCount(4); // đi qua lại 2 lần

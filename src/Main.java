@@ -1,139 +1,17 @@
-package src;
-
-import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import src.object.Ball;
-import src.object.Paddle;
 
 public class Main extends Application {
-    public static final int WIDTH = 640;
-    public static final int HEIGHT = 800;
-
-    private Stage priStage;
-    private Scene startMenuScene;
-    private Scene gameScene;
-    private Scene levelSelectionScene;
-    private AnimationTimer timer;
-
-    private Paddle paddle;
-    private Ball ball;
-
-    private void createStartMenu() {
-        Image startMenuImg = new Image("file:assets/images/startScreen.png");
-        ImageView startView = new ImageView(startMenuImg);
-        startView.setFitWidth(WIDTH);
-        startView.setFitHeight(HEIGHT);
-
-        Image buttonImg = new Image("file:assets/images/button.png");
-        ImageView startButton = new ImageView(buttonImg);
-        startButton.setFitWidth(200);
-        startButton.setFitHeight(80);
-
-        startButton.setOnMouseEntered(e -> startButton.setOpacity(0.9));
-        startButton.setOnMouseExited(e -> startButton.setOpacity(1.0));
-
-        startButton.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
-
-        StackPane root = new StackPane();
-        root.getChildren().addAll(startView, startButton);
-
-        StackPane.setAlignment(startButton, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(startButton, new Insets(0, 0, 50, 0));
-        startMenuScene = new Scene(root, WIDTH, HEIGHT);
-    }
-
-    private void createLevelSelectionScene() {
-        Image startMenuImg = new Image("file:assets/images/startScreen.png");
-        ImageView startView = new ImageView(startMenuImg);
-        startView.setFitWidth(WIDTH);
-        startView.setFitHeight(HEIGHT);
-
-        Button level0Button = new Button("Level 0 (Sinh gạch)");
-        level0Button.setPrefSize(200, 50);
-        level0Button.setOnAction(e -> startGame(0)); // Bắt đầu màn 0
-
-        Button level1Button = new Button("Level 1");
-        level1Button.setPrefSize(200, 50);
-        level1Button.setOnAction(e -> startGame(1));
-
-        Button level2Button = new Button("Level 2");
-        level2Button.setPrefSize(200, 50);
-        level2Button.setOnAction(e -> startGame(2));
-
-        Button backButton = new Button("Quay lại Menu");
-        backButton.setPrefSize(200, 50);
-        backButton.setOnAction(e -> priStage.setScene(startMenuScene));
-
-        VBox buttonLayout = new VBox(20);
-        buttonLayout.setAlignment(Pos.CENTER);
-        buttonLayout.getChildren().addAll(level0Button, level1Button, level2Button, backButton);
-
-        StackPane root = new StackPane();
-        root.getChildren().addAll(startView, buttonLayout);
-
-        levelSelectionScene = new Scene(root, WIDTH, HEIGHT);
-    }
-
-    public void returnToMenu() {
-        if (timer != null) {
-            timer.stop();
-        }
-        GameManager.stopBackgroundMusic();
-        priStage.setScene(startMenuScene);
-    }
-
-    private void startGame(int levelNumber) {
-        Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        Pane root = new Pane(canvas);
-        gameScene = new Scene(root);
-
-        GameManager game = new GameManager(gc, root, levelNumber);
-
-        gameScene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ESCAPE) {
-                returnToMenu();
-            } else {
-                game.keyPressed(e);
-            }
-        });
-        gameScene.setOnKeyReleased(e -> game.keyReleased(e));
-
-        timer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                // <-- THAY ĐỔI QUAN TRỌNG: Truyền 'now' vào update
-                game.update(now);
-                game.render(root);
-            }
-        };
-        timer.start();
-
-        priStage.setScene(gameScene);
-    }
-
     @Override
     public void start(Stage stage) {
-        priStage = stage;
-        createStartMenu();
-        createLevelSelectionScene();
+        SceneManager sceneManager = new SceneManager(stage);
+        sceneManager.createStartMenu();
+        sceneManager.createLevelSelectionScene();
         stage.setTitle("Arkanoid");
         stage.getIcons().add(new Image("file:assets/images/image.png"));
         stage.setResizable(false);
-        stage.setScene(startMenuScene);
+        stage.setScene(sceneManager.getStartMenuScene());
         stage.show();
     }
 

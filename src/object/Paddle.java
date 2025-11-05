@@ -1,41 +1,33 @@
-package src.object;
+package object;
 
 import javafx.geometry.Bounds;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.image.ImageView;
+import static utils.Constants.*;
 
 public class Paddle extends GameObject {
     private double speed;
     private double boundary;
+    private int lives = DEFAULT_LIVES;
 
     private boolean movingLeft = false;
     private boolean movingRight = false;
 
     private Rectangle collisionShape;
 
-    private Image paddleLeftImage;
-    private Image paddleRightImage;
-
     public Paddle(String imagePath, double boundary, double x, double y, double width, double height, double speed) {
         super(imagePath, x, y, width, height);
         this.speed = speed;
         this.boundary = boundary;
 
-        this.paddleLeftImage = new Image("file:assets/images/paddle_left.png");
-        this.paddleRightImage = new Image("file:assets/images/paddle_right.png");
-
         this.collisionShape = new Rectangle(x, y, width, height);
-        this.collisionShape.setVisible(false);
+        this.collisionShape.setVisible(true);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
         this.collisionShape.setArcWidth(20);
         this.collisionShape.setArcHeight(20);
 
-        this.image = paddleLeftImage;
-        this.imageView.setImage(paddleLeftImage);
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
@@ -46,7 +38,7 @@ public class Paddle extends GameObject {
     }
 
     public void moveRight() {
-        setX(Math.min(boundary, getX() + speed));
+        setX(Math.min(boundary - getWidth(), getX() + speed));
     }
 
     @Override
@@ -76,6 +68,28 @@ public class Paddle extends GameObject {
         collisionShape.setY(getY());
     }
 
+    public void reset() {
+        setX(PADDLE_POS_X);
+        setY(PADDLE_POS_Y);
+        lives = DEFAULT_LIVES;
+    }
+
+    public void loseLife() {
+        if (lives > 0) {
+            lives--;
+        }
+    }
+
+    public void gainLife() {
+        if (lives < 3) {
+            lives++;
+        }
+    }
+
+    public boolean isOutOfLives() {
+        return lives <= 0;
+    }
+
     public Bounds getCollisionBounds() {
         return collisionShape.getBoundsInParent();
     }
@@ -98,16 +112,18 @@ public class Paddle extends GameObject {
         return speed;
     }
 
-    public void handleKeyPressed(KeyCode keyCode) {
-        if (keyCode == KeyCode.LEFT) {
-            movingLeft = true;
-            imageView.setImage(paddleLeftImage);
-        } else if (keyCode == KeyCode.RIGHT) {
-            movingRight = true;
-            imageView.setImage(paddleRightImage);
-        }
+    public int getLives() {
+        return lives;
     }
 
+    public void handleKeyPressed(KeyCode code) {
+        if (code == KeyCode.LEFT || code == KeyCode.A) {
+            movingLeft = true;
+        }
+        if (code == KeyCode.RIGHT || code == KeyCode.D) {
+            movingRight = true;
+        }
+    }
 
     public void handleKeyReleased(KeyCode code) {
         if (code == KeyCode.LEFT || code == KeyCode.A) {
