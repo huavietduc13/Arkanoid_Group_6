@@ -6,8 +6,6 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import object.Ball;
 import object.Paddle;
@@ -16,31 +14,24 @@ import object.brick.ElectricBrick;
 import object.brick.ExplodingBrick;
 import object.powerup.PowerUp;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
-import enums.BrickType;
-
-import static utils.Constants.*;
-import static enums.BrickType.*;
 import static enums.PowerUpType.*;
+import static utils.Constants.*;
 
 public class GameManager {
     private GraphicsContext gc;
     private Pane root;
     private Image backgroundImage;
-    private static MediaPlayer backgroundMusic = null;
-    private Media[] meowSounds;
+    private AudioManager audioManager;
+    private LevelManager levelManager;
     private Random random;
     private TextManager textManager;
 
     private Paddle paddle;
     private List<Ball> balls = new ArrayList<>();
-    private List<Brick> bricks = new ArrayList<>();
     private List<PowerUp> powerUps = new ArrayList<>();
     private List<PowerUp> activePowerUps = new ArrayList<>();
 
@@ -49,14 +40,6 @@ public class GameManager {
     private boolean running = true;
     private boolean showLaunchText = true;
     private boolean isPaused = false;
-
-    private boolean dynamicSpawning = false;
-    private long lastSpawnTime = 0;
-    private final double SPAWN_INTERVAL = 15;
-    private boolean nextSpawnPattern = true;
-
-    private final int startX = 50;
-    private final int startY = 50;
 
     private ParticleEngine effect;
     private long lastFrameTime = 0;
@@ -70,6 +53,9 @@ public class GameManager {
         this.root = root;
         this.levelNumber = levelNumber;
         this.effect = new ParticleEngine(gc);
+        this.audioManager = new AudioManager();
+        this.levelManager = new LevelManager();
+
         init();
     }
 
@@ -84,10 +70,10 @@ public class GameManager {
         }
         balls.clear();
 
-        for (Brick brick : bricks) {
+        for (Brick brick : levelManager.getBricks()) {
             root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
         }
-        bricks.clear();
+        levelManager.clearBricks();
 
         for (PowerUp powerUp : powerUps) {
             root.getChildren().removeAll(powerUp.getImageView(), powerUp.getCollisionShape());
@@ -99,25 +85,9 @@ public class GameManager {
         }
 
         backgroundImage = new Image("file:assets/images/background.png");
-
         this.random = new Random();
-        this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
 
-        // Nhạc nền
-        File musicFile = new File("assets/sounds/gamePlay.mp3");
-        String musicPath = musicFile.toURI().toString();
-
-        Media gameMusic = new Media(musicPath);
-        backgroundMusic = new MediaPlayer(gameMusic);
-        backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
-        backgroundMusic.setVolume(0.5);
-        backgroundMusic.play();
-
-        for (int i = 0; i < 3; i++) {
-            File meowFile = new File("assets/sounds/meow_" + (i + 1) + ".mp3");
-            String meowPath = meowFile.toURI().toString();
-            meowSounds[i] = new Media(meowPath);
-        }
+        audioManager.playBackgroundMusic();
 
         paddle = new Paddle("file:assets/images/paddle1.png",
                 PADDLE_BOUNDARY,
@@ -145,168 +115,10 @@ public class GameManager {
     }
 
     private void loadLevel(int levelNumber) {
+        levelManager.loadLevel(levelNumber);
 
-        int[][] selectedMap = null;
-        this.dynamicSpawning = false;
-
-        if (levelNumber == 0) {
-            System.out.println("Đang tải Level 0 (Dynamic Spawning)");
-            this.dynamicSpawning = true;
-            this.lastSpawnTime = 0;
-            this.nextSpawnPattern = true;
-
-            addNewRowAtTop(this.nextSpawnPattern);
-            this.nextSpawnPattern = !this.nextSpawnPattern;
-
-            return;
-
-        } else if (levelNumber == 1) {
-            System.out.println("Đang tải Level 1 (Hard-code map xen kẽ)");
-            selectedMap = new int[][] {
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 5, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 5, 5, 1, 1, 1}
-            };
-
-        } else if (levelNumber == 2) {
-            System.out.println("Đang tải Level 2 (Hard-code map chữ A)");
-            selectedMap = new int[][] {
-                    {0, 0, 2, 2, 2, 2, 0, 0},
-                    {0, 0, 2, 2, 2, 2, 0, 0},
-                    {0, 2, 2, 0, 0, 2, 2, 0},
-                    {0, 2, 2, 0, 0, 2, 2, 0},
-                    {0, 2, 2, 2, 2, 2, 2, 0},
-                    {0, 2, 2, 2, 2, 2, 2, 0},
-                    {0, 2, 2, 0, 0, 2, 2, 0},
-                    {0, 2, 2, 0, 0, 2, 2, 0}
-            };
-
-        } else {
-            String levelFile = "assets/levels/level_" + levelNumber + ".txt";
-            System.out.println("Đang tải Level " + levelNumber + " từ file: " + levelFile);
-
-            try (Scanner scanner = new Scanner(new File(levelFile))) {
-                int currentY = startY;
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
-                    String[] brickTypes = line.split(" ");
-                    int currentX = startX;
-
-                    for (String type : brickTypes) {
-                        BrickType brickType = null;
-                        switch (type) {
-                            case "1": brickType = NORMAL; break;
-                            case "2": brickType = STRONG; break;
-                            case "3": brickType = INDESTRUCTIBLE; break;
-                            case "4": brickType = ELECTRIC; break;
-                            case "5": brickType = EXPLODING; break;
-                        }
-
-                        if (brickType != null) {
-                            Brick newBrick = Brick.createBrick(brickType, currentX, currentY);
-                            bricks.add(newBrick);
-                            root.getChildren().addAll(
-                                    newBrick.getImageView(),
-                                    newBrick.getCollisionShape()
-                            );
-                        }
-                        currentX += BRICK_WIDTH + BRICK_PADDING;
-                    }
-                    currentY += BRICK_HEIGHT + BRICK_PADDING;
-                }
-            } catch (FileNotFoundException e) {
-                System.err.println("Không tìm thấy file màn chơi: " + levelFile);
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        if (selectedMap != null) {
-            for (int j = 0; j < selectedMap.length; j++) {
-                for (int i = 0; i < selectedMap[j].length; i++) {
-                    int brickCode = selectedMap[j][i];
-                    BrickType brickType = null;
-
-                    switch (brickCode) {
-                        case 1: brickType = NORMAL; break;
-                        case 2: brickType = STRONG; break;
-                        case 3: brickType = INDESTRUCTIBLE; break;
-                        case 4: brickType = ELECTRIC; break;
-                        case 5: brickType = EXPLODING; break;
-                    }
-
-                    if (brickType != null) {
-                        double x = startX + i * (BRICK_WIDTH + BRICK_PADDING);
-                        double y = startY + j * (BRICK_HEIGHT + BRICK_PADDING);
-
-                        Brick newBrick = Brick.createBrick(brickType, x, y);
-                        bricks.add(newBrick);
-                        root.getChildren().addAll(
-                                newBrick.getImageView(),
-                                newBrick.getCollisionShape()
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    private void moveAllBricksDown() {
-        System.out.println("Đang đẩy gạch xuống...");
-        double paddleTopY = paddle.getY();
-
-        for (Brick brick : bricks) {
-            double newY = brick.getY() + (BRICK_HEIGHT + BRICK_PADDING);
-
-            if (newY + BRICK_HEIGHT > paddleTopY) {
-                System.out.println("Gạch đã chạm tới người chơi! Game Over.");
-                gameOver();
-                return;
-            }
-
-            brick.setY(newY);
-        }
-    }
-
-    private void addNewRowAtTop(boolean strongFirst) {
-        System.out.println("Đang sinh hàng gạch mới ở trên cùng");
-        double y = startY;
-        for (int i = 0; i < 8; i++) {
-            double x = startX + i * (BRICK_WIDTH + BRICK_PADDING);
-            BrickType brickType;
-            if (strongFirst) {
-                brickType = (i % 2 == 0) ? STRONG : NORMAL;
-            } else {
-                brickType = (i % 2 == 0) ? NORMAL : STRONG;
-            }
-
-            Brick newBrick = Brick.createBrick(brickType, x, y);
-            bricks.add(newBrick);
-            root.getChildren().addAll(newBrick.getImageView(), newBrick.getCollisionShape());
-        }
-    }
-
-    public static void stopBackgroundMusic() {
-        if (backgroundMusic != null) {
-            backgroundMusic.stop();
-            backgroundMusic.dispose();
-            backgroundMusic = null;
-        }
-    }
-
-    private void playRandomMeowSound() {
-        if (meowSounds != null && meowSounds[0] != null) {
-            try {
-                int randomIndex = random.nextInt(3);
-                MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
-                meowPlayer.setVolume(0.4);
-                meowPlayer.play();
-            } catch (Exception e) {
-                System.out.println("Lỗi khi phát meow: " + e.getMessage());
-            }
+        for (Brick brick : levelManager.getBricks()) {
+            root.getChildren().addAll(brick.getImageView(), brick.getCollisionShape());
         }
     }
 
@@ -344,7 +156,7 @@ public class GameManager {
 
         List<Brick> brickToRemove = new ArrayList<>();
         for (Ball ball : balls) {
-            for (Brick brick : bricks) {
+            for (Brick brick : levelManager.getBricks()) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
                     score += SCORE * SCORE_MULTIPLIER;
                     Color brickColor = brick.getColor();
@@ -367,7 +179,7 @@ public class GameManager {
                             handleExplodingBrickDestruction((ExplodingBrick) brick);
                         }
 
-                        if (Math.random() < 0.5) { // 50% chance
+                        if (Math.random() < 0.5) {
                             System.out.println("Power up dropped!");
                             PowerUp powerUp = PowerUp.createRandomPowerUp(
                                     brick.getCenterX(),
@@ -378,7 +190,7 @@ public class GameManager {
                         }
                         brickToRemove.add(brick);
                     });
-                    playRandomMeowSound();
+                    AudioManager.playRandomMeowSound();
                     break;
                 }
             }
@@ -387,7 +199,7 @@ public class GameManager {
         for (Brick brick : brickToRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
-            bricks.remove(brick);
+            levelManager.removeBrick(brick);
         }
 
         List<PowerUp> powerUpToRemove = new ArrayList<>();
@@ -546,24 +358,7 @@ public class GameManager {
         }
         lastFrameTime = now;
 
-        if (dynamicSpawning) {
-            if (lastSpawnTime == 0) {
-                lastSpawnTime = now;
-            }
-
-            double elapsedTime = (now - lastSpawnTime) / 1_000_000_000.0;
-
-            if (elapsedTime >= SPAWN_INTERVAL) {
-                moveAllBricksDown();
-
-                if (running) {
-                    addNewRowAtTop(nextSpawnPattern);
-                    nextSpawnPattern = !nextSpawnPattern;
-                }
-
-                lastSpawnTime = now;
-            }
-        }
+        levelManager.updateDynamicSpawning(now);
 
         effect.update(deltaTime);
         paddle.update();
@@ -572,9 +367,9 @@ public class GameManager {
         Ball mainBall = balls.get(0);
         if (!mainBall.isLaunched()) {
             mainBall.setX(paddle.getCenterX() - mainBall.getRadius());
-            mainBall.setY(paddle.getY() - mainBall.getRadius() * 2); // Dock ball to paddle
+            mainBall.setY(paddle.getY() - mainBall.getRadius() * 2);
         } else {
-            showLaunchText = false; // Hide text
+            showLaunchText = false;
         }
 
         List<Ball> ballToRemove = new ArrayList<>();
@@ -614,7 +409,6 @@ public class GameManager {
             balls.remove(ball);
         }
 
-        // All balls fell out -> lose one life
         if (balls.isEmpty()) {
             System.out.println("All balls fell out!");
             paddle.loseLife();
@@ -646,15 +440,13 @@ public class GameManager {
 
 
     public void handleElectricBrickDestruction(ElectricBrick electricBrick) {
-        List<Brick> diagonalBricks = electricBrick.getDiagonalBricks(bricks);
-
+        List<Brick> diagonalBricks = electricBrick.getDiagonalBricks(levelManager.getBricks());
         double centerX = electricBrick.getCenterX();
         double centerY = electricBrick.getCenterY();
 
         effect.electricExplosion(centerX, centerY);
 
-        for (int i = 0; i < diagonalBricks.size(); i++) {
-            Brick targetBrick = diagonalBricks.get(i);
+        for (Brick targetBrick : diagonalBricks) {
             if (targetBrick.isDestroyed() || targetBrick.isBeingHit()) {
                 continue;
             }
@@ -664,7 +456,7 @@ public class GameManager {
                 targetBrick.takeHit(() -> {
                     effect.electricExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
                     root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
-                    bricks.remove(targetBrick);
+                    levelManager.removeBrick(targetBrick);
                 });
             }
         }
@@ -673,13 +465,11 @@ public class GameManager {
     public void handleExplodingBrickDestruction(ExplodingBrick explodingBrick) {
         double centerX = explodingBrick.getCenterX();
         double centerY = explodingBrick.getCenterY();
-
-        List<Brick> affectedBricks = explodingBrick.getBricksInExplosionRange(bricks);
+        List<Brick> affectedBricks = explodingBrick.getBricksInExplosionRange(levelManager.getBricks());
 
         effect.explosion(centerX, centerY);
 
-        for (int i = 0; i < affectedBricks.size(); i++) {
-            Brick targetBrick = affectedBricks.get(i);
+        for (Brick targetBrick : affectedBricks) {
             if (targetBrick.isDestroyed() || targetBrick.isBeingHit()) {
                 continue;
             }
@@ -689,7 +479,7 @@ public class GameManager {
                 targetBrick.takeHit(() -> {
                     effect.secondaryExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
                     root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
-                    bricks.remove(targetBrick);
+                    levelManager.removeBrick(targetBrick);
                 });
             }
         }
@@ -756,9 +546,29 @@ public class GameManager {
             ball.notLaunch();
         }
 
-        if (dynamicSpawning) {
-            dynamicSpawning = false;
+        levelManager.clearBricks();
+        levelManager.setDynamicSpawning(false);
+
+        for (PowerUp powerUp : powerUps) {
+            root.getChildren().removeAll(powerUp.getImageView(), powerUp.getCollisionShape());
         }
+        powerUps.clear();
+
+        for (PowerUp activePowerUp : activePowerUps) {
+            for (Ball ball : balls) {
+                activePowerUp.deactivate(paddle, ball);
+            }
+        }
+        activePowerUps.clear();
+
+        // Reset trail effects
+        normalTrailEnabled = true;
+        redTrailEnabled = false;
+        blueTrailEnabled = false;
+
+        SCORE_MULTIPLIER = 1;
+        MIN_SPEED = 6.0;
+        MAX_SPEED = 9.0;
 
         init();
     }
@@ -767,7 +577,7 @@ public class GameManager {
 
     private void gameOver() {
         running = false;
-        stopBackgroundMusic();
+        audioManager.stopBackgroundMusic();
         textManager.showGameOver(true);
         if (effect != null) {
             effect.clear();
@@ -788,13 +598,13 @@ public class GameManager {
 
     public void pause() {
         isPaused = true;
-        if(backgroundMusic != null) backgroundMusic.pause();
+        audioManager.pauseBackgroundMusic();
     }
 
 
 
     public void resume() {
         isPaused = false;
-        if(backgroundMusic != null) backgroundMusic.play();
+        audioManager.playBackgroundMusic();
     }
 }

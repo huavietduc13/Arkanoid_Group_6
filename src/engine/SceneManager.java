@@ -170,7 +170,7 @@ public class SceneManager {
             game.resume();
         }
 
-        GameManager.stopBackgroundMusic();
+        AudioManager.stopBackgroundMusic();
         priStage.setScene(startMenuScene);
     }
 
