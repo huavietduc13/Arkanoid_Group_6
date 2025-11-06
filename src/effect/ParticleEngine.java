@@ -169,7 +169,7 @@ public class ParticleEngine {
     public void paddleHit(double x, double y) {
         ParticleConfig config = new ParticleConfig()
                 .setSpeed(80, 180)
-                .setAngle(-120, -60)
+                .setAngle(-150, -30)
                 .setLifeTime(0.3, 0.6)
                 .setSize(2, 5)
                 .setGravity(200)
@@ -178,6 +178,69 @@ public class ParticleEngine {
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(15);
+    }
+
+    public void hitLeftBound(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(80, 180)
+                .setAngle(-60, 60)
+                .setLifeTime(0.3, 0.6)
+                .setSize(5, 10)
+                .setGravity(200)
+                .setSpreadRadius(20)
+                .setColors(
+                        Color.rgb(16, 52, 166),
+                        Color.rgb(65, 47, 136),
+                        Color.rgb(114, 43, 106),
+                        Color.rgb(162, 38, 75),
+                        Color.rgb(211, 33, 45),
+                        Color.rgb(246, 45, 45)
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(20);
+    }
+
+    public void hitRightBound(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(80, 180)
+                .setAngle(-120, 120)
+                .setLifeTime(0.3, 0.6)
+                .setSize(5, 10)
+                .setGravity(200)
+                .setSpreadRadius(20)
+                .setColors(
+                        Color.rgb(16, 52, 166),
+                        Color.rgb(65, 47, 136),
+                        Color.rgb(114, 43, 106),
+                        Color.rgb(162, 38, 75),
+                        Color.rgb(211, 33, 45),
+                        Color.rgb(246, 45, 45)
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(20);
+    }
+
+    public void hitUpperBound(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(80, 180)
+                .setAngle(30, 150)
+                .setLifeTime(0.3, 0.6)
+                .setSize(5, 10)
+                .setGravity(200)
+                .setSpreadRadius(20)
+                .setColors(
+                        Color.rgb(16, 52, 166),
+                        Color.rgb(65, 47, 136),
+                        Color.rgb(114, 43, 106),
+                        Color.rgb(162, 38, 75),
+                        Color.rgb(211, 33, 45),
+                        Color.rgb(246, 45, 45)
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(20);
     }
 
     public void firework(double x, double y) {
@@ -209,5 +272,79 @@ public class ParticleEngine {
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(50);
+    }
+
+    public void electricExplosion(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(150, 300)
+                .setAngle(0, 360)
+                .setLifeTime(0.3, 0.8)
+                .setSize(3, 8)
+                .setGravity(0)
+                .setSpreadRadius(10)
+                .setColors(
+                        Color.CYAN,
+                        Color.LIGHTBLUE,
+                        Color.WHITE,
+                        Color.YELLOW
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(30);
+    }
+
+    public void explosion(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(200, 400)
+                .setAngle(0, 360)
+                .setLifeTime(0.5, 1.2)
+                .setSize(5, 12)
+                .setGravity(150)
+                .setSpreadRadius(15)
+                .setColors(
+                        Color.ORANGE,
+                        Color.RED,
+                        Color.YELLOW,
+                        Color.WHITE,
+                        Color.DARKORANGE
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(60);
+    }
+
+    public void secondaryExplosion(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(100, 200)
+                .setAngle(0, 360)
+                .setLifeTime(0.3, 0.7)
+                .setSize(3, 8)
+                .setGravity(200)
+                .setSpreadRadius(10)
+                .setColors(
+                        Color.ORANGE,
+                        Color.RED,
+                        Color.YELLOW
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(25);
+    }
+
+    public void electricSpark(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(50, 120)
+                .setAngle(0, 360)
+                .setLifeTime(0.2, 0.5)
+                .setSize(2, 5)
+                .setGravity(0)
+                .setSpreadRadius(5)
+                .setColors(
+                        javafx.scene.paint.Color.CYAN,
+                        javafx.scene.paint.Color.WHITE
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(10);
     }
 }

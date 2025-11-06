@@ -13,6 +13,7 @@ import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
 import object.brick.ElectricBrick;
+import object.brick.ExplodingBrick;
 import object.powerup.PowerUp;
 
 import java.io.File;
@@ -103,7 +104,7 @@ public class GameManager {
         this.meowSounds = new Media[NUMBER_OF_RANDOM_SOUND];
 
         // Nhạc nền
-        java.io.File musicFile = new java.io.File("assets/sounds/gamePlay.mp3");
+        File musicFile = new File("assets/sounds/gamePlay.mp3");
         String musicPath = musicFile.toURI().toString();
 
         Media gameMusic = new Media(musicPath);
@@ -113,7 +114,7 @@ public class GameManager {
         backgroundMusic.play();
 
         for (int i = 0; i < 3; i++) {
-            java.io.File meowFile = new java.io.File("assets/sounds/meow_" + (i + 1) + ".mp3");
+            File meowFile = new File("assets/sounds/meow_" + (i + 1) + ".mp3");
             String meowPath = meowFile.toURI().toString();
             meowSounds[i] = new Media(meowPath);
         }
@@ -165,9 +166,9 @@ public class GameManager {
                     {1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 1, 1, 1, 1, 1, 5, 1},
                     {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1    , 4, 4, 1, 1, 1}
+                    {1, 1, 1, 5, 5, 1, 1, 1}
             };
 
         } else if (levelNumber == 2) {
@@ -201,6 +202,7 @@ public class GameManager {
                             case "2": brickType = STRONG; break;
                             case "3": brickType = INDESTRUCTIBLE; break;
                             case "4": brickType = ELECTRIC; break;
+                            case "5": brickType = EXPLODING; break;
                         }
 
                         if (brickType != null) {
@@ -233,6 +235,7 @@ public class GameManager {
                         case 2: brickType = STRONG; break;
                         case 3: brickType = INDESTRUCTIBLE; break;
                         case 4: brickType = ELECTRIC; break;
+                        case 5: brickType = EXPLODING; break;
                     }
 
                     if (brickType != null) {
@@ -345,7 +348,9 @@ public class GameManager {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
                     score += SCORE * SCORE_MULTIPLIER;
                     Color brickColor = brick.getColor();
+
                     final boolean isElectric = brick instanceof ElectricBrick;
+                    final boolean isExploding = brick instanceof ExplodingBrick;
 
                     brick.takeHit(() -> {
                         effect.brickExplosion(
@@ -356,6 +361,10 @@ public class GameManager {
 
                         if (isElectric) {
                             handleElectricBrickDestruction((ElectricBrick) brick);
+                        }
+
+                        if (isExploding) {
+                            handleExplodingBrickDestruction((ExplodingBrick) brick);
                         }
 
                         if (Math.random() < 0.5) { // 50% chance
@@ -502,12 +511,12 @@ public class GameManager {
         List<PowerUp> expiredPowerUps = new ArrayList<>();
         for (PowerUp active : activePowerUps) {
             if (active.isExpired()) {
+                if (active.getType() == FAST_BALL || active.getType() == SLOW_BALL) {
+                    redTrailEnabled = false;
+                    normalTrailEnabled = true;
+                    blueTrailEnabled = false;
+                }
                 for (Ball ball : balls) {
-                    if (active.getType() == FAST_BALL || active.getType() == SLOW_BALL) {
-                        redTrailEnabled = false;
-                        normalTrailEnabled = true;
-                        blueTrailEnabled = false;
-                    }
                     active.deactivate(paddle, ball);
                 }
                 expiredPowerUps.add(active);
@@ -574,6 +583,7 @@ public class GameManager {
             if (ball.isOutOfBounds()) {
                 ballToRemove.add(ball);
             }
+
             if (ball.isLaunched()) {
                 if (normalTrailEnabled) {
                     effect.ballTrail(ball.getCenterX(), ball.getCenterY());
@@ -583,6 +593,17 @@ public class GameManager {
                     effect.blueBallTrail(ball.getCenterX(), ball.getCenterY());
                 }
             }
+
+            if (ball.hitLeftBound()) {
+                effect.hitLeftBound(ball.getX(), ball.getCenterY());
+            }
+            if (ball.hitRightBound()) {
+                effect.hitRightBound(ball.getX() + ball.getWidth(), ball.getCenterY());
+            }
+            if (ball.hitUpperBound()) {
+                effect.hitUpperBound(ball.getCenterX(), ball.getY());
+            }
+
             if (CollisionDetector.handlePaddleCollision(ball, paddle)) {
                 effect.paddleHit(ball.getCenterX(), paddle.getY());
             }
@@ -630,16 +651,18 @@ public class GameManager {
         double centerX = electricBrick.getCenterX();
         double centerY = electricBrick.getCenterY();
 
+        effect.electricExplosion(centerX, centerY);
+
         for (int i = 0; i < diagonalBricks.size(); i++) {
             Brick targetBrick = diagonalBricks.get(i);
-            if (targetBrick.isDestroyed() ||targetBrick.isBeingHit()) {
+            if (targetBrick.isDestroyed() || targetBrick.isBeingHit()) {
                 continue;
             }
-            final int index = 1;
 
             if (!targetBrick.isDestroyed()) {
-                score += SCORE * SCORE_MULTIPLIER;
+                score += targetBrick.getScore() * SCORE_MULTIPLIER;
                 targetBrick.takeHit(() -> {
+                    effect.electricExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
                     root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
                     bricks.remove(targetBrick);
                 });
@@ -647,6 +670,30 @@ public class GameManager {
         }
     }
 
+    public void handleExplodingBrickDestruction(ExplodingBrick explodingBrick) {
+        double centerX = explodingBrick.getCenterX();
+        double centerY = explodingBrick.getCenterY();
+
+        List<Brick> affectedBricks = explodingBrick.getBricksInExplosionRange(bricks);
+
+        effect.explosion(centerX, centerY);
+
+        for (int i = 0; i < affectedBricks.size(); i++) {
+            Brick targetBrick = affectedBricks.get(i);
+            if (targetBrick.isDestroyed() || targetBrick.isBeingHit()) {
+                continue;
+            }
+
+            if (!targetBrick.isDestroyed()) {
+                score += targetBrick.getScore() * SCORE_MULTIPLIER;
+                targetBrick.takeHit(() -> {
+                    effect.secondaryExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
+                    root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
+                    bricks.remove(targetBrick);
+                });
+            }
+        }
+    }
 
     void keyPressed(KeyEvent e) {
         if (isPaused) return;
@@ -671,6 +718,7 @@ public class GameManager {
         if (e.getCode() == KeyCode.SHIFT) {
             redTrailEnabled = true;
             normalTrailEnabled = false;
+            blueTrailEnabled = false;
         }
 
         if (e.getCode() == KeyCode.SPACE) {
@@ -691,6 +739,7 @@ public class GameManager {
         if (e.getCode() == KeyCode.SHIFT) {
             redTrailEnabled = false;
             normalTrailEnabled = true;
+            blueTrailEnabled = false;
         }
     }
 

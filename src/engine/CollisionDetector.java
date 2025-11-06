@@ -107,22 +107,37 @@ public class CollisionDetector {
         );
         CollisionSide side = CollisionSide.TOP;
 
-        // Use velocity direction as a tiebreaker
         if (minPenetration == penetrationTop) {
             side = CollisionSide.TOP;
             System.out.println("TOP");
+            System.out.println("penTop: " + penetrationTop);
+            System.out.println("penBottom: " + penetrationBottom);
+            System.out.println("penLeft: " + penetrationLeft);
+            System.out.println("penRight: " + penetrationRight);
         }
         if (minPenetration == penetrationBottom) {
             side = CollisionSide.BOTTOM;
             System.out.println("BOTTOM");
+            System.out.println("penTop: " + penetrationTop);
+            System.out.println("penBottom: " + penetrationBottom);
+            System.out.println("penLeft: " + penetrationLeft);
+            System.out.println("penRight: " + penetrationRight);
         }
         if (minPenetration == penetrationLeft) {
             side = CollisionSide.LEFT;
             System.out.println("LEFT");
+            System.out.println("penTop: " + penetrationTop);
+            System.out.println("penBottom: " + penetrationBottom);
+            System.out.println("penLeft: " + penetrationLeft);
+            System.out.println("penRight: " + penetrationRight);
         }
         if (minPenetration == penetrationRight) {
             side = CollisionSide.RIGHT;
             System.out.println("RIGHT");
+            System.out.println("penTop: " + penetrationTop);
+            System.out.println("penBottom: " + penetrationBottom);
+            System.out.println("penLeft: " + penetrationLeft);
+            System.out.println("penRight: " + penetrationRight);
         }
 
         System.out.println("========================");

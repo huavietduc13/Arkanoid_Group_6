@@ -76,6 +76,18 @@ public class Ball extends GameObject {
         updateCollisionShape();
     }
 
+    public boolean hitLeftBound() {
+        return getX() + vx < 0;
+    }
+
+    public boolean hitRightBound() {
+        return getX() + vx + getWidth() > SCREEN_WIDTH;
+    }
+
+    public boolean hitUpperBound() {
+        return getY() + vy < 0;
+    }
+
     private void updateCollisionShape() {
         collisionShape.setCenterX(getX() + radius);
         collisionShape.setCenterY(getY() + radius);

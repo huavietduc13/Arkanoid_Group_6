@@ -90,6 +90,8 @@ public abstract class Brick extends GameObject {
                 return new IndestructibleBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
             case ELECTRIC:
                 return new ElectricBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+            case EXPLODING:
+                return new ExplodingBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
             default:
                 return new NormalBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
         }
@@ -112,7 +114,9 @@ public abstract class Brick extends GameObject {
     }
 
     public Color getColor() {
-        if (this instanceof ElectricBrick) {
+        if (this instanceof ExplodingBrick) {
+            return Color.ORANGE;
+        } else if (this instanceof ElectricBrick) {
             return Color.YELLOW;
         } else if (this instanceof StrongBrick) {
             return Color.BLUE;
