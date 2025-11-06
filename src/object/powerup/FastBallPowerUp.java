@@ -25,7 +25,7 @@ public class FastBallPowerUp extends PowerUp {
         ball.setVx(originalVx * SPEED_MULTIPLIER);
         ball.setVy(originalVy * SPEED_MULTIPLIER);
         ball.setRotationSpeed(originalRotationSpeed * SPEED_MULTIPLIER);
-        MAX_SPEED = 12.0;
+        MAX_SPEED = 10.5;
         System.out.println("Ball is Moving Faster!");
     }
 

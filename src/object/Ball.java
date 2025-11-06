@@ -26,7 +26,7 @@ public class Ball extends GameObject {
         this.ballLaunched = ballLaunched;
 
         this.collisionShape = new Circle(x + radius, y + radius, radius);
-        this.collisionShape.setVisible(true);
+        this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
 

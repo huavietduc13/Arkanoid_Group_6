@@ -118,6 +118,14 @@ public class Paddle extends GameObject {
         return 0;
     }
 
+    public double getCenterX() {
+        return getX() + getWidth() / 2;
+    }
+
+    public double getCenterY() {
+        return getY() + getHeight() / 2;
+    }
+
     public double getSpeed() {
         return speed;
     }

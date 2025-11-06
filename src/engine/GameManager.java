@@ -60,6 +60,10 @@ public class GameManager {
     private ParticleEngine effect;
     private long lastFrameTime = 0;
 
+    private boolean redTrailEnabled = false;
+    private boolean normalTrailEnabled = true;
+    private boolean blueTrailEnabled = false;
+
     public GameManager(GraphicsContext gc, Pane root, int levelNumber) {
         this.gc = gc;
         this.root = root;
@@ -471,11 +475,39 @@ public class GameManager {
             }
         }
 
+        if (!activePowerUps.isEmpty()) {
+            boolean hasFastBall = false;
+            boolean hasSlowBall = false;
+            for (PowerUp powerUp : activePowerUps) {
+                if (powerUp.getType() == FAST_BALL) {
+                    hasFastBall = true;
+                }
+                if (powerUp.getType() == SLOW_BALL) {
+                    hasSlowBall = true;
+                }
+            }
+            if (hasFastBall) {
+                redTrailEnabled = true;
+                normalTrailEnabled = false;
+                blueTrailEnabled = false;
+            }
+            if (hasSlowBall) {
+                blueTrailEnabled = true;
+                redTrailEnabled = false;
+                normalTrailEnabled = false;
+            }
+        }
+
         // Check expired power up
         List<PowerUp> expiredPowerUps = new ArrayList<>();
         for (PowerUp active : activePowerUps) {
             if (active.isExpired()) {
                 for (Ball ball : balls) {
+                    if (active.getType() == FAST_BALL || active.getType() == SLOW_BALL) {
+                        redTrailEnabled = false;
+                        normalTrailEnabled = true;
+                        blueTrailEnabled = false;
+                    }
                     active.deactivate(paddle, ball);
                 }
                 expiredPowerUps.add(active);
@@ -526,10 +558,11 @@ public class GameManager {
 
         effect.update(deltaTime);
         paddle.update();
+        effect.paddleTrail(paddle.getCenterX(), paddle.getCenterY());
 
         Ball mainBall = balls.get(0);
         if (!mainBall.isLaunched()) {
-            mainBall.setX(paddle.getX() + paddle.getWidth() / 2 - mainBall.getRadius());
+            mainBall.setX(paddle.getCenterX() - mainBall.getRadius());
             mainBall.setY(paddle.getY() - mainBall.getRadius() * 2); // Dock ball to paddle
         } else {
             showLaunchText = false; // Hide text
@@ -542,7 +575,13 @@ public class GameManager {
                 ballToRemove.add(ball);
             }
             if (ball.isLaunched()) {
-                effect.ballTrail(ball.getCenterX(), ball.getCenterY());
+                if (normalTrailEnabled) {
+                    effect.ballTrail(ball.getCenterX(), ball.getCenterY());
+                } else if (redTrailEnabled) {
+                    effect.redBallTrail(ball.getCenterX(), ball.getCenterY());
+                } else if (blueTrailEnabled) {
+                    effect.blueBallTrail(ball.getCenterX(), ball.getCenterY());
+                }
             }
             if (CollisionDetector.handlePaddleCollision(ball, paddle)) {
                 effect.paddleHit(ball.getCenterX(), paddle.getY());
@@ -561,7 +600,7 @@ public class GameManager {
             System.out.println("Lives left: " + paddle.getLives());
             if (paddle.getLives() > 0) {
                 Ball newMainBall = new Ball("file:assets/images/ball1.png",
-                        paddle.getX() + paddle.getWidth() / 2 - BALL_RADIUS,
+                        paddle.getCenterX() - BALL_RADIUS,
                         paddle.getY() - BALL_RADIUS * 2,
                         BALL_RADIUS,
                         BALL_VX,
@@ -569,6 +608,9 @@ public class GameManager {
                 balls.add(newMainBall);
                 root.getChildren().addAll(newMainBall.getImageView(), newMainBall.getCollisionShape());
                 showLaunchText = true;
+                normalTrailEnabled = true;
+                redTrailEnabled = false;
+                blueTrailEnabled = false;
             }
         }
 
@@ -626,6 +668,11 @@ public class GameManager {
             }
         }
 
+        if (e.getCode() == KeyCode.SHIFT) {
+            redTrailEnabled = true;
+            normalTrailEnabled = false;
+        }
+
         if (e.getCode() == KeyCode.SPACE) {
             for (Ball ball : balls) {
                 if (!ball.isLaunched()) {
@@ -641,6 +688,10 @@ public class GameManager {
 
     public void keyReleased(KeyEvent e) {
         paddle.handleKeyReleased(e.getCode());
+        if (e.getCode() == KeyCode.SHIFT) {
+            redTrailEnabled = false;
+            normalTrailEnabled = true;
+        }
     }
 
 
@@ -669,6 +720,9 @@ public class GameManager {
         running = false;
         stopBackgroundMusic();
         textManager.showGameOver(true);
+        if (effect != null) {
+            effect.clear();
+        }
 
         for (Ball ball : balls) {
             ball.notLaunch();
