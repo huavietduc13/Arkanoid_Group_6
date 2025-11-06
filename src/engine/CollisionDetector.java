@@ -105,9 +105,9 @@ public class CollisionDetector {
                 Math.min(penetrationLeft, penetrationRight),
                 Math.min(penetrationTop, penetrationBottom)
         );
-        CollisionSide side = CollisionSide.TOP;
+        CollisionSide side = ballCenterX < brickLeft ? CollisionSide.LEFT : CollisionSide.RIGHT;
 
-        if (minPenetration == penetrationTop) {
+        if (minPenetration == penetrationTop && vy > 0) {
             side = CollisionSide.TOP;
             System.out.println("TOP");
             System.out.println("penTop: " + penetrationTop);
@@ -115,7 +115,7 @@ public class CollisionDetector {
             System.out.println("penLeft: " + penetrationLeft);
             System.out.println("penRight: " + penetrationRight);
         }
-        if (minPenetration == penetrationBottom) {
+        if (minPenetration == penetrationBottom && vy < 0) {
             side = CollisionSide.BOTTOM;
             System.out.println("BOTTOM");
             System.out.println("penTop: " + penetrationTop);
@@ -123,7 +123,7 @@ public class CollisionDetector {
             System.out.println("penLeft: " + penetrationLeft);
             System.out.println("penRight: " + penetrationRight);
         }
-        if (minPenetration == penetrationLeft) {
+        if (minPenetration == penetrationLeft && vx > 0) {
             side = CollisionSide.LEFT;
             System.out.println("LEFT");
             System.out.println("penTop: " + penetrationTop);
@@ -131,7 +131,7 @@ public class CollisionDetector {
             System.out.println("penLeft: " + penetrationLeft);
             System.out.println("penRight: " + penetrationRight);
         }
-        if (minPenetration == penetrationRight) {
+        if (minPenetration == penetrationRight && vx < 0) {
             side = CollisionSide.RIGHT;
             System.out.println("RIGHT");
             System.out.println("penTop: " + penetrationTop);

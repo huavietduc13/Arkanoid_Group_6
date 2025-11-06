@@ -85,6 +85,12 @@ public abstract class PowerUp extends GameObject {
         return (currentTime - activationTime) >= duration;
     }
 
+    public void setExpired() {
+        if (duration > 0) {
+            this.activationTime = 1;
+        }
+    }
+
     public void collect(Paddle paddle, Ball ball) {
 //        if (collected) {
 //            return;

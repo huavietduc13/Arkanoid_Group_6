@@ -1,6 +1,7 @@
 package engine;
 
 import effect.ParticleEngine;
+import javafx.animation.PauseTransition;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -9,6 +10,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
@@ -93,6 +95,7 @@ public class GameManager {
             root.getChildren().removeAll(powerUp.getImageView(), powerUp.getCollisionShape());
         }
         powerUps.clear();
+        activePowerUps.clear();
 
         if (textManager != null) {
             textManager.removeText(root);
@@ -142,6 +145,10 @@ public class GameManager {
                 paddle.getImageView(), paddle.getCollisionShape(),
                 mainBall.getImageView(), mainBall.getCollisionShape()
         );
+
+        redTrailEnabled = false;
+        normalTrailEnabled = true;
+        blueTrailEnabled = false;
     }
 
     private void loadLevel(int levelNumber) {
@@ -164,11 +171,11 @@ public class GameManager {
             System.out.println("Đang tải Level 1 (Hard-code map xen kẽ)");
             selectedMap = new int[][] {
                     {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
+                    {2, 1, 1, 1, 1, 1, 1, 1},
+                    {1, 5, 1, 1, 1, 1, 1, 2},
                     {1, 1, 1, 1, 1, 1, 5, 1},
-                    {1, 1, 1, 1, 1, 1, 1, 1},
-                    {1, 1, 1, 5, 5, 1, 1, 1}
+                    {1, 1, 1, 2, 1, 1, 1, 1},
+                    {1, 1, 1, 5, 4, 1, 1, 1}
             };
 
         } else if (levelNumber == 2) {
@@ -393,6 +400,8 @@ public class GameManager {
         List<PowerUp> powerUpToRemove = new ArrayList<>();
         for (PowerUp powerUp : powerUps) {
             if (running) {
+                Color powerUpColor = powerUp.getColor();
+                effect.powerUpTrail(powerUp.getCenterX(), powerUp.getCenterY(), powerUpColor);
                 powerUp.update();
             }
 
@@ -485,6 +494,10 @@ public class GameManager {
         }
 
         if (!activePowerUps.isEmpty()) {
+            normalTrailEnabled = true;
+            redTrailEnabled = false;
+            blueTrailEnabled = false;
+
             boolean hasFastBall = false;
             boolean hasSlowBall = false;
             for (PowerUp powerUp : activePowerUps) {
@@ -499,8 +512,7 @@ public class GameManager {
                 redTrailEnabled = true;
                 normalTrailEnabled = false;
                 blueTrailEnabled = false;
-            }
-            if (hasSlowBall) {
+            } else if (hasSlowBall) {
                 blueTrailEnabled = true;
                 redTrailEnabled = false;
                 normalTrailEnabled = false;
@@ -532,8 +544,6 @@ public class GameManager {
         }
         effect.render();
     }
-
-
 
     public void update(long now) {
         if (!running || isPaused) {
@@ -626,12 +636,15 @@ public class GameManager {
                         BALL_RADIUS,
                         BALL_VX,
                         BALL_VY);
+
+                for (PowerUp active : activePowerUps) {
+                    if (active.getType() == FAST_BALL || active.getType() == SLOW_BALL) {
+                        active.setExpired();
+                    }
+                }
                 balls.add(newMainBall);
                 root.getChildren().addAll(newMainBall.getImageView(), newMainBall.getCollisionShape());
                 showLaunchText = true;
-                normalTrailEnabled = true;
-                redTrailEnabled = false;
-                blueTrailEnabled = false;
             }
         }
 
@@ -644,7 +657,6 @@ public class GameManager {
         textManager.showLaunchHint(showLaunchText);
     }
 
-
     public void handleElectricBrickDestruction(ElectricBrick electricBrick) {
         List<Brick> diagonalBricks = electricBrick.getDiagonalBricks(bricks);
 
@@ -653,20 +665,39 @@ public class GameManager {
 
         effect.electricExplosion(centerX, centerY);
 
+        effect.screenShake(root, 200, 5);
+
         for (int i = 0; i < diagonalBricks.size(); i++) {
             Brick targetBrick = diagonalBricks.get(i);
             if (targetBrick.isDestroyed() || targetBrick.isBeingHit()) {
                 continue;
             }
+            final int index = i;
 
-            if (!targetBrick.isDestroyed()) {
-                score += targetBrick.getScore() * SCORE_MULTIPLIER;
-                targetBrick.takeHit(() -> {
-                    effect.electricExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
-                    root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
-                    bricks.remove(targetBrick);
-                });
-            }
+            // Delay để tạo hiệu ứng lan truyền
+            PauseTransition pause = new PauseTransition(Duration.millis(30 * i));
+            pause.setOnFinished(event -> {
+                if (!targetBrick.isDestroyed()) {
+                    effect.lightningEffect(root, centerX, centerY, targetBrick.getCenterX(), targetBrick.getCenterY());
+
+                    score += targetBrick.getScore() * SCORE_MULTIPLIER;
+
+                    targetBrick.takeHit(() -> {
+                        effect.electricExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
+
+                        root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
+                        bricks.remove(targetBrick);
+
+                        if (targetBrick instanceof ElectricBrick) {
+                            handleElectricBrickDestruction((ElectricBrick) targetBrick);
+                        }
+                        if (targetBrick instanceof ExplodingBrick) {
+                            handleExplodingBrickDestruction((ExplodingBrick) targetBrick);
+                        }
+                    });
+                }
+            });
+            pause.play();
         }
     }
 
@@ -676,7 +707,11 @@ public class GameManager {
 
         List<Brick> affectedBricks = explodingBrick.getBricksInExplosionRange(bricks);
 
-        effect.explosion(centerX, centerY);
+        effect.firstExplosion(centerX, centerY);
+
+        effect.shockwave(root, centerX, centerY, 300);
+
+        effect.screenShake(root, 200, 5);
 
         for (int i = 0; i < affectedBricks.size(); i++) {
             Brick targetBrick = affectedBricks.get(i);
@@ -684,14 +719,31 @@ public class GameManager {
                 continue;
             }
 
-            if (!targetBrick.isDestroyed()) {
-                score += targetBrick.getScore() * SCORE_MULTIPLIER;
-                targetBrick.takeHit(() -> {
-                    effect.secondaryExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
-                    root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
-                    bricks.remove(targetBrick);
-                });
-            }
+            double targetCenterX = targetBrick.getCenterX();
+            double targetCenterY = targetBrick.getCenterY();
+            double distance = Math.hypot(centerX - targetCenterX, centerY - targetCenterY);
+            long delay = (long) (distance * 0.5);
+
+            // Delay để tạo hiệu ứng lan truyền
+            PauseTransition pause = new PauseTransition(Duration.millis(delay));
+            pause.setOnFinished(event -> {
+                if (!targetBrick.isDestroyed()) {
+                    score += targetBrick.getScore() * SCORE_MULTIPLIER;
+                    targetBrick.takeHit(() -> {
+                        effect.secondaryExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
+                        root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
+                        bricks.remove(targetBrick);
+
+                        if (targetBrick instanceof ElectricBrick) {
+                            handleElectricBrickDestruction((ElectricBrick) targetBrick);
+                        }
+                        if (targetBrick instanceof ExplodingBrick) {
+                            handleExplodingBrickDestruction((ExplodingBrick) targetBrick);
+                        }
+                    });
+                }
+            });
+            pause.play();
         }
     }
 
@@ -732,8 +784,6 @@ public class GameManager {
         }
     }
 
-
-
     public void keyReleased(KeyEvent e) {
         paddle.handleKeyReleased(e.getCode());
         if (e.getCode() == KeyCode.SHIFT) {
@@ -742,8 +792,6 @@ public class GameManager {
             blueTrailEnabled = false;
         }
     }
-
-
 
     private void restart() {
         score = 0;
@@ -763,8 +811,6 @@ public class GameManager {
         init();
     }
 
-
-
     private void gameOver() {
         running = false;
         stopBackgroundMusic();
@@ -778,20 +824,14 @@ public class GameManager {
         }
     }
 
-
-
     public boolean isPaused() {
         return isPaused;
     }
-
-
 
     public void pause() {
         isPaused = true;
         if(backgroundMusic != null) backgroundMusic.pause();
     }
-
-
 
     public void resume() {
         isPaused = false;

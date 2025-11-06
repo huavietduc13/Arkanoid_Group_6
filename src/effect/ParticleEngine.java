@@ -1,11 +1,21 @@
 package effect;
 
+import javafx.animation.*;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class ParticleEngine {
     private GraphicsContext gc;
@@ -63,7 +73,12 @@ public class ParticleEngine {
                 .setSize(3, 8)
                 .setGravity(300)
                 .setSpreadRadius(15)
-                .setColors(brickColor, brickColor.brighter(), brickColor.darker(), Color.WHITE);
+                .setColors(
+                        brickColor,
+                        brickColor.brighter(),
+                        brickColor.darker(),
+                        Color.WHITE
+                );
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(20);
@@ -145,7 +160,6 @@ public class ParticleEngine {
                         Color.rgb(179,242,255),
                         Color.rgb(149,237,255),
                         Color.rgb(120,233,255)
-//                        Color.rgb(137, 207, 241)
                 );
 
         ParticleEmitter emitter = createEmitter(x, y, config);
@@ -164,6 +178,26 @@ public class ParticleEngine {
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(30);
+    }
+
+    public void powerUpTrail(double x, double y, Color powerUpColor) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(10, 30)
+                .setAngle(0, 360)
+                .setLifeTime(0.6, 0.8)
+                .setSize(6, 12)
+                .setGravity(0)
+                .setSpreadRadius(10)
+                .setColors(
+                        powerUpColor,
+                        powerUpColor.brighter(),
+                        powerUpColor.darker(),
+                        powerUpColor.desaturate(),
+                        powerUpColor.saturate()
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(5);
     }
 
     public void paddleHit(double x, double y) {
@@ -293,7 +327,7 @@ public class ParticleEngine {
         emitter.burst(30);
     }
 
-    public void explosion(double x, double y) {
+    public void firstExplosion(double x, double y) {
         ParticleConfig config = new ParticleConfig()
                 .setSpeed(200, 400)
                 .setAngle(0, 360)
@@ -346,5 +380,154 @@ public class ParticleEngine {
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(10);
+    }
+
+    public void lightningEffect(Pane root, double x1, double y1, double x2, double y2) {
+        Path path = new Path();
+
+        // Di chuyển con trỏ vẽ đến vị trí (x1, y1)
+        path.getElements().add(new MoveTo(x1, y1));
+
+        // Vector hướng từ điểm đầu đến điểm cuối
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double distance = Math.hypot(dx, dy);
+
+        // Mỗi segment cách nhau 20 pixels, +2 để phòng trường hợp distance nhỏ
+        int segments = (int) (distance / 20) + 2;
+
+        Random random = new Random();
+
+        for (int i = 1; i < segments; i++) {
+            // Vị trí ban đầu trên đường thẳng
+            double ratio = i / (double) segments;
+            double baseX = x1 + dx * ratio;
+            double baseY = y1 + dy * ratio;
+
+            // Độ lệch ngẫu nhiên
+            double perpX = -dy / distance; // perpendicular
+            double perpY = dx / distance; // Vector vuông góc với đường thẳng chính
+            double offset = (random.nextDouble() - 0.5 * 30); // Lệch ~15 pixels
+
+            double finalX = baseX + perpX * offset;
+            double finalY = baseY + perpY * offset;
+
+            // Vẽ 1 đường từ vị trí trước đó đến ví trí mới
+            path.getElements().add(new LineTo(finalX, finalY));
+        }
+        // Vị trí kết thúc
+        path.getElements().add(new LineTo(x2, y2));
+
+        // Thêm hiệu ứng
+        path.setStroke(Color.CYAN);
+        path.setStrokeWidth(3);
+        Glow glow = new Glow(0.8);
+        DropShadow shadow = new DropShadow();
+        shadow.setColor(Color.CYAN);
+        shadow.setRadius(10);
+        shadow.setSpread(0.5);
+        glow.setInput(shadow);
+        path.setEffect(glow);
+
+        root.getChildren().add(path);
+
+        // Hiệu ứng nhấp nháy
+        Timeline flashTimeline = new Timeline(
+                new KeyFrame(Duration.millis(0), event -> path.setVisible(true)),
+                new KeyFrame(Duration.millis(30), event -> path.setVisible(false)),
+                new KeyFrame(Duration.millis(60), event -> path.setVisible(true))
+        );
+        flashTimeline.play();
+
+        PauseTransition pause = new PauseTransition(Duration.millis(100));
+        pause.setOnFinished(event -> root.getChildren().remove(path));
+        pause.play();
+        electricSpark(x2, y2);
+    }
+
+    public void shockwave(Pane root, double centerX, double centerY, double radius) {
+        Circle shockwave = new Circle(centerX, centerY, 10);
+        shockwave.setFill(Color.TRANSPARENT);
+        shockwave.setStroke(Color.ORANGE);
+        shockwave.setStrokeWidth(3);
+        shockwave.setEffect(new Glow(0.8));
+        root.getChildren().add(shockwave);
+
+        // Hiệu ứng lan toả
+        Timeline timeline = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                        new KeyValue(shockwave.radiusProperty(), 10),
+                        new KeyValue(shockwave.opacityProperty(), 1.0)
+                ),
+                new KeyFrame(Duration.millis(1000),
+                        new KeyValue(shockwave.radiusProperty(), radius),
+                        new KeyValue(shockwave.opacityProperty(), 0.0)
+                )
+        );
+
+        timeline.setOnFinished(event -> root.getChildren().remove(shockwave));
+        timeline.play();
+
+        PauseTransition pause = new PauseTransition(Duration.millis(100));
+        pause.setOnFinished(event -> {
+            Circle shockwave2 = new Circle(centerX, centerY, 10);
+            shockwave2.setFill(Color.TRANSPARENT);
+            shockwave2.setStroke(Color.RED);
+            shockwave2.setStrokeWidth(2);
+            shockwave2.setEffect(new Glow(0.6));
+            root.getChildren().add(shockwave2);
+
+            Timeline timeline2 = new Timeline(
+                    new KeyFrame(Duration.ZERO,
+                            new KeyValue(shockwave2.radiusProperty(), 10),
+                            new KeyValue(shockwave2.opacityProperty(), 0.8)
+                    ),
+                    new KeyFrame(Duration.millis(900),
+                            new KeyValue(shockwave2.radiusProperty(), radius),
+                            new KeyValue(shockwave2.opacityProperty(), 0.0)
+                    )
+            );
+
+            timeline2.setOnFinished(event2 -> root.getChildren().remove(shockwave2));
+            timeline2.play();
+        });
+        pause.play();
+    }
+
+    public void screenShake(Pane root, int duration, int intensity) {
+        double originalX = 0.0;
+        double originalY = 0.0;
+
+        Timeline timeline = new Timeline();
+        int frames = duration / 16; // ~60 FPS
+
+        Random random = new Random();
+
+        for (int i = 0; i < frames; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 2 * intensity;
+            double offsetY = (random.nextDouble() - 0.5) * 2 * intensity;
+            timeline.getKeyFrames().add(
+                    new KeyFrame(
+                            Duration.millis(i * 16),
+                            new KeyValue(root.translateXProperty(), originalX + offsetX),
+                            new KeyValue(root.translateYProperty(), originalY + offsetY)
+                    )
+            );
+        }
+
+        timeline.getKeyFrames().add(
+                new KeyFrame(
+                        Duration.millis(duration),
+                        new KeyValue(root.translateXProperty(), originalX),
+                        new KeyValue(root.translateYProperty(), originalY)
+                )
+        );
+
+        timeline.setOnFinished(event -> {
+            root.setTranslateX(originalX);
+            root.setTranslateY(originalY);
+        });
+
+        timeline.play();
     }
 }

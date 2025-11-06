@@ -26,9 +26,6 @@ public class SceneManager {
     private AnimationTimer timer;
     private GameManager game;
 
-    private Paddle paddle;
-    private Ball ball;
-
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
         createPauseMenu();
@@ -108,7 +105,7 @@ public class SceneManager {
     }
 
     public void createLevelSelectionScene() {
-        Image startMenuImg = new Image("file:assets/images/startScreen.png");
+        Image startMenuImg = new Image("file:assets/images/levelSelectionScreen.png");
         ImageView startView = new ImageView(startMenuImg);
         startView.setFitWidth(SCREEN_WIDTH);
         startView.setFitHeight(SCREEN_HEIGHT);
