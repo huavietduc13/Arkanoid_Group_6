@@ -3,8 +3,8 @@ package utils;
 public class Constants {
     public static final int SCREEN_WIDTH = 600;
     public static final int SCREEN_HEIGHT = 800;
-    public static final int START_BUTTON_WIDTH = 200;
-    public static final int START_BUTTON_HEIGHT = 80;
+    public static final int BUTTON_WIDTH = 200;
+    public static final int BUTTON_HEIGHT = 80;
     public static final int NUMBER_OF_RANDOM_SOUND = 3;
     public static final int SCORE = 10;
     public static final int DEFAULT_LIVES = 3;
@@ -34,7 +34,6 @@ public class Constants {
     public static final double BALL_RADIUS = 12.0;
     public static final double BALL_VX = 5.0;
     public static final double BALL_VY = -BALL_VX;
-    public static final double BALL_BOUNDARY = 760.0;
 
     public static final double LASER_WIDTH = 4.0;
     public static final double LASER_HEIGHT = 20.0;
@@ -46,6 +45,9 @@ public class Constants {
 
     public static final double GUN_WIDTH = 8;
     public static final double GUN_HEIGHT = 20;
+
+    public static final double SHIELD_HEIGHT = 47.5;
+    public static final double SHIELD_POS_Y = SCREEN_HEIGHT - 50.0;
 
     public static final double TEXT_SIZE = 20.0;
     public static final double SCORE_POS_X = 10.0;

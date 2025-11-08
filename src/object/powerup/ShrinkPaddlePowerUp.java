@@ -10,7 +10,7 @@ public class ShrinkPaddlePowerUp extends PowerUp {
     private double originalWidth;
 
     public ShrinkPaddlePowerUp(double x, double y) {
-        super("file:assets/images/powerup_shrink.png", x, y, 12000);
+        super("file:assets/images/powerup_shrink.png", x, y, 8000);
         this.type = SHRINK_PADDLE;
     }
 

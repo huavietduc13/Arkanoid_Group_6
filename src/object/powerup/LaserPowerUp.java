@@ -7,7 +7,7 @@ import static enums.PowerUpType.*;
 
 public class LaserPowerUp extends PowerUp {
     public LaserPowerUp(double x, double y) {
-        super("file:assets/images/powerup_laser.png", x, y, 15000);
+        super("file:assets/images/powerup_laser.png", x, y, 5000);
         this.type = LASER;
     }
 

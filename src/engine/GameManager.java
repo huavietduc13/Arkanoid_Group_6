@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 import enums.BrickType;
+import object.powerup.Shield;
 
 import static utils.Constants.*;
 import static enums.BrickType.*;
@@ -46,6 +47,7 @@ public class GameManager {
     private List<Brick> bricks = new ArrayList<>();
     private List<PowerUp> powerUps = new ArrayList<>();
     private List<PowerUp> activePowerUps = new ArrayList<>();
+    private Shield shield;
 
     private int score = 0;
     private int levelNumber;
@@ -73,6 +75,7 @@ public class GameManager {
         this.root = root;
         this.levelNumber = levelNumber;
         this.effect = new ParticleEngine(gc);
+        this.shield = new Shield();
         init();
     }
 
@@ -101,6 +104,8 @@ public class GameManager {
         if (textManager != null) {
             textManager.removeText(root);
         }
+
+        shield.deactivate();
 
         backgroundImage = new Image("file:assets/images/background.png");
 
@@ -377,7 +382,7 @@ public class GameManager {
                             handleExplodingBrickDestruction((ExplodingBrick) brick);
                         }
 
-                        if (Math.random() < 0.5) { // 50% chance
+                        if (Math.random() < 0.3) { // 30% chance
                             System.out.println("Power up dropped!");
                             PowerUp powerUp = PowerUp.createRandomPowerUp(
                                     brick.getCenterX(),
@@ -425,7 +430,7 @@ public class GameManager {
                             handleExplodingBrickDestruction((ExplodingBrick) brick);
                         }
 
-                        if (Math.random() < 0.5) { // 50% chance
+                        if (Math.random() < 0.3) { // 30% chance
                             System.out.println("Power up dropped!");
                             PowerUp powerUp = PowerUp.createRandomPowerUp(
                                     brick.getCenterX(),
@@ -530,6 +535,11 @@ public class GameManager {
                         existingPowerUp.setActivationTime(System.currentTimeMillis());
                     } else {
                         // Collect new power up
+                        if (powerUp.getType() == SHIELD) {
+                            shield.activate();
+                            effect.shieldActivate(SCREEN_WIDTH / 2, shield.getY());
+                        }
+
                         for (Ball ball : balls) {
                             powerUp.collect(paddle, ball);
                         }
@@ -589,6 +599,10 @@ public class GameManager {
                     normalTrailEnabled = true;
                     blueTrailEnabled = false;
                 }
+                if (active.getType() == SHIELD) {
+                    shield.deactivate();
+                }
+
                 for (Ball ball : balls) {
                     active.deactivate(paddle, ball);
                 }
@@ -603,6 +617,8 @@ public class GameManager {
             root.getChildren().remove(powerUp.getCollisionShape());
             powerUps.remove(powerUp);
         }
+
+        shield.render(gc);
 
         effect.render();
     }
@@ -637,6 +653,7 @@ public class GameManager {
             }
         }
 
+        shield.update(deltaTime);
         effect.update(deltaTime);
         paddle.update();
         effect.paddleTrail(paddle.getCenterX(), paddle.getCenterY());
@@ -655,6 +672,12 @@ public class GameManager {
         List<Ball> ballToRemove = new ArrayList<>();
         for (Ball ball : balls) {
             ball.update();
+
+            if (shield.intersects(ball)) {
+                shield.handleBallCollision(ball);
+                effect.shieldDeflect(ball.getCenterX(), shield.getY());
+            }
+
             if (ball.isOutOfBounds()) {
                 ballToRemove.add(ball);
             }
@@ -753,6 +776,16 @@ public class GameManager {
                         root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
                         bricks.remove(targetBrick);
 
+                        if (Math.random() < 0.1) { // 10% chance (lower chance for chain reaction)
+                            System.out.println("Power up dropped!");
+                            PowerUp powerUp = PowerUp.createRandomPowerUp(
+                                    targetBrick.getCenterX(),
+                                    targetBrick.getY()
+                            );
+                            powerUps.add(powerUp);
+                            root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
+                        }
+
                         if (targetBrick instanceof ElectricBrick) {
                             handleElectricBrickDestruction((ElectricBrick) targetBrick);
                         }
@@ -798,6 +831,16 @@ public class GameManager {
                         effect.secondExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
                         root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
                         bricks.remove(targetBrick);
+
+                        if (Math.random() < 0.1) { // 10% chance (lower chance for chain reaction)
+                            System.out.println("Power up dropped!");
+                            PowerUp powerUp = PowerUp.createRandomPowerUp(
+                                    targetBrick.getCenterX(),
+                                    targetBrick.getY()
+                            );
+                            powerUps.add(powerUp);
+                            root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
+                        }
 
                         if (targetBrick instanceof ElectricBrick) {
                             handleElectricBrickDestruction((ElectricBrick) targetBrick);
@@ -864,6 +907,7 @@ public class GameManager {
         showLaunchText = true;
         textManager.showGameOver(false);
         paddle.reset();
+        shield.deactivate();
 
         for (Ball ball : balls) {
             ball.notLaunch();
@@ -880,6 +924,7 @@ public class GameManager {
         running = false;
         stopBackgroundMusic();
         textManager.showGameOver(true);
+        shield.deactivate();
 
         for (Ball ball : balls) {
             ball.notLaunch();

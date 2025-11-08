@@ -168,6 +168,8 @@ public abstract class PowerUp extends GameObject {
                 return new PointMultiplierPowerUp(x, y);
             case LASER:
                 return new LaserPowerUp(x, y);
+            case SHIELD:
+                return new ShieldPowerUp(x, y);
             default:
                 return new ExtraLifePowerUp(x, y);
         }
@@ -177,6 +179,30 @@ public abstract class PowerUp extends GameObject {
         PowerUpType[] types = PowerUpType.values();
         int randomIndex = (int) (Math.random() * types.length);
         return createPowerUp(types[randomIndex], x, y);
+    }
+
+    public static PowerUp createWeightedRandomPowerUp(double x, double y) {
+        double random = Math.random();
+
+        if (random < 0.15) { // Common power up
+            return new ExtraLifePowerUp(x, y);
+        } else if (random < 0.3) {
+            return new ExpandPaddlePowerUp(x, y);
+        } else if (random < 0.5) {
+            return new SlowBallPowerUp(x, y);
+        } else if (random < 0.65) {
+            return new PointMultiplierPowerUp(x, y);
+        } else if (random < 0.75) { // Debuff power up
+            return new ShrinkPaddlePowerUp(x, y);
+        } else if (random < 0.85) {
+            return new SlowBallPowerUp(x, y);
+        } else if (random < 0.9) { // Rare (strong) power up
+            return new MultiBallPowerUp(x, y);
+        } else if (random < 0.95) {
+            return new ShieldPowerUp(x, y);
+        } else {
+            return new LaserPowerUp(x, y);
+        }
     }
 
     public Color getColor() {

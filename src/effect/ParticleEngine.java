@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import static utils.Constants.*;
+
 public class ParticleEngine {
     private GraphicsContext gc;
     private List<ParticleEmitter> emitters;
@@ -568,5 +570,42 @@ public class ParticleEngine {
         });
 
         timeline.play();
+    }
+
+    public void shieldActivate(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(100, 250)
+                .setAngle(-120, -60)
+                .setLifeTime(0.5, 1.2)
+                .setSize(4, 10)
+                .setGravity(-50)
+                .setSpreadRadius(SCREEN_WIDTH / 2)
+                .setColors(
+                        Color.CYAN,
+                        Color.DEEPSKYBLUE,
+                        Color.LIGHTBLUE,
+                        Color.WHITE
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(50);
+    }
+
+    public void shieldDeflect(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(80, 180)
+                .setAngle(-150, -30)
+                .setLifeTime(0.3, 0.7)
+                .setSize(3, 7)
+                .setGravity(100)
+                .setSpreadRadius(15)
+                .setColors(
+                        Color.CYAN,
+                        Color.LIGHTBLUE,
+                        Color.WHITE
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(20);
     }
 }
