@@ -334,7 +334,7 @@ public class ParticleEngine {
                 .setLifeTime(0.5, 1.2)
                 .setSize(5, 12)
                 .setGravity(150)
-                .setSpreadRadius(15)
+                .setSpreadRadius(100)
                 .setColors(
                         Color.ORANGE,
                         Color.RED,
@@ -347,14 +347,14 @@ public class ParticleEngine {
         emitter.burst(60);
     }
 
-    public void secondaryExplosion(double x, double y) {
+    public void secondExplosion(double x, double y) {
         ParticleConfig config = new ParticleConfig()
                 .setSpeed(100, 200)
                 .setAngle(0, 360)
                 .setLifeTime(0.3, 0.7)
                 .setSize(3, 8)
                 .setGravity(200)
-                .setSpreadRadius(10)
+                .setSpreadRadius(30)
                 .setColors(
                         Color.ORANGE,
                         Color.RED,
@@ -380,6 +380,45 @@ public class ParticleEngine {
 
         ParticleEmitter emitter = createEmitter(x, y, config);
         emitter.burst(10);
+    }
+
+    public void fire(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(10, 30)
+                .setAngle(-120, - 60)
+                .setLifeTime(0.5, 1.5)
+                .setSize(10, 15)
+                .setGravity(-200)
+                .setSpreadRadius(12)
+                .setColors(
+                        Color.rgb(66, 33, 0),
+                        Color.rgb(102, 51, 0),
+                        Color.rgb(150, 75, 0),
+                        Color.rgb(178, 89, 0),
+                        Color.rgb(222, 146, 79),
+                        Color.rgb(236, 173, 124)
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(3);
+    }
+
+    public void laserHit(double x, double y) {
+        ParticleConfig config = new ParticleConfig()
+                .setSpeed(100, 250)
+                .setAngle(0, 360)
+                .setLifeTime(0.3, 0.8)
+                .setSize(3, 8)
+                .setGravity(300)
+                .setSpreadRadius(15)
+                .setColors(
+                        Color.CYAN,
+                        Color.LIGHTBLUE,
+                        Color.WHITE
+                );
+
+        ParticleEmitter emitter = createEmitter(x, y, config);
+        emitter.burst(15);
     }
 
     public void lightningEffect(Pane root, double x1, double y1, double x2, double y2) {

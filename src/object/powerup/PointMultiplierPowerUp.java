@@ -2,14 +2,13 @@ package object.powerup;
 
 import object.Ball;
 import object.Paddle;
+
 import static enums.PowerUpType.*;
-
-
 import static utils.Constants.*;
 
 public class PointMultiplierPowerUp extends PowerUp {
     public PointMultiplierPowerUp(double x, double y) {
-        super("file:assets/images/powerup_duplicate_1.png", x, y, 12, 2.0, 15000);
+        super("file:assets/images/powerup_x2.png", x, y, 15000);
         this.type = POINTS_MULTIPLIER;
     }
 

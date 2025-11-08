@@ -24,7 +24,7 @@ public class TextManager {
 
     public TextManager(Pane root) {
         this.root = root;
-        loadFont();
+        this.customFont = loadFont("assets/fonts/game.ttf");
 
         // Lives
         livesText = new Text("Score: 3");
@@ -59,14 +59,17 @@ public class TextManager {
         alignTexts();
     }
 
-    private void loadFont() {
+    private Font loadFont(String filePath) {
+        Font font = null;
         try {
-            File fontFile = new File("assets/fonts/game.ttf");
+            File fontFile = new File(filePath);
             FileInputStream fontIS = new FileInputStream(fontFile);
-            customFont = Font.loadFont(fontIS, 20);
+            font = Font.loadFont(fontIS, 20);
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         }
+
+        return font;
     }
 
     private void alignTexts() {

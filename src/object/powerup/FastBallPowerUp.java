@@ -13,7 +13,7 @@ public class FastBallPowerUp extends PowerUp {
     private double originalRotationSpeed;
 
     public FastBallPowerUp(double x, double y) {
-        super("file:assets/images/powerup_laser_1.png", x, y, 12, 2.0, 8000);
+        super("file:assets/images/powerup_fast.png", x, y, 8000);
         this.type = FAST_BALL;
     }
 

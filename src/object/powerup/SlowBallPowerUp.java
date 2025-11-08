@@ -13,7 +13,7 @@ public class SlowBallPowerUp extends PowerUp {
     private double originalRotationSpeed;
 
     public SlowBallPowerUp(double x, double y) {
-        super("file:assets/images/powerup_slow_1.png", x, y, 12, 2.0, 15000);
+        super("file:assets/images/powerup_slow.png", x, y, 15000);
         this.type = SLOW_BALL;
     }
 

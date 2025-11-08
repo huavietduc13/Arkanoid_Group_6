@@ -11,7 +11,7 @@ public class ExpandPaddlePowerUp extends PowerUp {
     private double originalWidth;
 
     public ExpandPaddlePowerUp(double x, double y) {
-        super("file:assets/images/powerup_expand_1.png", x, y, 12, 2, 12000);
+        super("file:assets/images/powerup_expand.png", x, y, 12000);
         this.type = EXPAND_PADDLE;
     }
 

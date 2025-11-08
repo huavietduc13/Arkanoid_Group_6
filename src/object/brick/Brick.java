@@ -17,21 +17,21 @@ public abstract class Brick extends GameObject {
 
     private Rectangle collisionShape;
 
-    public Brick(String imagePath, double x, double y, double width, double height, int hitPoints, int score) {
-        super(imagePath, x, y, width, height);
+    public Brick(String imagePath, double x, double y, int hitPoints, int score) {
+        super(imagePath, x, y, BRICK_WIDTH, BRICK_HEIGHT);
 
         this.hitPoints = hitPoints;
         this.score = score;
 
-        this.collisionShape = new Rectangle(x, y, width, height);
+        this.collisionShape = new Rectangle(x, y, BRICK_WIDTH, BRICK_HEIGHT);
         this.collisionShape.setVisible(false);
         this.collisionShape.setFill(Color.TRANSPARENT);
         this.collisionShape.setStroke(Color.RED);
         this.collisionShape.setArcWidth(20);
         this.collisionShape.setArcHeight(20);
 
-        this.imageView.setFitWidth(width);
-        this.imageView.setFitHeight(height);
+        this.imageView.setFitWidth(BRICK_WIDTH);
+        this.imageView.setFitHeight(BRICK_HEIGHT);
         this.imageView.setPreserveRatio(false);
         this.imageView.setStyle("-fx-border-color: gray;");
     }
@@ -85,15 +85,15 @@ public abstract class Brick extends GameObject {
     public static Brick createBrick(BrickType type, double x, double y) {
         switch (type) {
             case STRONG:
-                return new StrongBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                return new StrongBrick(x, y);
             case INDESTRUCTIBLE:
-                return new IndestructibleBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                return new IndestructibleBrick(x, y);
             case ELECTRIC:
-                return new ElectricBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                return new ElectricBrick(x, y);
             case EXPLODING:
-                return new ExplodingBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                return new ExplodingBrick(x, y);
             default:
-                return new NormalBrick(x, y, BRICK_WIDTH, BRICK_HEIGHT);
+                return new NormalBrick(x, y);
         }
     }
 

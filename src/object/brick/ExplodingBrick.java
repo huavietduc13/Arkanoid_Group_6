@@ -1,5 +1,7 @@
 package object.brick;
 
+import javafx.animation.Timeline;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +12,12 @@ public class ExplodingBrick extends Brick {
 
     private double explosionRadius = 80;
 
-    public ExplodingBrick(double x, double y, double width, double height) {
-        super(IMAGE_PATH, x, y, width, height, INITIAL_STRENGTH, SCORE);
+    private Timeline pulseAnimation;
+
+    public ExplodingBrick(double x, double y) {
+        super(IMAGE_PATH, x, y, INITIAL_STRENGTH, SCORE);
+
+//        createPulseEffect();
     }
 
     @Override
@@ -98,5 +104,31 @@ public class ExplodingBrick extends Brick {
 
     public void setExplosionRadius(double explosionRadius) {
         this.explosionRadius = explosionRadius;
+    }
+
+    private void createPulseEffect() {
+        pulseAnimation = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.ZERO,
+                        new javafx.animation.KeyValue(imageView.opacityProperty(), 1.0)
+                ),
+                new javafx.animation.KeyFrame(javafx.util.Duration.millis(500),
+                        new javafx.animation.KeyValue(imageView.opacityProperty(), 0.6)
+                ),
+                new javafx.animation.KeyFrame(javafx.util.Duration.millis(1000),
+                        new javafx.animation.KeyValue(imageView.opacityProperty(), 1.0)
+                )
+        );
+
+        pulseAnimation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+        pulseAnimation.play();
+    }
+
+    @Override
+    public void takeHit(Runnable onDestroyed) {
+        // Stop pulse khi bị hit
+        if (pulseAnimation != null) {
+            pulseAnimation.stop();
+        }
+        super.takeHit(onDestroyed);
     }
 }

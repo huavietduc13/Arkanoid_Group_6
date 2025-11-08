@@ -9,8 +9,8 @@ public class StrongBrick extends Brick{
     private static String IMAGE_PATH_2 = "file:assets/images/brick_strong_2.png";
     private static String IMAGE_PATH_3 = "file:assets/images/brick_strong_3.png";
 
-    public StrongBrick(double x, double y, double width, double height) {
-        super(IMAGE_PATH_3, x, y, width, height, INITIAL_STRENGTH, SCORE);
+    public StrongBrick(double x, double y) {
+        super(IMAGE_PATH_3, x, y, INITIAL_STRENGTH, SCORE);
     }
 
     @Override

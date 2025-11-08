@@ -8,6 +8,8 @@ import object.Ball;
 import object.GameObject;
 import object.Paddle;
 
+import static utils.Constants.*;
+
 public abstract class PowerUp extends GameObject {
     protected PowerUpType type;
 
@@ -20,12 +22,11 @@ public abstract class PowerUp extends GameObject {
 
     private Circle collisionShape;
 
-    public PowerUp(String imagePath, double x, double y,
-                   double radius, double fallSpeed, double duration
+    public PowerUp(String imagePath, double x, double y, double duration
     ) {
-        super(imagePath, x, y, radius * 2, radius * 2);
-        this.radius = radius;
-        this.fallSpeed = fallSpeed;
+        super(imagePath, x, y, POWERUP_RADIUS * 2, POWERUP_RADIUS * 2);
+        this.radius = POWERUP_RADIUS;
+        this.fallSpeed = POWERUP_FALLSPEED;
         this.duration = duration;
         this.collected = false;
         this.activated = false;
@@ -117,6 +118,10 @@ public abstract class PowerUp extends GameObject {
         return duration;
     }
 
+    public long getDurationLeft() {
+        return ((long) duration - (System.currentTimeMillis() - activationTime)) / 1000;
+    }
+
     public long getActivationTime() {
         return activationTime;
     }
@@ -161,6 +166,8 @@ public abstract class PowerUp extends GameObject {
                 return new MultiBallPowerUp(x, y);
             case POINTS_MULTIPLIER:
                 return new PointMultiplierPowerUp(x, y);
+            case LASER:
+                return new LaserPowerUp(x, y);
             default:
                 return new ExtraLifePowerUp(x, y);
         }
@@ -177,15 +184,17 @@ public abstract class PowerUp extends GameObject {
             case EXPAND_PADDLE:
                 return Color.GREEN;
             case SHRINK_PADDLE:
-                return Color.ORANGE;
-            case SLOW_BALL:
-                return Color.BLUE;
-            case FAST_BALL:
                 return Color.RED;
-            case MULTI_BALL:
+            case SLOW_BALL:
                 return Color.CYAN;
+            case FAST_BALL:
+                return Color.ORANGE;
+            case MULTI_BALL:
+                return Color.YELLOW;
             case POINTS_MULTIPLIER:
                 return Color.GOLD;
+            case LASER:
+                return Color.LIGHTPINK;
             case EXTRA_LIFE:
                 return Color.PINK;
             default:

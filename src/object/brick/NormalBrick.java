@@ -18,8 +18,8 @@ public class NormalBrick extends Brick {
         return IMAGE_PATHS[randomIndex];
     }
 
-    public NormalBrick(double x, double y, double width, double height) {
-        super(getRandomImagePath(), x, y, width, height, INITIAL_STRENGTH, SCORE);
+    public NormalBrick(double x, double y) {
+        super(getRandomImagePath(), x, y, INITIAL_STRENGTH, SCORE);
     }
 
     @Override

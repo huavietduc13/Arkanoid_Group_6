@@ -2,9 +2,15 @@ package object;
 
 import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import object.powerup.Laser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static utils.Constants.*;
 
@@ -18,8 +24,17 @@ public class Paddle extends GameObject {
 
     private Image paddleLeftImage;
     private Image paddleRightImage;
+    private Image gunLeftImage;
+    private Image gunRightImage;
+
+    private ImageView gunLeftImageView;
+    private ImageView gunRightImageView;
 
     private Rectangle collisionShape;
+
+    private boolean laserEnabled = false;
+    private long lastLaserTime = 0;
+    private List<Laser> activeLasers = new ArrayList<>();
 
     public Paddle(String imagePath, double boundary, double x, double y, double width, double height, double speed) {
         super(imagePath, x, y, width, height);
@@ -28,6 +43,8 @@ public class Paddle extends GameObject {
 
         this.paddleLeftImage = new Image("file:assets/images/paddle_left.png");
         this.paddleRightImage = new Image("file:assets/images/paddle_right.png");
+        this.gunLeftImage = new Image("file:assets/images/gun_left.png");
+        this.gunRightImage = new Image("file:assets/images/gun_right.png");
 
         this.collisionShape = new Rectangle(x, y, width, height);
         this.collisionShape.setVisible(false);
@@ -41,6 +58,18 @@ public class Paddle extends GameObject {
         this.imageView.setFitWidth(width);
         this.imageView.setFitHeight(height);
         this.imageView.setPreserveRatio(false);
+
+        this.gunLeftImageView = new ImageView(gunLeftImage);
+        this.gunLeftImageView.setVisible(false);
+        this.gunLeftImageView.setFitWidth(GUN_WIDTH);
+        this.gunLeftImageView.setFitHeight(GUN_HEIGHT);
+        this.gunLeftImageView.setPreserveRatio(false);
+
+        this.gunRightImageView = new ImageView(gunRightImage);
+        this.gunRightImageView.setVisible(false);
+        this.gunRightImageView.setFitWidth(GUN_WIDTH);
+        this.gunRightImageView.setFitHeight(GUN_HEIGHT);
+        this.gunRightImageView.setPreserveRatio(false);
     }
 
     public void moveLeft() {
@@ -59,6 +88,13 @@ public class Paddle extends GameObject {
         if (movingRight) {
             moveRight();
         }
+
+        if (laserEnabled) {
+            shootLaser();
+        }
+
+        updateLasers();
+        updateGuns();
     }
 
     @Override
@@ -71,6 +107,22 @@ public class Paddle extends GameObject {
     public void setY(double y) {
         super.setY(y);
         collisionShape.setY(y);
+    }
+
+    public void updateLasers() {
+        activeLasers.removeIf(laser -> !laser.isActive());
+
+        for (Laser laser : activeLasers) {
+            laser.update();
+        }
+    }
+
+    public void updateGuns() {
+        this.gunLeftImageView.setX(getCenterX() - getWidth() / 3);
+        this.gunLeftImageView.setY(getY() - GUN_HEIGHT + 2);
+
+        this.gunRightImageView.setX(getCenterX() + getWidth() / 3 - GUN_WIDTH);
+        this.gunRightImageView.setY(getY() - GUN_HEIGHT + 2);
     }
 
     private void updateCollisionShape() {
@@ -152,5 +204,59 @@ public class Paddle extends GameObject {
         if (code == KeyCode.RIGHT || code == KeyCode.D) {
             movingRight = false;
         }
+    }
+
+    public void enableLaser() {
+        this.gunLeftImageView.setVisible(true);
+        this.gunRightImageView.setVisible(true);
+        this.laserEnabled = true;
+    }
+
+    public void disableLaser() {
+        this.gunLeftImageView.setVisible(false);
+        this.gunRightImageView.setVisible(false);
+        this.laserEnabled = false;
+    }
+
+    public boolean isLaserEnabled() {
+        return laserEnabled;
+    }
+
+    public void shootLaser() {
+        long currentTime = System.currentTimeMillis();
+
+        if (currentTime - lastLaserTime < LASER_COOLDOWN) {
+            return;
+        }
+        lastLaserTime = currentTime;
+
+        Laser leftLaser = new Laser(getCenterX() - getWidth() / 3, getY() - LASER_HEIGHT);
+        Laser rightLaser = new Laser(getCenterX() + getWidth() / 3 - LASER_WIDTH, getY() - LASER_HEIGHT);
+        activeLasers.add(leftLaser);
+        activeLasers.add(rightLaser);
+    }
+
+    public List<Laser> getActiveLasers() {
+        return activeLasers;
+    }
+
+    public void clearLasers() {
+        activeLasers.clear();
+    }
+
+    public void addLaserImage(Pane root) {
+        for (Laser laser : activeLasers) {
+            if (!root.getChildren().contains(laser.getCollisionShape())) {
+                root.getChildren().addAll(laser.getImageView(), laser.getCollisionShape());
+            }
+        }
+    }
+
+    public ImageView getGunLeftImageView() {
+        return gunLeftImageView;
+    }
+
+    public ImageView getGunRightImageView() {
+        return gunRightImageView;
     }
 }

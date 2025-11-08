@@ -36,6 +36,17 @@ public class Constants {
     public static final double BALL_VY = -BALL_VX;
     public static final double BALL_BOUNDARY = 760.0;
 
+    public static final double LASER_WIDTH = 4.0;
+    public static final double LASER_HEIGHT = 20.0;
+    public static final double LASER_SPEED = -400.0;
+    public static final double LASER_COOLDOWN = 360.0;
+
+    public static final double POWERUP_RADIUS = 18.0;
+    public static final double POWERUP_FALLSPEED = 2.0;
+
+    public static final double GUN_WIDTH = 8;
+    public static final double GUN_HEIGHT = 20;
+
     public static final double TEXT_SIZE = 20.0;
     public static final double SCORE_POS_X = 10.0;
     public static final double SCORE_POS_Y = 30.0;

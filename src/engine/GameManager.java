@@ -16,6 +16,7 @@ import object.Paddle;
 import object.brick.Brick;
 import object.brick.ElectricBrick;
 import object.brick.ExplodingBrick;
+import object.powerup.Laser;
 import object.powerup.PowerUp;
 
 import java.io.File;
@@ -113,7 +114,7 @@ public class GameManager {
         Media gameMusic = new Media(musicPath);
         backgroundMusic = new MediaPlayer(gameMusic);
         backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
-        backgroundMusic.setVolume(0.5);
+        backgroundMusic.setVolume(0.1);
         backgroundMusic.play();
 
         for (int i = 0; i < 3; i++) {
@@ -143,7 +144,9 @@ public class GameManager {
 
         root.getChildren().addAll(
                 paddle.getImageView(), paddle.getCollisionShape(),
-                mainBall.getImageView(), mainBall.getCollisionShape()
+                mainBall.getImageView(), mainBall.getCollisionShape(),
+                paddle.getGunLeftImageView(),
+                paddle.getGunRightImageView()
         );
 
         redTrailEnabled = false;
@@ -309,7 +312,7 @@ public class GameManager {
             try {
                 int randomIndex = random.nextInt(3);
                 MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
-                meowPlayer.setVolume(0.4);
+                meowPlayer.setVolume(0.1);
                 meowPlayer.play();
             } catch (Exception e) {
                 System.out.println("Lỗi khi phát meow: " + e.getMessage());
@@ -349,7 +352,7 @@ public class GameManager {
     public void render(Pane root) {
         gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        List<Brick> brickToRemove = new ArrayList<>();
+        List<Brick> bricksToRemove = new ArrayList<>();
         for (Ball ball : balls) {
             for (Brick brick : bricks) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
@@ -383,7 +386,7 @@ public class GameManager {
                             powerUps.add(powerUp);
                             root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
                         }
-                        brickToRemove.add(brick);
+                        bricksToRemove.add(brick);
                     });
                     playRandomMeowSound();
                     break;
@@ -391,13 +394,71 @@ public class GameManager {
             }
         }
 
-        for (Brick brick : brickToRemove) {
+        List<Laser> lasersToRemove = new ArrayList<>();
+        for (Laser laser : paddle.getActiveLasers()) {
+            if (!laser.isActive()) {
+                lasersToRemove.add(laser);
+                continue;
+            }
+
+            for (Brick brick : bricks) {
+                if (!brick.isDestroyed() && !brick.isBeingHit() && laser.intersects(brick)) {
+                    score += SCORE * SCORE_MULTIPLIER;
+
+                    Color brickColor = brick.getColor();
+
+                    final boolean isElectric = brick instanceof ElectricBrick;
+                    final boolean isExploding = brick instanceof ExplodingBrick;
+
+                    brick.takeHit(() -> {
+                        effect.brickExplosion(
+                                brick.getCenterX(),
+                                brick.getCenterY(),
+                                brickColor
+                        );
+
+                        if (isElectric) {
+                            handleElectricBrickDestruction((ElectricBrick) brick);
+                        }
+
+                        if (isExploding) {
+                            handleExplodingBrickDestruction((ExplodingBrick) brick);
+                        }
+
+                        if (Math.random() < 0.5) { // 50% chance
+                            System.out.println("Power up dropped!");
+                            PowerUp powerUp = PowerUp.createRandomPowerUp(
+                                    brick.getCenterX(),
+                                    brick.getY()
+                            );
+                            powerUps.add(powerUp);
+                            root.getChildren().addAll(powerUp.getImageView(), powerUp.getCollisionShape());
+                        }
+                        bricksToRemove.add(brick);
+                    });
+
+                    laser.deactivate();
+                    lasersToRemove.add(laser);
+                    effect.laserHit(laser.getX() + LASER_WIDTH / 2, brick.getY() + brick.getHeight());
+
+                    playRandomMeowSound();
+                    break;
+                }
+            }
+        }
+
+        for (Laser laser : lasersToRemove) {
+            root.getChildren().removeAll(laser.getImageView(), laser.getCollisionShape());
+            paddle.getActiveLasers().remove(laser);
+        }
+
+        for (Brick brick : bricksToRemove) {
             root.getChildren().remove(brick.getImageView());
             root.getChildren().remove(brick.getCollisionShape());
             bricks.remove(brick);
         }
 
-        List<PowerUp> powerUpToRemove = new ArrayList<>();
+        List<PowerUp> powerUpsToRemove = new ArrayList<>();
         for (PowerUp powerUp : powerUps) {
             if (running) {
                 Color powerUpColor = powerUp.getColor();
@@ -485,11 +546,11 @@ public class GameManager {
                         powerUp.collect(paddle, balls.get(0));
                     }
                 }
-                powerUpToRemove.add(powerUp);
+                powerUpsToRemove.add(powerUp);
             }
 
             if (powerUp.getY() > SCREEN_HEIGHT) {
-                powerUpToRemove.add(powerUp);
+                powerUpsToRemove.add(powerUp);
             }
         }
 
@@ -537,11 +598,12 @@ public class GameManager {
         activePowerUps.removeAll(expiredPowerUps);
 
         // Xóa power up đã collect hoặc rơi ra ngoài màn hình
-        for (PowerUp powerUp : powerUpToRemove) {
+        for (PowerUp powerUp : powerUpsToRemove) {
             root.getChildren().remove(powerUp.getImageView());
             root.getChildren().remove(powerUp.getCollisionShape());
             powerUps.remove(powerUp);
         }
+
         effect.render();
     }
 
@@ -579,10 +641,13 @@ public class GameManager {
         paddle.update();
         effect.paddleTrail(paddle.getCenterX(), paddle.getCenterY());
 
+        paddle.addLaserImage(root);
+
         Ball mainBall = balls.get(0);
         if (!mainBall.isLaunched()) {
             mainBall.setX(paddle.getCenterX() - mainBall.getRadius());
-            mainBall.setY(paddle.getY() - mainBall.getRadius() * 2); // Dock ball to paddle
+            mainBall.setY(paddle.getY() - mainBall.getRadius() * 2 + 4); // Dock ball to paddle
+//            effect.fire(mainBall.getCenterX(), mainBall.getCenterY());
         } else {
             showLaunchText = false; // Hide text
         }
@@ -730,7 +795,7 @@ public class GameManager {
                 if (!targetBrick.isDestroyed()) {
                     score += targetBrick.getScore() * SCORE_MULTIPLIER;
                     targetBrick.takeHit(() -> {
-                        effect.secondaryExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
+                        effect.secondExplosion(targetBrick.getCenterX(), targetBrick.getCenterY());
                         root.getChildren().removeAll(targetBrick.getImageView(), targetBrick.getCollisionShape());
                         bricks.remove(targetBrick);
 
@@ -815,9 +880,6 @@ public class GameManager {
         running = false;
         stopBackgroundMusic();
         textManager.showGameOver(true);
-        if (effect != null) {
-            effect.clear();
-        }
 
         for (Ball ball : balls) {
             ball.notLaunch();
