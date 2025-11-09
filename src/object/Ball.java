@@ -1,9 +1,9 @@
-package object;
+package src.object;
 
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public class Ball extends GameObject {
     private double vx;

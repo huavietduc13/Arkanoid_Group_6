@@ -1,9 +1,9 @@
-package object.powerup;
+package src.object.powerup;
 
-import object.Ball;
-import object.Paddle;
+import src.object.Ball;
+import src.object.Paddle;
 
-import static enums.PowerUpType.*;
+import static src.enums.PowerUpType.*;
 
 public class ExtraLifePowerUp extends PowerUp {
     public ExtraLifePowerUp(double x, double y) {

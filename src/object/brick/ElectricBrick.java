@@ -1,9 +1,9 @@
-package object.brick;
+package src.object.brick;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static enums.BrickType.*;
+import static src.enums.BrickType.*;
 
 public class ElectricBrick extends Brick{
     private static int INITIAL_STRENGTH = 1;

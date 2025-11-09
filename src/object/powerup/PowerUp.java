@@ -1,14 +1,14 @@
-package object.powerup;
+package src.object.powerup;
 
-import enums.PowerUpType;
+import src.enums.PowerUpType;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import object.Ball;
-import object.GameObject;
-import object.Paddle;
+import src.object.Ball;
+import src.object.GameObject;
+import src.object.Paddle;
 
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public abstract class PowerUp extends GameObject {
     protected PowerUpType type;

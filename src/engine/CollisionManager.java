@@ -1,22 +1,22 @@
-package engine;
+package src.engine;
 
-import effect.ParticleEngine;
+import src.effect.ParticleEngine;
 import javafx.animation.PauseTransition;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import object.Ball;
-import object.Paddle;
-import object.brick.Brick;
-import object.brick.ElectricBrick;
-import object.brick.ExplodingBrick;
-import object.powerup.Laser;
+import src.object.Ball;
+import src.object.Paddle;
+import src.object.brick.Brick;
+import src.object.brick.ElectricBrick;
+import src.object.brick.ExplodingBrick;
+import src.object.powerup.Laser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static enums.BrickType.*;
-import static utils.Constants.*;
+import static src.enums.BrickType.*;
+import static src.utils.Constants.*;
 
 public class CollisionManager {
     private ParticleEngine effect;
@@ -67,7 +67,9 @@ public class CollisionManager {
                         bricksToRemove.add(brick);
                     });
 
-                    if (brick.getType() != INDESTRUCTIBLE) {
+                    if (brick.getType() == INDESTRUCTIBLE) {
+                        audioManager.playIndestructibleBrickCollisionSound();
+                    } else {
                         audioManager.playRandomMeowSound();
                     }
                     break;
@@ -137,6 +139,7 @@ public class CollisionManager {
     public void handleBallPaddleCollision(Paddle paddle, List<Ball> balls) {
         for (Ball ball : balls) {
             if (CollisionDetector.handlePaddleCollision(ball, paddle)) {
+                audioManager.playPaddleCollisionSound();
                 effect.paddleHit(ball.getCenterX(), paddle.getY());
             }
         }

@@ -1,8 +1,8 @@
-package object.brick;
+package src.object.brick;
 
 import java.util.Random;
 
-import static enums.BrickType.*;
+import static src.enums.BrickType.*;
 
 public class NormalBrick extends Brick {
     private static final int INITIAL_STRENGTH = 1;

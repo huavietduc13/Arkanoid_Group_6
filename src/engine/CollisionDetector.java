@@ -1,13 +1,13 @@
-package engine;
+package src.engine;
 
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import object.Ball;
-import object.Paddle;
-import object.brick.Brick;
-import enums.CollisionSide;
+import src.object.Ball;
+import src.object.Paddle;
+import src.object.brick.Brick;
+import src.enums.CollisionSide;
 
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public class CollisionDetector {
     // Handle collision between ball and brick

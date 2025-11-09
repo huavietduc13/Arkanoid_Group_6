@@ -1,4 +1,4 @@
-package utils;
+package src.utils;
 
 public class Constants {
     public static final int SCREEN_WIDTH = 600;

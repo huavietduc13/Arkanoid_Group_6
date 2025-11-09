@@ -1,10 +1,10 @@
-package object.powerup;
+package src.object.powerup;
 
-import object.Ball;
-import object.Paddle;
+import src.object.Ball;
+import src.object.Paddle;
 
-import static enums.PowerUpType.*;
-import static utils.Constants.*;
+import static src.enums.PowerUpType.*;
+import static src.utils.Constants.*;
 
 public class PointMultiplierPowerUp extends PowerUp {
     public PointMultiplierPowerUp(double x, double y) {

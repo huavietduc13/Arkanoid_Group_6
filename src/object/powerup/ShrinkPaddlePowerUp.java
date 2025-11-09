@@ -1,9 +1,9 @@
-package object.powerup;
+package src.object.powerup;
 
-import object.Ball;
-import object.Paddle;
-import static utils.Constants.*;
-import static enums.PowerUpType.*;
+import src.object.Ball;
+import src.object.Paddle;
+import static src.utils.Constants.*;
+import static src.enums.PowerUpType.*;
 
 public class ShrinkPaddlePowerUp extends PowerUp {
     private static final double SIZE_MULTIPLIER = 0.6;

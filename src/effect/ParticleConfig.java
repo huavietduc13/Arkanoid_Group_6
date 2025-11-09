@@ -1,4 +1,4 @@
-package effect;
+package src.effect;
 
 import javafx.scene.paint.Color;
 

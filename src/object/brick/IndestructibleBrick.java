@@ -1,6 +1,6 @@
-package object.brick;
+package src.object.brick;
 
-import static enums.BrickType.*;
+import static src.enums.BrickType.*;
 
 public class IndestructibleBrick extends Brick{
     private static int INITIAL_STRENGTH = 999;

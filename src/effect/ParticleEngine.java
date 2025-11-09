@@ -1,4 +1,4 @@
-package effect;
+package src.effect;
 
 import javafx.animation.*;
 import javafx.scene.canvas.GraphicsContext;
@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public class ParticleEngine {
     private GraphicsContext gc;

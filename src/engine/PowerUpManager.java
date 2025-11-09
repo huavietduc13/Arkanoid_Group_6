@@ -1,36 +1,38 @@
-package engine;
+package src.engine;
 
-import effect.ParticleEngine;
-import enums.PowerUpType;
+import src.effect.ParticleEngine;
+import src.enums.PowerUpType;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import object.Ball;
-import object.Paddle;
-import object.brick.Brick;
-import object.powerup.PowerUp;
-import object.powerup.Shield;
+import src.object.Ball;
+import src.object.Paddle;
+import src.object.brick.Brick;
+import src.object.powerup.PowerUp;
+import src.object.powerup.Shield;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static enums.PowerUpType.*;
-import static utils.Constants.*;
+import static src.enums.PowerUpType.*;
+import static src.utils.Constants.*;
 
 public class PowerUpManager {
     private List<PowerUp> powerUps;
     private List<PowerUp> activePowerUps;
     private Shield shield;
     private ParticleEngine effect;
+    private AudioManager audioManager;
 
     private boolean redTrailEnabled = false;
     private boolean normalTrailEnabled = true;
     private boolean blueTrailEnabled = false;
 
-    public PowerUpManager(ParticleEngine effect) {
+    public PowerUpManager(ParticleEngine effect, AudioManager audioManager) {
         this.powerUps = new ArrayList<>();
         this.activePowerUps = new ArrayList<>();
         this.shield = new Shield();
         this.effect = effect;
+        this.audioManager = audioManager;
     }
 
     public void dropPowerUp(Pane root, Brick brick, double dropChance) {
@@ -78,13 +80,24 @@ public class PowerUpManager {
         }
     }
 
-    private void handlePowerUpCollection(Pane root, PowerUp powerUp, Paddle paddle, List<Ball> balls) {
+        private void handlePowerUpCollection(Pane root, PowerUp powerUp, Paddle paddle, List<Ball> balls) {
         Color powerUpColor = powerUp.getColor();
         effect.powerUpCollect(
                 powerUp.getCenterX(),
                 powerUp.getCenterY(),
                 powerUpColor
         );
+        
+        //Phát âm thanh power-up
+        if (audioManager != null) {
+            audioManager.playPowerUpSound();
+        }
+
+        if (powerUp.isTimedPowerUp()) {
+            handleTimedPowerUp(powerUp, paddle, balls);
+        } else {
+            handleInstantPowerUp(root, powerUp, paddle, balls);
+        }
 
         if (powerUp.isTimedPowerUp()) {
             handleTimedPowerUp(powerUp, paddle, balls);

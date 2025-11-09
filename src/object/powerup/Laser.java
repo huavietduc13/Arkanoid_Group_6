@@ -1,12 +1,12 @@
-package object.powerup;
+package src.object.powerup;
 
 import javafx.geometry.Bounds;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import object.GameObject;
+import src.object.GameObject;
 
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public class Laser extends GameObject {
     private double vy;

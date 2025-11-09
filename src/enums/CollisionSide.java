@@ -1,4 +1,4 @@
-package enums;
+package src.enums;
 
 public enum CollisionSide {
     TOP,

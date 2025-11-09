@@ -1,19 +1,19 @@
-package engine;
+package src.engine;
 
-import effect.ParticleEngine;
+import src.effect.ParticleEngine;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import object.Ball;
-import object.Paddle;
-import object.brick.Brick;
+import src.object.Ball;
+import src.object.Paddle;
+import src.object.brick.Brick;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static utils.Constants.*;
+import static src.utils.Constants.*;
 
 public class GameManager {
     private GraphicsContext gc;
@@ -45,7 +45,7 @@ public class GameManager {
         this.effect = new ParticleEngine(gc);
         this.audioManager = new AudioManager();
         this.levelManager = new LevelManager();
-        this.powerUpManager = new PowerUpManager(effect);
+        this.powerUpManager = new PowerUpManager(effect, audioManager);
         this.collisionManager = new CollisionManager(effect, audioManager, levelManager, powerUpManager);
 
         init();
@@ -202,12 +202,15 @@ public class GameManager {
             }
 
             if (ball.hitLeftBound()) {
+                audioManager.playWallCollisionSound();
                 effect.hitLeftBound(ball.getX(), ball.getCenterY());
             }
             if (ball.hitRightBound()) {
+                audioManager.playWallCollisionSound();
                 effect.hitRightBound(ball.getX() + ball.getWidth(), ball.getCenterY());
             }
             if (ball.hitUpperBound()) {
+                audioManager.playWallCollisionSound();
                 effect.hitUpperBound(ball.getCenterX(), ball.getY());
             }
         }
@@ -300,6 +303,7 @@ public class GameManager {
     }
 
     private void gameOver() {
+        audioManager.playGameOverSound();
         running = false;
         AudioManager.stopBackgroundMusic();
         textManager.showGameOver(true);
