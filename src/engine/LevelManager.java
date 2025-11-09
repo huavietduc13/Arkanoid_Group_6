@@ -1,6 +1,7 @@
 package engine;
 
 import enums.BrickType;
+import javafx.scene.layout.Pane;
 import object.brick.Brick;
 
 import java.io.File;
@@ -207,7 +208,10 @@ public class LevelManager {
         this.dynamicSpawning = dynamicSpawning;
     }
 
-    public void clearBricks() {
+    public void clearBricks(Pane root) {
+        for (Brick brick : bricks) {
+            root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
+        }
         bricks.clear();
     }
 

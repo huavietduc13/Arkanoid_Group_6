@@ -13,6 +13,8 @@ public class AudioManager {
     private static Media[] meowSounds;
     private static Random random;
     private static boolean soundEnabled;
+    protected static double volume = 0.5;
+    private static double volumeBeforeMute;
 
     public AudioManager() {
         this.random = new Random();
@@ -35,6 +37,17 @@ public class AudioManager {
             File meowFile = new File("assets/sounds/meow_" + (i + 1) + ".mp3");
             String meowPath = meowFile.toURI().toString();
             meowSounds[i] = new Media(meowPath);
+        }
+    }
+
+    public static void toggleMute() {
+        if(volume != 0) {
+            volumeBeforeMute = volume;
+            volume = 0;
+            setMasterVolume(volume);
+        } else {
+            volume = volumeBeforeMute;
+            setMasterVolume(volume);
         }
     }
 
@@ -61,7 +74,7 @@ public class AudioManager {
             try {
                 int randomIndex = random.nextInt(NUMBER_OF_RANDOM_SOUND);
                 MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
-                meowPlayer.setVolume(0.4);
+                meowPlayer.setVolume(volume);
                 meowPlayer.play();
             } catch (Exception e) {
                 System.out.println("Lỗi khi phát meow: " + e.getMessage());
@@ -82,10 +95,9 @@ public class AudioManager {
         return soundEnabled;
     }
 
-    public void setBackgroundMusicVolume(double volume) {
-        if (backgroundMusic != null) {
-            backgroundMusic.setVolume(volume);
-        }
+    public static void setMasterVolume(double volume) {
+        AudioManager.volume = volume;
+        backgroundMusic.setVolume(volume);
     }
 
     public void dispose() {

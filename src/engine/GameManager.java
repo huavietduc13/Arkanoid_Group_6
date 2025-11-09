@@ -70,10 +70,7 @@ public class GameManager {
         }
         balls.clear();
 
-        for (Brick brick : levelManager.getBricks()) {
-            root.getChildren().removeAll(brick.getImageView(), brick.getCollisionShape());
-        }
-        levelManager.clearBricks();
+        levelManager.clearBricks(root);
 
         for (PowerUp powerUp : powerUps) {
             root.getChildren().removeAll(powerUp.getImageView(), powerUp.getCollisionShape());
@@ -546,7 +543,6 @@ public class GameManager {
             ball.notLaunch();
         }
 
-        levelManager.clearBricks();
         levelManager.setDynamicSpawning(false);
 
         for (PowerUp powerUp : powerUps) {
