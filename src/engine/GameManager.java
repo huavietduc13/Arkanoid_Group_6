@@ -38,10 +38,6 @@ public class GameManager {
 
     private long lastFrameTime = 0;
 
-    private boolean redTrailEnabled = false;
-    private boolean normalTrailEnabled = true;
-    private boolean blueTrailEnabled = false;
-
     public GameManager(GraphicsContext gc, Pane root, int levelNumber) {
         this.gc = gc;
         this.root = root;
@@ -78,7 +74,7 @@ public class GameManager {
 
         audioManager.playBackgroundMusic();
 
-        paddle = new Paddle("file:assets/images/paddle1.png",
+        paddle = new Paddle("file:assets/images/paddle_right.png",
                 PADDLE_BOUNDARY,
                 PADDLE_POS_X,
                 PADDLE_POS_Y,
@@ -86,7 +82,7 @@ public class GameManager {
                 PADDLE_HEIGHT,
                 PADDLE_SPEED);
 
-        Ball mainBall = new Ball("file:assets/images/ball1.png",
+        Ball mainBall = new Ball("file:assets/images/ball.png",
                 BALL_POS_X,
                 BALL_POS_Y,
                 BALL_RADIUS,
@@ -196,11 +192,11 @@ public class GameManager {
             }
 
             if (ball.isLaunched()) {
-                if (normalTrailEnabled) {
+                if (powerUpManager.isNormalTrailEnabled()) {
                     effect.ballTrail(ball.getCenterX(), ball.getCenterY());
-                } else if (redTrailEnabled) {
+                } else if (powerUpManager.isRedTrailEnabled()) {
                     effect.redBallTrail(ball.getCenterX(), ball.getCenterY());
-                } else if (blueTrailEnabled) {
+                } else if (powerUpManager.isBlueTrailEnabled()) {
                     effect.blueBallTrail(ball.getCenterX(), ball.getCenterY());
                 }
             }
@@ -230,7 +226,7 @@ public class GameManager {
         System.out.println("Lives left: " + paddle.getLives());
 
         if (paddle.getLives() > 0) {
-            Ball newMainBall = new Ball("file:assets/images/ball1.png",
+            Ball newMainBall = new Ball("file:assets/images/ball.png",
                     paddle.getCenterX() - BALL_RADIUS,
                     paddle.getY() - BALL_RADIUS * 2,
                     BALL_RADIUS,
