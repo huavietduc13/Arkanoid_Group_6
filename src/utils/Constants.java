@@ -58,4 +58,6 @@ public class Constants {
     public static final double LAUNCH_TEXT_POS_Y = 360.0;
     public static final double GAME_OVER_POS_X = 165.0;
     public static final double GAME_OVER_POS_Y = 360.0;
+
+    public static final double VOLUME_STEP = 0.05;
 }

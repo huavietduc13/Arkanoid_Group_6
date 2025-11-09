@@ -3,6 +3,7 @@ package engine;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,8 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import object.Ball;
-import object.Paddle;
+
+import static engine.AudioManager.*;
 import static utils.Constants.*;
 
 public class SceneManager {
@@ -26,9 +27,52 @@ public class SceneManager {
     private AnimationTimer timer;
     private GameManager game;
 
+    private HBox volumeBox;
+    private ImageView volumeIcon;
+    private Image volHigh;
+    private Image volMedium;
+    private Image volLow;
+    private Image volMute;
+
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
         createPauseMenu();
+        createVolumeButton();
+    }
+
+    public void createVolumeButton() {
+        volHigh = new Image("file:assets/images/volume_high.png");
+        volMedium = new Image("file:assets/images/volume_medium.png");
+        volLow = new Image("file:assets/images/volume_low.png");
+        volMute = new Image("file:assets/images/volume_mute.png");
+
+        volumeIcon = new ImageView(volMedium);
+        volumeIcon.setFitHeight(30);
+        volumeIcon.setFitWidth(30);
+        volumeIcon.setLayoutX(SCREEN_WIDTH - 30 - 20);
+        volumeIcon.setLayoutY(5);
+        volumeIcon.setCursor(Cursor.HAND);
+
+        volumeIcon.setOnMouseClicked(e -> {
+            toggleMute();
+            updateVolumeIcon();
+        });
+
+        volumeIcon.setOnScroll(e -> {
+            System.out.println("running");
+            if(e.getDeltaY() > 0) volume += VOLUME_STEP;
+            else if (e.getDeltaY() < 0) volume -= VOLUME_STEP;
+            volume = Math.max(0.0, Math.min(1.0, volume));
+            setMasterVolume(volume);
+            updateVolumeIcon();
+        });
+    }
+
+    private void updateVolumeIcon() {
+        if (volume == 0) volumeIcon.setImage(volMute);
+        else if (volume <= 0.4) volumeIcon.setImage(volLow);
+        else if (volume <= 0.8) volumeIcon.setImage(volMedium);
+        else volumeIcon.setImage(volHigh);
     }
 
     public void createPauseMenu() {
@@ -40,6 +84,14 @@ public class SceneManager {
         resumeButton.setOnMouseExited(e -> resumeButton.setOpacity(1.0));
         resumeButton.setOnMouseClicked(e -> togglePauseMenu());
 
+        // Restart button
+        ImageView restartButton = new ImageView(new Image("file:assets/images/restartButton.png"));
+        restartButton.setFitWidth(200);
+        restartButton.setFitHeight(80);
+        restartButton.setOnMouseEntered(e -> restartButton.setOpacity(0.7));
+        restartButton.setOnMouseExited(e -> restartButton.setOpacity(1.0));
+        restartButton.setOnMouseClicked(e -> game.restart());
+
         // To main menu button
         ImageView menuButton = new ImageView(new Image("file:assets/images/mainMenuButton.png"));
         menuButton.setFitWidth(200);
@@ -49,7 +101,7 @@ public class SceneManager {
         menuButton.setOnMouseClicked(e -> returnToMenu());
 
         // Pause menu layout
-        pauseMenu = new VBox(20, resumeButton, menuButton);
+        pauseMenu = new VBox(20, resumeButton, restartButton, menuButton);
         pauseMenu.setAlignment(Pos.CENTER);
         pauseMenu.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         pauseMenu.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
@@ -167,7 +219,7 @@ public class SceneManager {
             game.resume();
         }
 
-        GameManager.stopBackgroundMusic();
+        AudioManager.stopBackgroundMusic();
         priStage.setScene(startMenuScene);
     }
 
@@ -175,7 +227,7 @@ public class SceneManager {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
-        root.getChildren().add(pauseMenu);
+        root.getChildren().addAll(volumeIcon, pauseMenu);
 
         gameScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
 
