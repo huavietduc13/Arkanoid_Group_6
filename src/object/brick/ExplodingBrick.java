@@ -5,6 +5,8 @@ import javafx.animation.Timeline;
 import java.util.ArrayList;
 import java.util.List;
 
+import static enums.BrickType.*;
+
 public class ExplodingBrick extends Brick {
     private static int INITIAL_STRENGTH = 1;
     private static int SCORE = 75;
@@ -16,6 +18,7 @@ public class ExplodingBrick extends Brick {
 
     public ExplodingBrick(double x, double y) {
         super(IMAGE_PATH, x, y, INITIAL_STRENGTH, SCORE);
+        this.type = EXPLODING;
 
 //        createPulseEffect();
     }

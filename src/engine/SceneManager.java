@@ -90,7 +90,10 @@ public class SceneManager {
         restartButton.setFitHeight(80);
         restartButton.setOnMouseEntered(e -> restartButton.setOpacity(0.7));
         restartButton.setOnMouseExited(e -> restartButton.setOpacity(1.0));
-        restartButton.setOnMouseClicked(e -> game.restart());
+        restartButton.setOnMouseClicked(e -> {
+            togglePauseMenu();
+            game.restart();
+        });
 
         // To main menu button
         ImageView menuButton = new ImageView(new Image("file:assets/images/mainMenuButton.png"));

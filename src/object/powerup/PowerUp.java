@@ -110,6 +110,14 @@ public abstract class PowerUp extends GameObject {
         return collected;
     }
 
+    public boolean isOutOfScreen() {
+        return getY() > SCREEN_HEIGHT;
+    }
+
+    public boolean isTimedPowerUp() {
+        return getDuration() > 0;
+    }
+
     public void setCollected(boolean collected) {
         this.collected = collected;
     }

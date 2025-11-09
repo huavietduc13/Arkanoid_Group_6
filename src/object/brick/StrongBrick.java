@@ -2,6 +2,8 @@ package object.brick;
 
 import javafx.scene.image.Image;
 
+import static enums.BrickType.*;
+
 public class StrongBrick extends Brick{
     private static int INITIAL_STRENGTH = 3;
     private static int SCORE = 30;
@@ -11,6 +13,7 @@ public class StrongBrick extends Brick{
 
     public StrongBrick(double x, double y) {
         super(IMAGE_PATH_3, x, y, INITIAL_STRENGTH, SCORE);
+        this.type = STRONG;
     }
 
     @Override

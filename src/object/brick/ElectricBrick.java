@@ -3,6 +3,8 @@ package object.brick;
 import java.util.ArrayList;
 import java.util.List;
 
+import static enums.BrickType.*;
+
 public class ElectricBrick extends Brick{
     private static int INITIAL_STRENGTH = 1;
     private static int SCORE = 50;
@@ -10,6 +12,7 @@ public class ElectricBrick extends Brick{
 
     public ElectricBrick(double x, double y) {
         super(IMAGE_PATH, x, y, INITIAL_STRENGTH, SCORE);
+        this.type = ELECTRIC;
     }
 
     @Override

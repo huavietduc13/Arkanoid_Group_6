@@ -2,6 +2,8 @@ package object.brick;
 
 import java.util.Random;
 
+import static enums.BrickType.*;
+
 public class NormalBrick extends Brick {
     private static final int INITIAL_STRENGTH = 1;
     private static final int SCORE = 10;
@@ -20,6 +22,7 @@ public class NormalBrick extends Brick {
 
     public NormalBrick(double x, double y) {
         super(getRandomImagePath(), x, y, INITIAL_STRENGTH, SCORE);
+        this.type = NORMAL;
     }
 
     @Override

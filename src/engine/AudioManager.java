@@ -69,7 +69,7 @@ public class AudioManager {
         }
     }
 
-    public static void playRandomMeowSound() {
+    public void playRandomMeowSound() {
         if (soundEnabled && meowSounds != null && meowSounds[0] != null) {
             try {
                 int randomIndex = random.nextInt(NUMBER_OF_RANDOM_SOUND);

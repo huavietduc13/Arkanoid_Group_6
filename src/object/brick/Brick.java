@@ -11,6 +11,8 @@ import enums.BrickType;
 import static utils.Constants.*;
 
 public abstract class Brick extends GameObject {
+    protected BrickType type;
+
     protected int hitPoints;
     protected int score;
     private boolean isBeingHit = false;
@@ -125,6 +127,10 @@ public abstract class Brick extends GameObject {
         } else {
             return Color.RED;
         }
+    }
+
+    public BrickType getType() {
+        return type;
     }
 
     @Override
