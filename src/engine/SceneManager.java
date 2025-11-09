@@ -84,6 +84,14 @@ public class SceneManager {
         resumeButton.setOnMouseExited(e -> resumeButton.setOpacity(1.0));
         resumeButton.setOnMouseClicked(e -> togglePauseMenu());
 
+        // Restart button
+        ImageView restartButton = new ImageView(new Image("file:assets/images/restartButton.png"));
+        restartButton.setFitWidth(200);
+        restartButton.setFitHeight(80);
+        restartButton.setOnMouseEntered(e -> restartButton.setOpacity(0.7));
+        restartButton.setOnMouseExited(e -> restartButton.setOpacity(1.0));
+        restartButton.setOnMouseClicked(e -> game.restart());
+
         // To main menu button
         ImageView menuButton = new ImageView(new Image("file:assets/images/mainMenuButton.png"));
         menuButton.setFitWidth(200);
@@ -93,7 +101,7 @@ public class SceneManager {
         menuButton.setOnMouseClicked(e -> returnToMenu());
 
         // Pause menu layout
-        pauseMenu = new VBox(20, resumeButton, menuButton);
+        pauseMenu = new VBox(20, resumeButton, restartButton, menuButton);
         pauseMenu.setAlignment(Pos.CENTER);
         pauseMenu.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         pauseMenu.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));

@@ -532,7 +532,7 @@ public class GameManager {
 
 
 
-    private void restart() {
+    void restart() {
         score = 0;
         running = true;
         showLaunchText = true;
