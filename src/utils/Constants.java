@@ -1,15 +1,20 @@
 package utils;
 
 public class Constants {
-    public static final int SCREEN_WIDTH = 600;
+    public static final int SCREEN_WIDTH = 780;
     public static final int SCREEN_HEIGHT = 800;
     public static final int BUTTON_WIDTH = 200;
     public static final int BUTTON_HEIGHT = 80;
     public static final int NUMBER_OF_RANDOM_SOUND = 3;
-    public static final int SCORE = 10;
+    public static final int SCORE = 100;
     public static final int DEFAULT_LIVES = 3;
     public static final int EXTRA_BALLS = 2;
     public static int SCORE_MULTIPLIER = 1;
+
+    public static final double GAME_AREA_WIDTH = 600;
+    public static final double INFO_PANEL_X = 600.0;
+    public static final double INFO_PANEL_WIDTH = 180;
+    public static final double INFO_PANEL_PADDING = 20.0;
 
     public static final double EPSILON = 0.05;
     public static final double SEPARATION_OFFSET = 0.05;
@@ -50,14 +55,10 @@ public class Constants {
     public static final double SHIELD_POS_Y = SCREEN_HEIGHT - 50.0;
 
     public static final double TEXT_SIZE = 20.0;
-    public static final double SCORE_POS_X = 10.0;
-    public static final double SCORE_POS_Y = 30.0;
-    public static final double LIVES_POS_X = 150.0;
-    public static final double LIVES_POS_Y = 30.0;
-    public static final double LAUNCH_TEXT_POS_X = 165.0;
-    public static final double LAUNCH_TEXT_POS_Y = 360.0;
-    public static final double GAME_OVER_POS_X = 165.0;
-    public static final double GAME_OVER_POS_Y = 360.0;
+    public static final double LAUNCH_TEXT_POS_X = 146.0;
+    public static final double LAUNCH_TEXT_POS_Y = 380.0;
+    public static final double GAME_OVER_POS_X = 129.5;
+    public static final double GAME_OVER_POS_Y = 380.0;
 
     public static final double VOLUME_STEP = 0.05;
 }

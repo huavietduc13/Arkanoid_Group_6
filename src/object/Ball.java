@@ -50,12 +50,12 @@ public class Ball extends GameObject {
         double newY = getY() + vy;
 
         // Collide with left/right boundary
-        if (newX < 0 || newX + getWidth() > SCREEN_WIDTH) {
+        if (newX < 0 || newX + getWidth() > GAME_AREA_WIDTH) {
             vx *= -1;
             if (newX < 0) {
                 newX = 0;
             } else {
-                newX = SCREEN_WIDTH - getWidth();
+                newX = GAME_AREA_WIDTH - getWidth();
             }
         }
 
@@ -81,7 +81,7 @@ public class Ball extends GameObject {
     }
 
     public boolean hitRightBound() {
-        return getX() + vx + getWidth() > SCREEN_WIDTH;
+        return getX() + vx + getWidth() > GAME_AREA_WIDTH;
     }
 
     public boolean hitUpperBound() {

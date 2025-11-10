@@ -25,7 +25,7 @@ public class Shield {
 
     public Shield() {
         this.y = SHIELD_POS_Y;
-        this.width = SCREEN_WIDTH;
+        this.width = GAME_AREA_WIDTH;
         this.height = SHIELD_HEIGHT;
         this.active = false;
         this.alpha = 0.0;
