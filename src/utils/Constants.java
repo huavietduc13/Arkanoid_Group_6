@@ -18,8 +18,8 @@ public class Constants {
 
     public static final double EPSILON = 0.05;
     public static final double SEPARATION_OFFSET = 0.05;
-    public static double MIN_SPEED = 6.0;
-    public static double MAX_SPEED = 9.0;
+    public static double MIN_SPEED = 5.0;
+    public static double MAX_SPEED = 5.0;
 
     public static final double BRICK_WIDTH = 63.0;
     public static final double BRICK_HEIGHT = 33.0;
@@ -37,7 +37,7 @@ public class Constants {
     public static final double BALL_POS_X = 280.0;
     public static final double BALL_POS_Y = 724.0;
     public static final double BALL_RADIUS = 12.0;
-    public static final double BALL_VX = 5.0;
+    public static final double BALL_VX = 3.0;
     public static final double BALL_VY = -BALL_VX;
 
     public static final double LASER_WIDTH = 4.0;
@@ -59,6 +59,11 @@ public class Constants {
     public static final double LAUNCH_TEXT_POS_Y = 380.0;
     public static final double GAME_OVER_POS_X = 129.5;
     public static final double GAME_OVER_POS_Y = 380.0;
+
+    public static final double BOSS_HEALTH_BAR_X = 100.0; // Vị trí X
+    public static final double BOSS_HEALTH_BAR_Y = 40.0;  // Vị trí Y (cách top 20px)
+    public static final double BOSS_HEALTH_BAR_WIDTH = 400.0; // Chiều rộng tối đa (400px)
+    public static final double BOSS_HEALTH_BAR_HEIGHT = 20.0;
 
     public static final double VOLUME_STEP = 0.05;
 }

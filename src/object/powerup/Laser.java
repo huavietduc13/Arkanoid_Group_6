@@ -75,4 +75,16 @@ public class Laser extends GameObject {
         super.setY(y);
         collisionShape.setY(y);
     }
+
+    public boolean intersects(object.Boss boss) {
+        if (!active) {
+            return false;
+        }
+
+        Bounds laserBounds = collisionShape.getBoundsInParent();
+        // Lấy hình va chạm (hitbox) của Boss
+        Bounds bossBounds = boss.getCollisionShape().getBoundsInParent();
+
+        return laserBounds.intersects(bossBounds);
+    }
 }
