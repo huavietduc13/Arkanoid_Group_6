@@ -9,10 +9,13 @@ import javafx.scene.layout.Pane;
 import object.Ball;
 import object.Paddle;
 import object.brick.Brick;
+import object.brick.IndestructibleBrick;
+import object.powerup.Laser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static engine.SceneManager.showWinScreen;
 import static utils.Constants.*;
 
 public class GameManager {
@@ -36,6 +39,7 @@ public class GameManager {
     private boolean running = true;
     private boolean showLaunchText = true;
     private boolean isPaused = false;
+    private boolean gameWon = false;
 
     private long lastFrameTime = 0;
 
@@ -53,10 +57,15 @@ public class GameManager {
         init();
     }
 
-    private void init() {
+    public void init() {
         // Xóa các đối tượng cũ nếu có
         if (paddle != null) {
             root.getChildren().removeAll(paddle.getImageView(), paddle.getCollisionShape());
+
+            for (Laser laser : paddle.getActiveLasers()) {
+                root.getChildren().removeAll(laser.getImageView(), laser.getCollisionShape());
+            }
+            paddle.disableLaser();
         }
 
         for (Ball ball : balls) {
@@ -113,7 +122,9 @@ public class GameManager {
     }
 
     public void render(Pane root) {
-        gc.drawImage(backgroundImage, 0, 0, GAME_AREA_WIDTH, SCREEN_HEIGHT);
+        if(gameWon) return;
+
+        gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         collisionManager.handleBallBricksCollision(root, balls);
 
@@ -133,7 +144,7 @@ public class GameManager {
     }
 
     public void update(long now) {
-        if (!running || isPaused) {
+        if (!running || isPaused || gameWon) {
             return;
         }
 
@@ -170,6 +181,43 @@ public class GameManager {
 
 //        textManager.updateScoreAndLives(score, paddle);
         textManager.showLaunchHint(showLaunchText);
+        checkWinCondition();
+    }
+
+    private void checkWinCondition() {
+        if (gameWon) return;
+
+        boolean allBricksDestroyed = true;
+        for (Brick brick : levelManager.getBricks()) {
+            if (!brick.isDestroyed() && !(brick instanceof IndestructibleBrick)) { // Unless indestrucibleBrick
+                allBricksDestroyed = false;
+                break;
+            }
+        }
+
+        if (allBricksDestroyed && !levelManager.getBricks().isEmpty()) {
+            winGame();
+        }
+    }
+
+    private void winGame() {
+        gameWon = true;
+        running = false;
+        audioManager.stopBackgroundMusic();
+        showWinScreen(true, levelManager.getCurrentLevel());
+
+        for (Ball ball : balls) {
+            ball.notLaunch();
+        }
+    }
+
+    public void nextLevel() {
+        gameWon = false;
+        running = true;
+        score = 0;
+        levelNumber++;
+
+        init();
     }
 
     private void dockBallToPaddle() {
@@ -293,6 +341,7 @@ public class GameManager {
         score = 0;
         running = true;
         showLaunchText = true;
+        gameWon = false;
         textManager.showGameOver(false);
         paddle.removeLaserImage(root);
         paddle.reset();

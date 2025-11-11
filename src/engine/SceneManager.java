@@ -12,15 +12,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import static engine.AudioManager.*;
+import static engine.TextManager.customFont;
 import static utils.Constants.*;
 
 public class SceneManager {
 
-    private Stage priStage;
-    private Scene startMenuScene;
+    private static Stage priStage;
+    private static Scene startMenuScene;
     private Scene gameScene;
     private VBox pauseMenu;
     private Scene levelSelectionScene;
@@ -34,10 +37,105 @@ public class SceneManager {
     private Image volLow;
     private Image volMute;
 
+    private static ImageView playAgainButton;
+    private static ImageView nextLevelButton;
+    private static ImageView menuButton;
+    private static Text winText;
+
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
         createPauseMenu();
         createVolumeButton();
+        createWinScreenElements();
+    }
+
+    public void createWinScreenElements() {
+        if (playAgainButton == null) {
+            Image playAgainImg = new Image("file:assets/images/playAgainButton.png");
+            playAgainButton = new ImageView(playAgainImg);
+            playAgainButton.setFitWidth(200);
+            playAgainButton.setFitHeight(80);
+            playAgainButton.setOnMouseEntered(e -> playAgainButton.setOpacity(0.8));
+            playAgainButton.setOnMouseExited(e -> playAgainButton.setOpacity(1.0));
+        }
+
+        if (nextLevelButton == null) {
+            Image nextLevelImg = new Image("file:assets/images/nextLevelButton.png");
+            nextLevelButton = new ImageView(nextLevelImg);
+            nextLevelButton.setFitWidth(200);
+            nextLevelButton.setFitHeight(80);
+            nextLevelButton.setOnMouseEntered(e -> nextLevelButton.setOpacity(0.8));
+            nextLevelButton.setOnMouseExited(e -> nextLevelButton.setOpacity(1.0));
+        }
+
+        if (menuButton == null) {
+            Image menuImg = new Image("file:assets/images/mainMenuButton.png");
+            menuButton = new ImageView(menuImg);
+            menuButton.setFitWidth(200);
+            menuButton.setFitHeight(80);
+            menuButton.setOnMouseEntered(e -> menuButton.setOpacity(0.8));
+            menuButton.setOnMouseExited(e -> menuButton.setOpacity(1.0));
+            menuButton.setOnMouseClicked(e -> priStage.setScene(startMenuScene));
+        }
+
+        if (winText == null) {
+            winText = new Text("LEVEL COMPLETE!");
+            winText.setFill(Color.YELLOW);
+            winText.setFont(customFont);
+            winText.setTextAlignment(TextAlignment.CENTER);
+            winText.setVisible(false);
+        }
+    }
+
+    public static void showWinScreen(boolean show, int currentLevel) {
+        if (winText != null) {
+            winText.setVisible(show);
+            if (show) winText.toFront();
+        }
+        if (playAgainButton != null) {
+            playAgainButton.setVisible(show);
+            if (show) playAgainButton.toFront();
+        }
+        if (nextLevelButton != null) {
+            // Not show next level button at the last level
+            boolean isLastLevel = currentLevel >= 2;
+            nextLevelButton.setVisible(show && !isLastLevel);
+            if (show && !isLastLevel) nextLevelButton.toFront();
+        }
+        if (menuButton != null) {
+            menuButton.setVisible(show);
+            if (show) menuButton.toFront();
+        }
+
+        if (show) {
+            if (winText != null) {
+                winText.setX((SCREEN_WIDTH - winText.getLayoutBounds().getWidth()) / 2);
+                winText.setY(SCREEN_HEIGHT / 3);
+            }
+
+            double centerX = SCREEN_WIDTH / 2;
+            double centerY = SCREEN_HEIGHT / 2 + 50;
+
+            if (menuButton != null) {
+                menuButton.setX(centerX - 100);
+                menuButton.setY(centerY - 100);
+            }
+
+            if (playAgainButton != null) {
+                if (currentLevel >= 2) {
+                    playAgainButton.setX(centerX - playAgainButton.getFitWidth() / 2);
+                    playAgainButton.setY(centerY);
+                } else {
+                    playAgainButton.setX(centerX - playAgainButton.getFitWidth() - 20);
+                    playAgainButton.setY(centerY);
+                }
+            }
+
+            if (nextLevelButton != null && currentLevel < 2) {
+                nextLevelButton.setX(centerX + 20);
+                nextLevelButton.setY(centerY);
+            }
+        }
     }
 
     public void createVolumeButton() {
@@ -230,10 +328,11 @@ public class SceneManager {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
-        root.getChildren().addAll(volumeIcon, pauseMenu);
+        root.getChildren().addAll(volumeIcon, pauseMenu, playAgainButton, nextLevelButton, menuButton, winText);
+
+        showWinScreen(false, levelNumber);
 
         gameScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
-
         game = new GameManager(gc, root, levelNumber);
 
         gameScene.setOnKeyPressed(e -> {
@@ -242,6 +341,16 @@ public class SceneManager {
             } else {
                 game.keyPressed(e);
             }
+        });
+
+        playAgainButton.setOnMouseClicked(e -> {
+            showWinScreen(false, levelNumber);
+            game.restart();
+        });
+
+        nextLevelButton.setOnMouseClicked(e -> {
+            showWinScreen(false, levelNumber);
+            game.nextLevel();
         });
 
         gameScene.setOnKeyReleased(e -> game.keyReleased(e));

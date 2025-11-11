@@ -19,7 +19,9 @@ public class TextManager {
     private Text livesText;
     private Text launchHint;
     private Text gameOverText;
-    private Font customFont;
+
+    protected static Font customFont;
+
     private Pane root;
 
     public TextManager(Pane root) {
