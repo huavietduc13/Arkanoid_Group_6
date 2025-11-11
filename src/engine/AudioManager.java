@@ -9,11 +9,12 @@ import java.util.Random;
 import static utils.Constants.NUMBER_OF_RANDOM_SOUND;
 
 public class AudioManager {
-    private static MediaPlayer backgroundMusic;
+    private static MediaPlayer musicPlayer;
     private static Media[] meowSounds;
     private static Random random;
     private static boolean soundEnabled;
-    protected static double volume = 0.5;
+    protected static double musicVolume = 0.5;
+    protected static double sfxVolume = 0.5;
     private static double volumeBeforeMute;
     private static Media paddleCollidingSound;
     private static Media indestructibleBrickCollidingSound;
@@ -34,9 +35,9 @@ public class AudioManager {
         File musicFile = new File("assets/sounds/gamePlay.mp3");
         String musicPath = musicFile.toURI().toString();
         Media gameMusic = new Media(musicPath);
-        backgroundMusic = new MediaPlayer(gameMusic);
-        backgroundMusic.setCycleCount(MediaPlayer.INDEFINITE);
-        backgroundMusic.setVolume(0.5);
+        musicPlayer = new MediaPlayer(gameMusic);
+        musicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        musicPlayer.setVolume(musicVolume);
 
         // Meow sounds
         for (int i = 0; i < NUMBER_OF_RANDOM_SOUND; i++) {
@@ -72,31 +73,31 @@ public class AudioManager {
     }
 
     public static void toggleMute() {
-        if(volume != 0) {
-            volumeBeforeMute = volume;
-            volume = 0;
-            setMasterVolume(volume);
+        if(musicVolume != 0) {
+            volumeBeforeMute = musicVolume;
+            musicVolume = 0;
+            setMusicVolume(musicVolume);
         } else {
-            volume = volumeBeforeMute;
-            setMasterVolume(volume);
+            musicVolume = volumeBeforeMute;
+            setMusicVolume(musicVolume);
         }
     }
 
     public void playBackgroundMusic() {
-        if (soundEnabled && backgroundMusic != null) {
-            backgroundMusic.play();
+        if (soundEnabled && musicPlayer != null) {
+            musicPlayer.play();
         }
     }
 
     public static void stopBackgroundMusic() {
-        if (backgroundMusic != null) {
-            backgroundMusic.stop();
+        if (musicPlayer != null) {
+            musicPlayer.stop();
         }
     }
 
     public void pauseBackgroundMusic() {
-        if (backgroundMusic != null) {
-            backgroundMusic.pause();
+        if (musicPlayer != null) {
+            musicPlayer.pause();
         }
     }
 
@@ -117,7 +118,7 @@ public class AudioManager {
             try {
                 int randomIndex = random.nextInt(NUMBER_OF_RANDOM_SOUND);
                 MediaPlayer meowPlayer = new MediaPlayer(meowSounds[randomIndex]);
-                meowPlayer.setVolume(volume);
+                meowPlayer.setVolume(sfxVolume);
                 meowPlayer.play();
             } catch (Exception e) {
                 System.out.println("Lỗi khi phát meow: " + e.getMessage());
@@ -134,14 +135,14 @@ public class AudioManager {
     }
 
     public void playPowerUpSound() {
-    playSound(powerUpSound);
+        playSound(powerUpSound);
     }
 
     private void playSound(Media media) {
         if (soundEnabled && media != null) {
             try {
                 MediaPlayer player = new MediaPlayer(media);
-                player.setVolume(volume);
+                player.setVolume(sfxVolume);
                 player.play();
                 // Đảm bảo MediaPlayer được giải phóng sau khi chơi xong
                 player.setOnEndOfMedia(() -> player.dispose());
@@ -164,15 +165,33 @@ public class AudioManager {
         return soundEnabled;
     }
 
-    public static void setMasterVolume(double volume) {
-        AudioManager.volume = volume;
-        backgroundMusic.setVolume(volume);
+    public double getMusicVolume() {
+        return musicVolume;
+    }
+
+    public static void setMusicVolume(double volume) {
+        musicVolume = volume;
+        if (musicPlayer != null) {
+            musicPlayer.setVolume(musicVolume);
+        }
+    }
+
+    public double getSfxVolume() {
+        return sfxVolume;
+    }
+
+    public void setSfxVolume(double volume) {
+        sfxVolume = volume;
+    }
+
+    public MediaPlayer getMusicPlayer() {
+        return musicPlayer;
     }
 
     public void dispose() {
-        if (backgroundMusic != null) {
-            backgroundMusic.dispose();
-            backgroundMusic = null;
+        if (musicPlayer != null) {
+            musicPlayer.dispose();
+            musicPlayer = null;
         }
     }
 }

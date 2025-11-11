@@ -95,12 +95,11 @@ public class ParticleEngine {
                 .setGravity(0)
                 .setSpreadRadius(12)
                 .setColors(
-                        Color.rgb(66, 33, 0),
-                        Color.rgb(102, 51, 0),
-                        Color.rgb(150, 75, 0),
-                        Color.rgb(178, 89, 0),
-                        Color.rgb(222, 146, 79),
-                        Color.rgb(236, 173, 124)
+                        Color.WHITE,
+                        Color.WHITE.brighter(),
+                        Color.WHITE.darker(),
+                        Color.WHITE.saturate(),
+                        Color.WHITE.desaturate()
                 );
 
         ParticleEmitter emitter = createEmitter(x, y, config);

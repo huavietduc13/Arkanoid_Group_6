@@ -235,6 +235,10 @@ public abstract class PowerUp extends GameObject {
                 return Color.LIGHTPINK;
             case EXTRA_LIFE:
                 return Color.PINK;
+            case EXPLODING_BALL:
+                return Color.LIGHTGREEN;
+            case ELECTRIC_BAll:
+                return Color.LIGHTYELLOW;
             default:
                 return Color.WHITE;
         }

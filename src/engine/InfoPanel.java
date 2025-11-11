@@ -351,6 +351,8 @@ public class InfoPanel {
             case LASER: return "LASER";
             case SHIELD: return "SHIELD";
             case EXTRA_LIFE: return "LIFE";
+            case EXPLODING_BALL: return "EXPLODING";
+            case ELECTRIC_BAll: return "ELECTRIC";
             default: return "???";
         }
     }

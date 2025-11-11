@@ -26,6 +26,7 @@ public class SceneManager {
     private static Scene startMenuScene;
     private Scene gameScene;
     private VBox pauseMenu;
+    private VBox settingMenu;
     private Scene levelSelectionScene;
     private AnimationTimer timer;
     private GameManager game;
@@ -44,12 +45,20 @@ public class SceneManager {
     private Font customFont;
     private static Pane winOverlay;
 
+    private ImageView musicSliderKnob;
+    private ImageView sfxSliderKnob;
+    private double musicSliderStartX = 0;
+    private double sfxSliderStartX = 0;
+    private final double SLIDER_WIDTH = 255;
+
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
+        this.customFont = TextManager.loadFont();
         this.audioManager = new AudioManager(); // KHỞI TẠO
         createPauseMenu();
         createVolumeButton();
         createWinScreenElements();
+        createSettingMenu();
     }
 
     public void createWinScreenElements() {
@@ -180,18 +189,18 @@ public class SceneManager {
 
         volumeIcon.setOnScroll(e -> {
 //            System.out.println("running");
-            if(e.getDeltaY() > 0) volume += VOLUME_STEP;
-            else if (e.getDeltaY() < 0) volume -= VOLUME_STEP;
-            volume = Math.max(0.0, Math.min(1.0, volume));
-            setMasterVolume(volume);
+            if(e.getDeltaY() > 0) musicVolume += VOLUME_STEP;
+            else if (e.getDeltaY() < 0) musicVolume -= VOLUME_STEP;
+            musicVolume = Math.max(0.0, Math.min(1.0, musicVolume));
+            audioManager.setMusicVolume(musicVolume);
             updateVolumeIcon();
         });
     }
 
     private void updateVolumeIcon() {
-        if (volume == 0) volumeIcon.setImage(volMute);
-        else if (volume <= 0.4) volumeIcon.setImage(volLow);
-        else if (volume <= 0.8) volumeIcon.setImage(volMedium);
+        if (musicVolume == 0) volumeIcon.setImage(volMute);
+        else if (musicVolume <= 0.4) volumeIcon.setImage(volLow);
+        else if (musicVolume <= 0.8) volumeIcon.setImage(volMedium);
         else volumeIcon.setImage(volHigh);
     }
 
@@ -227,6 +236,120 @@ public class SceneManager {
         pauseMenu.setVisible(false);
     }
 
+    public void createSettingMenu() {
+        // Setting panel
+        Image settingPanelImg = new Image("file:assets/images/setting.png");
+        ImageView settingPanel = new ImageView(settingPanelImg);
+        settingPanel.setFitWidth(540);
+        settingPanel.setFitHeight(180);
+
+        // Back button
+        ImageView backButton = createButtonImageView("file:assets/images/button_back.png", 200, 80);
+        backButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            toggleSettingMenu();
+        });
+
+        // Save button
+        ImageView saveButton = createButtonImageView("file:assets/images/button_save.png", 200, 80);
+        saveButton.setOnMouseClicked(e -> {
+
+        });
+
+        HBox smallButtons = new HBox(50, backButton);
+        smallButtons.setAlignment(Pos.CENTER);
+        smallButtons.setTranslateY(-100);
+
+        Pane musicSlider = createVolumeSlider(true);
+        Pane sfxSlider = createVolumeSlider(false);
+
+        settingMenu = new VBox(36, settingPanel, musicSlider, sfxSlider, smallButtons);
+        settingMenu.setAlignment(Pos.CENTER);
+        settingMenu.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+        settingMenu.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
+        settingMenu.setVisible(false);
+    }
+
+    private Pane createVolumeSlider(boolean isMusicSlider) {
+        double initialVolume = 0.5;
+
+        ImageView sliderTrack = new ImageView(new Image("file:assets/images/slider_track.png"));
+        sliderTrack.setFitWidth(SLIDER_WIDTH);
+        sliderTrack.setFitHeight(20);
+        sliderTrack.setX(320);
+        sliderTrack.setY(-154);
+
+        ImageView sliderKnob = new ImageView(new Image("file:assets/images/slider_knob.png"));
+        sliderKnob.setFitWidth(28);
+        sliderKnob.setFitHeight(28);
+        sliderKnob.setX(320 + initialVolume * SLIDER_WIDTH - sliderKnob.getFitWidth() / 2);
+        sliderKnob.setY(-158);
+
+        Pane sliderPane = new Pane();
+        sliderPane.setPrefSize(SLIDER_WIDTH, 20);
+        sliderPane.getChildren().addAll(sliderTrack, sliderKnob);
+
+        sliderKnob.setTranslateX(initialVolume * SLIDER_WIDTH - SLIDER_WIDTH / 2);
+
+        if (isMusicSlider) {
+            musicSliderKnob = sliderKnob;
+        } else {
+            sfxSliderKnob = sliderKnob;
+        }
+
+        sliderKnob.setOnMousePressed(e -> {
+            if (isMusicSlider) {
+                musicSliderStartX = e.getSceneX();
+            } else {
+                sfxSliderStartX = e.getSceneX();
+            }
+        });
+
+        sliderKnob.setOnMouseDragged(e -> {
+            double startX = isMusicSlider ? musicSliderStartX : sfxSliderStartX;
+            double deltaX = e.getSceneX() - startX;
+            double currentX = sliderKnob.getTranslateX();
+            double newX = currentX + deltaX;
+
+            // Clamp to slider bounds
+            double minX = -SLIDER_WIDTH / 2 + 10;
+            double maxX = SLIDER_WIDTH / 2 - 10;
+            newX = Math.max(minX, Math.min(maxX, newX));
+
+            sliderKnob.setTranslateX(newX);
+
+            // Update volume
+            double volume = (newX + SLIDER_WIDTH / 2 - 10) / SLIDER_WIDTH;
+            if (isMusicSlider) {
+                audioManager.setMusicVolume(volume);
+                musicSliderStartX = e.getSceneX();
+            } else {
+                audioManager.setSfxVolume(volume);
+                sfxSliderStartX = e.getSceneX();
+            }
+        });
+
+        sliderTrack.setOnMouseClicked(e -> {
+            double clickX = e.getX();
+            double newX = clickX - SLIDER_WIDTH / 2;
+
+            double minX = -SLIDER_WIDTH / 2;
+            double maxX = SLIDER_WIDTH / 2;
+            newX = Math.max(minX, Math.min(maxX, newX));
+
+            sliderKnob.setTranslateX(newX);
+
+            double volume = (newX + SLIDER_WIDTH / 2) / SLIDER_WIDTH;
+            if (isMusicSlider) {
+                audioManager.setMusicVolume(volume);
+            } else {
+                audioManager.setSfxVolume(volume);
+            }
+        });
+
+        return sliderPane;
+    }
+
     // Phương thức trợ giúp tạo nút với hiệu ứng âm thanh
     private ImageView createButtonImageView(String imagePath, double width, double height) {
         ImageView button = new ImageView(new Image(imagePath));
@@ -239,8 +362,8 @@ public class SceneManager {
             button.setOpacity(0.7);
             audioManager.playButtonTapSound();
         });
-        button.setOnMouseExited(e -> button.setOpacity(1.0));
 
+        button.setOnMouseExited(e -> button.setOpacity(1.0));
         button.setOnMousePressed(e -> button.setOpacity(0.5));
         button.setOnMouseReleased(e -> button.setOpacity(0.7));
 
@@ -248,9 +371,11 @@ public class SceneManager {
     }
 
     private void togglePauseMenu() {
-        if(game == null) return;
+        if(game == null) {
+            return;
+        }
 
-        if(game.isPaused()) {
+        if (game.isPaused()) {
             game.resume();
             pauseMenu.setVisible(false);
             timer.start();
@@ -259,6 +384,32 @@ public class SceneManager {
             pauseMenu.setVisible(true);
             pauseMenu.toFront();
             timer.stop();
+        }
+    }
+
+    private void toggleSettingMenu() {
+        if (game == null) {
+            if (settingMenu.isVisible()) {
+                settingMenu.setVisible(false);
+            } else {
+                settingMenu.setVisible(true);
+                settingMenu.toFront();
+            }
+        } else {
+            if (settingMenu.isVisible()) {
+                settingMenu.setVisible(false);
+                if (game.isPaused()) {
+                    game.resume();
+                    timer.start();
+                }
+            } else {
+                settingMenu.setVisible(true);
+                settingMenu.toFront();
+                if (!game.isPaused()) {
+                    game.pause();
+                    timer.stop();
+                }
+            }
         }
     }
 
@@ -282,13 +433,22 @@ public class SceneManager {
             System.exit(0);
         });
 
+        // Setting button
+        ImageView settingButton = createButtonImageView("file:assets/images/button_setting.png", 60, 60);
+        settingButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            toggleSettingMenu();
+        });
+
         StackPane root = new StackPane();
-        root.getChildren().addAll(startView, startButton, exitButton);
+        root.getChildren().addAll(startView, startButton, exitButton, settingButton, settingMenu);
 
         StackPane.setAlignment(startButton, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(startButton, new Insets(0, 0, 140, 0));
+        StackPane.setMargin(startButton, new Insets(0, 0, 210, 0));
         StackPane.setAlignment(exitButton, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(exitButton, new Insets(0, 0, 50, 0));
+        StackPane.setMargin(exitButton, new Insets(0, 0, 120, 0));
+        StackPane.setAlignment(settingButton, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(settingButton, new Insets(0, 0, 50, 0));
         startMenuScene = new Scene(root, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
@@ -355,7 +515,6 @@ public class SceneManager {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
-        root.getChildren().addAll(volumeIcon, pauseMenu, winOverlay, playAgainButton, nextLevelButton, menuButton, winText);
 
         showWinScreen(false, levelNumber);
 
@@ -373,13 +532,26 @@ public class SceneManager {
 
         playAgainButton.setOnMouseClicked(e -> {
             showWinScreen(false, levelNumber);
+            audioManager.playButtonClickSound();
             game.restart();
         });
 
         nextLevelButton.setOnMouseClicked(e -> {
             showWinScreen(false, levelNumber);
+            audioManager.playButtonClickSound();
             game.nextLevel();
         });
+
+        ImageView settingIcon = createButtonImageView("file:assets/images/button_setting.png", 36, 36);
+        settingIcon.setLayoutX(GAME_AREA_WIDTH - 45);
+        settingIcon.setLayoutY(10);
+        settingIcon.setCursor(Cursor.HAND);
+        settingIcon.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            toggleSettingMenu();
+        });
+
+        root.getChildren().addAll(settingIcon, settingMenu, pauseMenu, winOverlay, playAgainButton, nextLevelButton, menuButton, winText);
 
         gameScene.setOnKeyReleased(e -> game.keyReleased(e));
 

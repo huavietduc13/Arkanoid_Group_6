@@ -40,6 +40,9 @@ public class CollisionManager {
     public void handleBallBricksCollision(Pane root, List<Ball> balls) {
         List<Brick> bricksToRemove = new ArrayList<>();
 
+        boolean isExplodingBallActive = powerUpManager.isActive(EXPLODING_BALL);
+        boolean isElectricBallActive = powerUpManager.isActive(ELECTRIC_BAll);
+
         for (Ball ball : balls) {
             for (Brick brick : levelManager.getBricks()) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
