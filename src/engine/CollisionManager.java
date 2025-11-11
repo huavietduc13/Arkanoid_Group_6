@@ -6,18 +6,18 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import object.Ball;
+import object.Boss;
 import object.Paddle;
 import object.brick.Brick;
 import object.brick.ElectricBrick;
 import object.brick.ExplodingBrick;
 import object.powerup.Laser;
-import object.Boss;
-import static utils.Constants.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static enums.BrickType.*;
+import static enums.BrickType.INDESTRUCTIBLE;
+import static utils.Constants.*;
 
 public class CollisionManager {
     private ParticleEngine effect;
@@ -44,7 +44,9 @@ public class CollisionManager {
         for (Ball ball : balls) {
             for (Brick brick : levelManager.getBricks()) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && CollisionDetector.handleCollision(ball, brick)) {
-                    score += SCORE * SCORE_MULTIPLIER;
+                    if (brick.getType() != INDESTRUCTIBLE) {
+                        score += SCORE * SCORE_MULTIPLIER;
+                    }
 
                     Color brickColor = brick.getColor();
 
@@ -94,7 +96,9 @@ public class CollisionManager {
 
             for (Brick brick : levelManager.getBricks()) {
                 if (!brick.isDestroyed() && !brick.isBeingHit() && laser.intersects(brick)) {
-                    score += SCORE * SCORE_MULTIPLIER;
+                    if (brick.getType() != INDESTRUCTIBLE) {
+                        score += SCORE * SCORE_MULTIPLIER;
+                    }
 
                     Color brickColor = brick.getColor();
 

@@ -345,6 +345,8 @@ public class GameManager {
     private void checkWinCondition() {
         if (gameWon) return;
 
+        if (levelNumber == 5) return;
+
         boolean allBricksDestroyed = true;
         for (Brick brick : levelManager.getBricks()) {
             if (!brick.isDestroyed() && !(brick instanceof IndestructibleBrick)) { // Unless indestrucibleBrick

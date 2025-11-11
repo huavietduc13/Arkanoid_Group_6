@@ -227,7 +227,19 @@ public class LevelManager {
 
 
     private void loadLevel5() {
-        System.out.println("Đang tải Màn Boss (Level 5)...");
+        int[][] mapLevel5 = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {3, 3, 0, 0, 0, 0, 3, 3},
+        };
+
+        createBricksFromMap(mapLevel5);
     }
 
     private void loadLevelFromFile(int levelNumber) {
