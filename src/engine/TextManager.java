@@ -1,12 +1,9 @@
 package engine;
 
-import javafx.geometry.VPos;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
-import object.Paddle;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,13 +17,12 @@ public class TextManager {
     private Text launchHint;
     private Text gameOverText;
 
-    protected static Font customFont;
+    protected static Font customFont = loadFont();
 
     private Pane root;
 
     public TextManager(Pane root) {
         this.root = root;
-        this.customFont = loadFont("assets/fonts/font.ttf");
 
 //        // Lives
 //        livesText = new Text("Lives: 3");
@@ -63,10 +59,10 @@ public class TextManager {
 //        alignTexts();
     }
 
-    private Font loadFont(String filePath) {
+    private static Font loadFont() {
         Font font = null;
         try {
-            File fontFile = new File(filePath);
+            File fontFile = new File("assets/fonts/font.ttf");
             FileInputStream fontIS = new FileInputStream(fontFile);
             font = Font.loadFont(fontIS, TEXT_SIZE);
         } catch (FileNotFoundException e) {

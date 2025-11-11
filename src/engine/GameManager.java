@@ -342,6 +342,7 @@ public class GameManager {
         score = 0;
         running = true;
         showLaunchText = true;
+        gameWon = false;
         textManager.showGameOver(false);
         paddle.reset();
 
@@ -362,6 +363,10 @@ public class GameManager {
         for (Ball ball : balls) {
             ball.notLaunch();
         }
+    }
+
+    public boolean isWon() {
+        return gameWon;
     }
 
     public boolean isPaused() {
