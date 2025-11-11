@@ -193,7 +193,7 @@ public class SceneManager {
         level2Button.setOnMouseClicked(e -> startGame(2));
 
         //Lvl 4 (Level Number 3)
-        Image level3 = new Image("file:assets/images/Level_2.png");
+        Image level3 = new Image("file:assets/images/Level_3.png");
         ImageView level3Button = new ImageView(level3);
         level3Button.setFitWidth(200);
         level3Button.setFitHeight(80);
@@ -202,7 +202,7 @@ public class SceneManager {
         level3Button.setOnMouseClicked(e -> startGame(3)); // Gọi startGame(3)
 
         //Lvl 5 (Level Number 4)
-        Image level4 = new Image("file:assets/images/Level_2.png");
+        Image level4 = new Image("file:assets/images/Level_4.png");
         ImageView level4Button = new ImageView(level4);
         level4Button.setFitWidth(200);
         level4Button.setFitHeight(80);
@@ -211,7 +211,7 @@ public class SceneManager {
         level4Button.setOnMouseClicked(e -> startGame(4)); // Gọi startGame(4)
 
         //Lvl 6 (Level Number 5)
-        Image level5 = new Image("file:assets/images/Level_2.png");
+        Image level5 = new Image("file:assets/images/Level_5.png");
         ImageView level5Button = new ImageView(level5);
         level5Button.setFitWidth(200);
         level5Button.setFitHeight(80);
