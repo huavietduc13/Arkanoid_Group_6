@@ -29,6 +29,7 @@ public class SceneManager {
     private Scene levelSelectionScene;
     private AnimationTimer timer;
     private GameManager game;
+    private AudioManager audioManager; // KHAI BÁO
 
     private ImageView volumeIcon;
     private Image volHigh;
@@ -45,7 +46,7 @@ public class SceneManager {
 
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
-        this.customFont = TextManager.loadFont();
+        this.audioManager = new AudioManager(); // KHỞI TẠO
         createPauseMenu();
         createVolumeButton();
         createWinScreenElements();
@@ -165,6 +166,13 @@ public class SceneManager {
         volumeIcon.setLayoutY(5);
         volumeIcon.setCursor(Cursor.HAND);
 
+        // Âm thanh khi di chuột
+        volumeIcon.setOnMouseEntered(e -> volumeIcon.setOpacity(0.9));
+        volumeIcon.setOnMouseExited(e -> volumeIcon.setOpacity(1.0));
+
+        // Âm thanh khi nhấn
+        volumeIcon.setOnMousePressed(e -> audioManager.playButtonClickSound());
+
         volumeIcon.setOnMouseClicked(e -> {
             toggleMute();
             updateVolumeIcon();
@@ -189,31 +197,26 @@ public class SceneManager {
 
     public void createPauseMenu() {
         // Resume button
-        ImageView resumeButton = new ImageView(new Image("file:assets/images/resumeButton.png"));
-        resumeButton.setFitWidth(BUTTON_WIDTH);
-        resumeButton.setFitHeight(BUTTON_HEIGHT);
-        resumeButton.setOnMouseEntered(e -> resumeButton.setOpacity(0.7));
-        resumeButton.setOnMouseExited(e -> resumeButton.setOpacity(1.0));
-        resumeButton.setOnMouseClicked(e -> togglePauseMenu());
+        ImageView resumeButton = createButtonImageView("file:assets/images/resumeButton.png", 200, 80);
+        resumeButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            togglePauseMenu();
+        });
 
         // Restart button
-        ImageView restartButton = new ImageView(new Image("file:assets/images/restartButton.png"));
-        restartButton.setFitWidth(BUTTON_WIDTH);
-        restartButton.setFitHeight(BUTTON_HEIGHT);
-        restartButton.setOnMouseEntered(e -> restartButton.setOpacity(0.7));
-        restartButton.setOnMouseExited(e -> restartButton.setOpacity(1.0));
+        ImageView restartButton = createButtonImageView("file:assets/images/restartButton.png", 200, 80);
         restartButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
             togglePauseMenu();
             game.restart();
         });
 
         // To main menu button
-        ImageView menuButton = new ImageView(new Image("file:assets/images/mainMenuButton.png"));
-        menuButton.setFitWidth(BUTTON_WIDTH);
-        menuButton.setFitHeight(BUTTON_HEIGHT);
-        menuButton.setOnMouseEntered(e -> menuButton.setOpacity(0.7));
-        menuButton.setOnMouseExited(e -> menuButton.setOpacity(1.0));
-        menuButton.setOnMouseClicked(e -> returnToMenu());
+        ImageView menuButton = createButtonImageView("file:assets/images/mainMenuButton.png", 200, 80);
+        menuButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            returnToMenu();
+        });
 
         // Pause menu layout
         pauseMenu = new VBox(20, resumeButton, restartButton, menuButton);
@@ -222,6 +225,26 @@ public class SceneManager {
         pauseMenu.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
 
         pauseMenu.setVisible(false);
+    }
+
+    // Phương thức trợ giúp tạo nút với hiệu ứng âm thanh
+    private ImageView createButtonImageView(String imagePath, double width, double height) {
+        ImageView button = new ImageView(new Image(imagePath));
+        button.setFitWidth(width);
+        button.setFitHeight(height);
+        button.setCursor(Cursor.HAND);
+
+        // Hiệu ứng di chuột
+        button.setOnMouseEntered(e -> {
+            button.setOpacity(0.7);
+            audioManager.playButtonTapSound();
+        });
+        button.setOnMouseExited(e -> button.setOpacity(1.0));
+
+        button.setOnMousePressed(e -> button.setOpacity(0.5));
+        button.setOnMouseReleased(e -> button.setOpacity(0.7));
+
+        return button;
     }
 
     private void togglePauseMenu() {
@@ -245,21 +268,19 @@ public class SceneManager {
         startView.setFitWidth(SCREEN_WIDTH);
         startView.setFitHeight(SCREEN_HEIGHT);
 
-        Image buttonImg = new Image("file:assets/images/startButton.png");
-        ImageView startButton = new ImageView(buttonImg);
-        startButton.setFitWidth(BUTTON_WIDTH);
-        startButton.setFitHeight(BUTTON_HEIGHT);
-        startButton.setOnMouseEntered(e -> startButton.setOpacity(0.9));
-        startButton.setOnMouseExited(e -> startButton.setOpacity(1.0));
-        startButton.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
+        // Start button
+        ImageView startButton = createButtonImageView("file:assets/images/startButton.png", 200, 80);
+        startButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            priStage.setScene(levelSelectionScene);
+        });
 
-        Image buttonImgExit = new Image("file:assets/images/exitButton.png");
-        ImageView exitButton = new ImageView(buttonImgExit);
-        exitButton.setFitWidth(BUTTON_WIDTH);
-        exitButton.setFitHeight(BUTTON_HEIGHT);
-        exitButton.setOnMouseEntered(e -> exitButton.setOpacity(0.9));
-        exitButton.setOnMouseExited(e -> exitButton.setOpacity(1.0));
-        exitButton.setOnMouseClicked(e -> System.exit(0));
+        // Exit button
+        ImageView exitButton = createButtonImageView("file:assets/images/exitButton.png", 200, 80);
+        exitButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            System.exit(0);
+        });
 
         StackPane root = new StackPane();
         root.getChildren().addAll(startView, startButton, exitButton);
@@ -277,41 +298,33 @@ public class SceneManager {
         startView.setFitWidth(SCREEN_WIDTH);
         startView.setFitHeight(SCREEN_HEIGHT);
 
-        //Lvl 1
-        Image level0 = new Image("file:assets/images/Level_0.png");
-        ImageView level0Button = new ImageView(level0);
-        level0Button.setFitWidth(BUTTON_WIDTH);
-        level0Button.setFitHeight(BUTTON_HEIGHT);
-        level0Button.setOnMouseEntered(e -> level0Button.setOpacity(0.9));
-        level0Button.setOnMouseExited(e -> level0Button.setOpacity(1.0));
-        level0Button.setOnMouseClicked(e -> startGame(0));
+        // Level 1
+        ImageView level0Button = createButtonImageView("file:assets/images/Level_0.png", 200, 80);
+        level0Button.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            startGame(0);
+        });
 
-        //Lvl 2
-        Image level1 = new Image("file:assets/images/Level_1.png");
-        ImageView level1Button = new ImageView(level1);
-        level1Button.setFitWidth(BUTTON_WIDTH);
-        level1Button.setFitHeight(BUTTON_HEIGHT);
-        level1Button.setOnMouseEntered(e -> level1Button.setOpacity(0.9));
-        level1Button.setOnMouseExited(e -> level1Button.setOpacity(1.0));
-        level1Button.setOnMouseClicked(e -> startGame(1));
+        // Level 2
+        ImageView level1Button = createButtonImageView("file:assets/images/Level_1.png", 200, 80);
+        level1Button.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            startGame(1);
+        });
 
-        //Lvl 3
-        Image level2 = new Image("file:assets/images/Level_2.png");
-        ImageView level2Button = new ImageView(level2);
-        level2Button.setFitWidth(BUTTON_WIDTH);
-        level2Button.setFitHeight(BUTTON_HEIGHT);
-        level2Button.setOnMouseEntered(e -> level2Button.setOpacity(0.9));
-        level2Button.setOnMouseExited(e -> level2Button.setOpacity(1.0));
-        level2Button.setOnMouseClicked(e -> startGame(2));
+        // Level 3
+        ImageView level2Button = createButtonImageView("file:assets/images/Level_2.png", 200, 80);
+        level2Button.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            startGame(2);
+        });
 
-        //Back
-        Image back = new Image("file:assets/images/mainMenuButton.png");
-        ImageView backButton = new ImageView(back);
-        backButton.setFitWidth(BUTTON_WIDTH);
-        backButton.setFitHeight(BUTTON_HEIGHT);
-        backButton.setOnMouseEntered(e -> backButton.setOpacity(0.9));
-        backButton.setOnMouseExited(e -> backButton.setOpacity(1.0));
-        backButton.setOnMouseClicked(e -> priStage.setScene(startMenuScene));
+        // Back
+        ImageView backButton = createButtonImageView("file:assets/images/mainMenuButton.png", 200, 80);
+        backButton.setOnMouseClicked(e -> {
+            audioManager.playButtonClickSound();
+            priStage.setScene(startMenuScene);
+        });
 
         VBox buttonLayout = new VBox(20);
         buttonLayout.setAlignment(Pos.CENTER);
@@ -351,6 +364,7 @@ public class SceneManager {
 
         gameScene.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE && !game.isWon()) {
+                audioManager.playButtonClickSound();
                 togglePauseMenu();
             } else {
                 game.keyPressed(e);

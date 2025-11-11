@@ -3,6 +3,7 @@ package object;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.image.*;
 import static utils.Constants.*;
 
 public class Ball extends GameObject {
@@ -210,5 +211,10 @@ public class Ball extends GameObject {
 
     public Circle getCollisionShape() {
         return collisionShape;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+        this.imageView.setImage(new javafx.scene.image.Image(imagePath));
     }
 }

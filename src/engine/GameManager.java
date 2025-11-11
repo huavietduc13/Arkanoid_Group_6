@@ -50,7 +50,7 @@ public class GameManager {
         this.effect = new ParticleEngine(gc);
         this.audioManager = new AudioManager();
         this.levelManager = new LevelManager();
-        this.powerUpManager = new PowerUpManager(effect);
+        this.powerUpManager = new PowerUpManager(effect, audioManager);
         this.collisionManager = new CollisionManager(effect, audioManager, levelManager, powerUpManager);
         this.infoPanel = new InfoPanel(gc);
 
@@ -358,6 +358,7 @@ public class GameManager {
     }
 
     private void gameOver() {
+        audioManager.playGameOverSound();
         running = false;
         AudioManager.stopBackgroundMusic();
         textManager.showGameOver(true);

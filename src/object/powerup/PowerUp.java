@@ -162,24 +162,28 @@ public abstract class PowerUp extends GameObject {
 
     public static PowerUp createPowerUp(PowerUpType type, double x, double y) {
         switch (type) {
-//            case EXPAND_PADDLE:
-//                return new ExpandPaddlePowerUp(x, y);
-//            case SHRINK_PADDLE:
-//                return new ShrinkPaddlePowerUp(x, y);
-//            case SLOW_BALL:
-//                return new SlowBallPowerUp(x, y);
-//            case FAST_BALL:
-//                return new FastBallPowerUp(x, y);
-//            case MULTI_BALL:
-//                return new MultiBallPowerUp(x, y);
-//            case POINTS_MULTIPLIER:
-//                return new PointMultiplierPowerUp(x, y);
-//            case LASER:
-//                return new LaserPowerUp(x, y);
-//            case SHIELD:
-//                return new ShieldPowerUp(x, y);
-            default:
+            case EXPAND_PADDLE:
+                return new ExpandPaddlePowerUp(x, y);
+            case SHRINK_PADDLE:
+                return new ShrinkPaddlePowerUp(x, y);
+            case SLOW_BALL:
+                return new SlowBallPowerUp(x, y);
+            case FAST_BALL:
+                return new FastBallPowerUp(x, y);
+            case MULTI_BALL:
+                return new MultiBallPowerUp(x, y);
+            case POINTS_MULTIPLIER:
+                return new PointMultiplierPowerUp(x, y);
+            case LASER:
+                return new LaserPowerUp(x, y);
+            case SHIELD:
                 return new ShieldPowerUp(x, y);
+            case EXPLODING_BALL:
+                return new ExplodingBallPowerUp(x, y);
+            case ELECTRIC_BAll:
+                return new ElectricBallPowerUp(x, y);
+            default:
+                return new ExtraLifePowerUp(x, y);
         }
     }
 

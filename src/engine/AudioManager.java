@@ -15,6 +15,12 @@ public class AudioManager {
     private static boolean soundEnabled;
     protected static double volume = 0.5;
     private static double volumeBeforeMute;
+    private static Media paddleCollidingSound;
+    private static Media indestructibleBrickCollidingSound;
+    private static Media powerUpSound;
+    private static Media gameOverSound;
+    private static Media buttonClick;
+    private static Media buttonTap;
 
     public AudioManager() {
         this.random = new Random();
@@ -38,6 +44,31 @@ public class AudioManager {
             String meowPath = meowFile.toURI().toString();
             meowSounds[i] = new Media(meowPath);
         }
+        // Paddle Colliding Sound
+        File paddleFile = new File("assets/sounds/paddle_colliding_sound.mp3");
+        String paddlePath = paddleFile.toURI().toString();
+        paddleCollidingSound = new Media(paddlePath);
+
+        // Indestructible Brick Colliding Sound
+        File indestructibleFile = new File("assets/sounds/indestructable_brick_colliding_sound.mp3");
+        String indestructiblePath = indestructibleFile.toURI().toString();
+        indestructibleBrickCollidingSound = new Media(indestructiblePath);
+
+        File powerUpFile = new File("assets/sounds/powerup_sound.mp3");
+        String powerUpPath = powerUpFile.toURI().toString();
+        powerUpSound = new Media(powerUpPath);
+
+        File gameOverFile = new File("assets/sounds/game_over.mp3");
+        String gameOverPath = gameOverFile.toURI().toString();
+        gameOverSound = new Media(gameOverPath);
+
+        File buttonTapFile = new File("assets/sounds/button_tap.mp3");
+        String buttonTapPath = buttonTapFile.toURI().toString();
+        buttonTap = new Media(buttonTapPath);
+
+        File buttonClickFile = new File("assets/sounds/button_click.mp3");
+        String buttonClickPath = buttonClickFile.toURI().toString();
+        buttonClick = new Media(buttonClickPath);
     }
 
     public static void toggleMute() {
@@ -69,6 +100,18 @@ public class AudioManager {
         }
     }
 
+    public void playGameOverSound() {
+        playSound(gameOverSound);
+    }
+
+    public void playButtonTapSound() {
+        playSound(buttonTap);
+    }
+
+    public void playButtonClickSound() {
+        playSound(buttonClick);
+    }
+
     public void playRandomMeowSound() {
         if (soundEnabled && meowSounds != null && meowSounds[0] != null) {
             try {
@@ -78,6 +121,32 @@ public class AudioManager {
                 meowPlayer.play();
             } catch (Exception e) {
                 System.out.println("Lỗi khi phát meow: " + e.getMessage());
+            }
+        }
+    }
+
+    public void playPaddleCollisionSound() {
+        playSound(paddleCollidingSound);
+    }
+
+    public void playIndestructibleBrickCollisionSound() {
+        playSound(indestructibleBrickCollidingSound);
+    }
+
+    public void playPowerUpSound() {
+    playSound(powerUpSound);
+    }
+
+    private void playSound(Media media) {
+        if (soundEnabled && media != null) {
+            try {
+                MediaPlayer player = new MediaPlayer(media);
+                player.setVolume(volume);
+                player.play();
+                // Đảm bảo MediaPlayer được giải phóng sau khi chơi xong
+                player.setOnEndOfMedia(() -> player.dispose());
+            } catch (Exception e) {
+                System.out.println("Lỗi khi phát âm thanh: " + e.getMessage());
             }
         }
     }

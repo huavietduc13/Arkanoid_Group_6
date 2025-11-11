@@ -21,16 +21,18 @@ public class PowerUpManager {
     private List<PowerUp> activePowerUps;
     private Shield shield;
     private ParticleEngine effect;
+    private AudioManager audioManager;
 
     private boolean redTrailEnabled = false;
     private boolean normalTrailEnabled = true;
     private boolean blueTrailEnabled = false;
 
-    public PowerUpManager(ParticleEngine effect) {
+    public PowerUpManager(ParticleEngine effect, AudioManager audioManager) {
         this.powerUps = new ArrayList<>();
         this.activePowerUps = new ArrayList<>();
         this.shield = new Shield();
         this.effect = effect;
+        this.audioManager = audioManager;
     }
 
     public void dropPowerUp(Pane root, Brick brick, double dropChance) {
@@ -78,13 +80,24 @@ public class PowerUpManager {
         }
     }
 
-    private void handlePowerUpCollection(Pane root, PowerUp powerUp, Paddle paddle, List<Ball> balls) {
+        private void handlePowerUpCollection(Pane root, PowerUp powerUp, Paddle paddle, List<Ball> balls) {
         Color powerUpColor = powerUp.getColor();
         effect.powerUpCollect(
                 powerUp.getCenterX(),
                 powerUp.getCenterY(),
                 powerUpColor
         );
+        
+        //Phát âm thanh power-up
+        if (audioManager != null) {
+            audioManager.playPowerUpSound();
+        }
+
+        if (powerUp.isTimedPowerUp()) {
+            handleTimedPowerUp(powerUp, paddle, balls);
+        } else {
+            handleInstantPowerUp(root, powerUp, paddle, balls);
+        }
 
         if (powerUp.isTimedPowerUp()) {
             handleTimedPowerUp(powerUp, paddle, balls);
@@ -106,6 +119,18 @@ public class PowerUpManager {
             if (powerUp.getType() == SHIELD) {
                 shield.activate();
                 effect.shieldActivate(SCREEN_WIDTH, shield.getY());
+            }
+
+            if (powerUp.getType() == EXPLODING_BALL) {
+                for (Ball ball : balls) {
+                    ball.setImagePath("file:assets/images/explodingBall.png");
+                }
+            }
+
+            if (powerUp.getType() == ELECTRIC_BAll) {
+                for (Ball ball : balls) {
+                    ball.setImagePath("file:assets/images/electricBall.png");
+                }
             }
 
             for (Ball ball : balls) {
@@ -147,6 +172,14 @@ public class PowerUpManager {
 
             applySpeedPowerUpsToNewBall(paddle, newBall);
 
+            if (findActivePowerUp(EXPLODING_BALL) != null) {
+                newBall.setImagePath("file:assets/images/explodingBall.png");
+            }
+
+            if (findActivePowerUp(ELECTRIC_BAll) != null) {
+                newBall.setImagePath("file:assets/images/electricBall.png");
+            }
+
             balls.add(newBall);
 
             root.getChildren().addAll(newBall.getImageView(), newBall.getCollisionShape());
@@ -160,6 +193,14 @@ public class PowerUpManager {
         }
         if (newPowerUp.getType() == SHRINK_PADDLE) {
             activePowerUps.removeIf(p -> p.getType() == EXPAND_PADDLE);
+        }
+
+        if (newPowerUp.getType() == EXPLODING_BALL) {
+            activePowerUps.removeIf(p -> p.getType() == ELECTRIC_BAll);
+        }
+
+        if (newPowerUp.getType() == ELECTRIC_BAll) {
+            activePowerUps.removeIf(p -> p.getType() == EXPLODING_BALL);
         }
 
         // Fast and Slow cannot coexist
@@ -206,6 +247,18 @@ public class PowerUpManager {
 
                 if (active.getType() == SHIELD) {
                     shield.deactivate();
+                }
+
+                if (active.getType() == EXPLODING_BALL) {
+                    for (Ball ball : balls) {
+                        ball.setImagePath("file:assets/images/ball.png"); 
+                    }
+                }
+
+                if (active.getType() == ELECTRIC_BAll) {
+                    for (Ball ball : balls) {
+                        ball.setImagePath("file:assets/images/ball.png"); 
+                    }
                 }
 
                 for (Ball ball : balls) {
@@ -319,5 +372,9 @@ public class PowerUpManager {
             redTrailEnabled = false;
             normalTrailEnabled = false;
         }
+    }
+
+    public boolean isActive(PowerUpType type) {
+        return findActivePowerUp(type) != null;
     }
 }
