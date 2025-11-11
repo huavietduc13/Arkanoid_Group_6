@@ -124,7 +124,7 @@ public class GameManager {
     public void render(Pane root) {
         if(gameWon) return;
 
-        gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        gc.drawImage(backgroundImage, 0, 0, GAME_AREA_WIDTH, SCREEN_HEIGHT);
 
         collisionManager.handleBallBricksCollision(root, balls);
 
@@ -216,6 +216,7 @@ public class GameManager {
         running = true;
         score = 0;
         levelNumber++;
+        collisionManager.resetScore();
 
         init();
     }
@@ -342,6 +343,7 @@ public class GameManager {
         running = true;
         showLaunchText = true;
         gameWon = false;
+        collisionManager.resetScore();
         textManager.showGameOver(false);
         paddle.removeLaserImage(root);
         paddle.reset();

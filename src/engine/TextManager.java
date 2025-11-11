@@ -63,7 +63,7 @@ public class TextManager {
 //        alignTexts();
     }
 
-    private Font loadFont(String filePath) {
+    public static Font loadFont(String filePath) {
         Font font = null;
         try {
             File fontFile = new File(filePath);

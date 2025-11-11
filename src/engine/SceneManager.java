@@ -12,12 +12,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import static engine.AudioManager.*;
-import static engine.TextManager.customFont;
 import static utils.Constants.*;
 
 public class SceneManager {
@@ -41,9 +41,11 @@ public class SceneManager {
     private static ImageView nextLevelButton;
     private static ImageView menuButton;
     private static Text winText;
+    private Font customFont;
 
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
+        this.customFont = TextManager.loadFont("assets/fonts/font.ttf");
         createPauseMenu();
         createVolumeButton();
         createWinScreenElements();

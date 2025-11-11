@@ -257,4 +257,8 @@ public class CollisionManager {
     public int getScore() {
         return score;
     }
+
+    public void resetScore() {
+        score = 0;
+    }
 }
