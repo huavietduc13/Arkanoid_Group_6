@@ -196,11 +196,23 @@ public class PowerUpManager {
         }
 
         if (newPowerUp.getType() == EXPLODING_BALL) {
-            activePowerUps.removeIf(p -> p.getType() == ELECTRIC_BAll);
+            PowerUp electricBall = findActivePowerUp(ELECTRIC_BAll);
+            if (electricBall != null) {
+                for (Ball ball : balls) {
+                    electricBall.deactivate(paddle, ball);
+                }
+                activePowerUps.remove(electricBall);
+            }
         }
 
         if (newPowerUp.getType() == ELECTRIC_BAll) {
-            activePowerUps.removeIf(p -> p.getType() == EXPLODING_BALL);
+            PowerUp explodingBall = findActivePowerUp(EXPLODING_BALL);
+            if (explodingBall != null) {
+                for (Ball ball : balls) {
+                    explodingBall.deactivate(paddle, ball);
+                }
+                activePowerUps.remove(explodingBall);
+            }
         }
 
         // Fast and Slow cannot coexist
