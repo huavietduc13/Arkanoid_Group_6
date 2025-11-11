@@ -42,6 +42,7 @@ public class SceneManager {
     private static ImageView menuButton;
     private static Text winText;
     private Font customFont;
+    private static Pane winOverlay;
 
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
@@ -52,6 +53,13 @@ public class SceneManager {
     }
 
     public void createWinScreenElements() {
+        if (winOverlay == null) {
+            winOverlay = new Pane();
+            winOverlay.setPrefSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+            winOverlay.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), CornerRadii.EMPTY, Insets.EMPTY)));
+            winOverlay.setVisible(false);
+        }
+
         if (playAgainButton == null) {
             Image playAgainImg = new Image("file:assets/images/playAgainButton.png");
             playAgainButton = new ImageView(playAgainImg);
@@ -90,6 +98,11 @@ public class SceneManager {
     }
 
     public static void showWinScreen(boolean show, int currentLevel) {
+        if (winOverlay != null) {
+            winOverlay.setVisible(show);
+            if (show) winOverlay.toFront();
+        }
+
         if (winText != null) {
             winText.setVisible(show);
             if (show) winText.toFront();
@@ -330,7 +343,7 @@ public class SceneManager {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
-        root.getChildren().addAll(volumeIcon, pauseMenu, playAgainButton, nextLevelButton, menuButton, winText);
+        root.getChildren().addAll(volumeIcon, pauseMenu, winOverlay, playAgainButton, nextLevelButton, menuButton, winText);
 
         showWinScreen(false, levelNumber);
 
@@ -338,7 +351,7 @@ public class SceneManager {
         game = new GameManager(gc, root, levelNumber);
 
         gameScene.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ESCAPE) {
+            if (e.getCode() == KeyCode.ESCAPE && !game.isWon()) {
                 togglePauseMenu();
             } else {
                 game.keyPressed(e);

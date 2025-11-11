@@ -367,6 +367,10 @@ public class GameManager {
         }
     }
 
+    public boolean isWon() {
+        return gameWon;
+    }
+
     public boolean isPaused() {
         return isPaused;
     }
