@@ -19,19 +19,31 @@ public class LevelManager {
     private boolean dynamicSpawning;
     private long lastSpawnTime;
     private boolean nextSpawnPattern;
-    private final double SPAWN_INTERVAL = 15;
-
+    private final double SPAWN_INTERVAL = 5;
+    private boolean scrollingEnabled = false;
+    private boolean spawningFromPattern = false;
+    private int[][] levelPattern;
+    private int currentRowToSpawn;
+    private List<Brick> justSpawnedBricks = new ArrayList<>();
     public LevelManager() {
         this.bricks = new ArrayList<>();
         this.dynamicSpawning = false;
         this.lastSpawnTime = 0;
         this.nextSpawnPattern = true;
+        this.scrollingEnabled = false;
+        this.spawningFromPattern = false;
+        this.currentRowToSpawn = 0;
     }
 
     public void loadLevel(int levelNumber) {
         bricks.clear();
         this.currentLevel = levelNumber;
         this.dynamicSpawning = false;
+        this.scrollingEnabled = false;
+        this.spawningFromPattern = false;
+        this.justSpawnedBricks.clear();
+        this.currentRowToSpawn = 0;
+        this.levelPattern = null;
 
         if (levelNumber == 0) {
             this.dynamicSpawning = true;
@@ -42,39 +54,179 @@ public class LevelManager {
             this.nextSpawnPattern = !this.nextSpawnPattern;
             return;
 
-        } else if (levelNumber == 1) {
+        }  else if (levelNumber == 1) {
             loadLevel1();
-        } else if (levelNumber == 2) {
+        }
+        else if (levelNumber == 2) {
             loadLevel2();
+        }
+        else if (levelNumber == 3) {
+            loadLevel3();
+        }
+        else if (levelNumber == 4) {
+            loadLevel4();
+        } else if (levelNumber == 5) {
+            loadLevel5();
         } else {
             loadLevelFromFile(levelNumber);
         }
     }
 
+
     private void loadLevel1() {
-        int[][] map = {
-                {1, 1, 1, 1, 5, 1, 1, 1},
-                {1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 5, 1, 1, 1, 1, 1, 1},
-                {1, 1, 1, 1, 1, 1, 5, 1},
-                {1, 1, 1, 1, 1, 1, 1, 1},
-                {1, 1, 1, 5, 4, 1, 1, 1}
+        int[][] mapStatic_G = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 0, 2, 2, 2, 2, 0, 0}
         };
-        createBricksFromMap(map);
+
+        int[][] mapDynamic_Rest = {
+                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 2, 2, 2, 2, 0, 0, 0},
+                {0, 2, 2, 0, 0, 2, 0, 0},
+                {0, 2, 2, 0, 0, 2, 0, 0},
+                {0, 2, 2, 0, 0, 2, 0, 0},
+                {0, 2, 2, 2, 2, 0, 0, 0}
+        };
+        createBricksFromMap(mapStatic_G);
+
+        this.levelPattern = mapDynamic_Rest;
+        this.spawningFromPattern = true;
+        this.lastSpawnTime = 0;
     }
 
     private void loadLevel2() {
-        int[][] map = {
-                {0, 0, 2, 2, 2, 2, 0, 0},
-                {0, 0, 2, 2, 2, 2, 0, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
+        int[][] mapStatic_G = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
                 {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0}
+        };
+
+        int[][] mapDynamic_Rest = {
                 {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 0, 0, 2, 2, 0, 0, 0},
+                {0, 0, 2, 2, 2, 0, 0, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
                 {0, 2, 2, 0, 0, 2, 2, 0},
                 {0, 2, 2, 0, 0, 2, 2, 0}
         };
-        createBricksFromMap(map);
+        createBricksFromMap(mapStatic_G);
+
+        this.levelPattern = mapDynamic_Rest;
+        this.spawningFromPattern = true;
+        this.lastSpawnTime = 0;
+    }
+
+    private void loadLevel3() {
+        int[][] mapStatic_G = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 2, 2, 0, 0, 0},
+                {0, 0, 0, 2, 2, 0, 0, 0},
+                {0, 0, 0, 2, 2, 0, 0, 0},
+                {0, 0, 0, 2, 2, 0, 0, 0}
+        };
+
+        int[][] mapDynamic_Rest = {
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 0, 0, 2, 2, 0, 0, 0},
+                {0, 0, 2, 2, 2, 0, 0, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0}
+        };
+        createBricksFromMap(mapStatic_G);
+
+        this.levelPattern = mapDynamic_Rest;
+        this.spawningFromPattern = true;
+        this.lastSpawnTime = 0;
+    }
+    private void loadLevel4() {
+        int[][] mapStatic_G = {
+                {0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 2, 2, 2, 0},
+                {0, 2, 2, 0, 4, 2, 2, 0},
+                {0, 0, 2, 2, 2, 2, 2, 0}
+        };
+
+        int[][] mapDynamic_Rest = {
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 2, 2, 2, 0},
+                {0, 2, 2, 2, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 5, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0},
+
+                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 2, 2, 2, 2, 0}
+        };
+
+        createBricksFromMap(mapStatic_G);
+
+        this.levelPattern = mapDynamic_Rest;
+        this.spawningFromPattern = true;
+        this.lastSpawnTime = 0;
+    }
+
+
+    private void loadLevel5() {
+        System.out.println("Đang tải Màn Boss (Level 5)...");
     }
 
     private void loadLevelFromFile(int levelNumber) {
@@ -142,8 +294,8 @@ public class LevelManager {
         }
     }
 
-    public void updateDynamicSpawning(long now) {
-        if (!dynamicSpawning) return;
+    public boolean updateDynamicSpawning(long now) {
+        if (!dynamicSpawning && !scrollingEnabled && !spawningFromPattern) return false; // Thêm false
 
         if (lastSpawnTime == 0) {
             lastSpawnTime = now;
@@ -152,14 +304,23 @@ public class LevelManager {
         double elapsedTime = (now - lastSpawnTime) / 1_000_000_000.0;
 
         if (elapsedTime >= SPAWN_INTERVAL) {
-            moveAllBricksDown();
-            addNewRowAtTop(nextSpawnPattern);
-            nextSpawnPattern = !nextSpawnPattern;
+            if (moveAllBricksDown()) {
+                return true;
+            }
+
+            if (dynamicSpawning) {
+                addNewRowAtTop(nextSpawnPattern);
+            } else if (spawningFromPattern) {
+                spawnNextRowFromPattern();
+            }
+
             lastSpawnTime = now;
         }
+
+        return false;
     }
 
-    public void moveAllBricksDown() {
+    public boolean moveAllBricksDown() {
         System.out.println("Đang đẩy gạch xuống...");
         double paddleTopY = PADDLE_POS_Y;
 
@@ -168,11 +329,13 @@ public class LevelManager {
 
             if (newY + BRICK_HEIGHT > paddleTopY) {
                 System.out.println("Gạch đã chạm tới người chơi! Game Over.");
-                return;
+                return true;
             }
 
             brick.setY(newY);
         }
+
+        return false;
     }
 
     public void addNewRowAtTop(boolean strongFirst) {
@@ -189,9 +352,45 @@ public class LevelManager {
 
             Brick newBrick = Brick.createBrick(brickType, x, y);
             bricks.add(newBrick);
+            justSpawnedBricks.add(newBrick);
         }
     }
 
+    private void spawnNextRowFromPattern() {
+        if (levelPattern == null || currentRowToSpawn >= levelPattern.length) {
+            spawningFromPattern = false;
+            System.out.println("Đã sinh xong toàn bộ map pattern.");
+            return;
+        }
+
+        int[] rowToSpawn = levelPattern[currentRowToSpawn];
+        double y = BRICK_START_Y;
+
+        for (int i = 0; i < rowToSpawn.length; i++) {
+            int brickCode = rowToSpawn[i];
+            BrickType brickType = getBrickTypeFromCode(brickCode);
+
+            if (brickType != null) {
+                double x = BRICK_START_X + i * (BRICK_WIDTH + BRICK_PADDING);
+                Brick newBrick = Brick.createBrick(brickType, x, y);
+
+                bricks.add(newBrick);
+                justSpawnedBricks.add(newBrick);
+            }
+        }
+
+        currentRowToSpawn++;
+    }
+
+    public List<Brick> getJustSpawnedBricks() {
+        if (justSpawnedBricks.isEmpty()) {
+            return new ArrayList<>(); // Trả về list rỗng
+        }
+
+        List<Brick> newBricks = new ArrayList<>(justSpawnedBricks);
+        justSpawnedBricks.clear();
+        return newBricks;
+    }
     public List<Brick> getBricks() {
         return bricks;
     }

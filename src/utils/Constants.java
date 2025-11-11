@@ -13,8 +13,8 @@ public class Constants {
 
     public static final double EPSILON = 0.05;
     public static final double SEPARATION_OFFSET = 0.05;
-    public static double MIN_SPEED = 6.0;
-    public static double MAX_SPEED = 9.0;
+    public static double MIN_SPEED = 3.0;
+    public static double MAX_SPEED = 3.0;
 
     public static final double BRICK_WIDTH = 63.0;
     public static final double BRICK_HEIGHT = 33.0;
@@ -58,6 +58,11 @@ public class Constants {
     public static final double LAUNCH_TEXT_POS_Y = 360.0;
     public static final double GAME_OVER_POS_X = 165.0;
     public static final double GAME_OVER_POS_Y = 360.0;
+
+    public static final double BOSS_HEALTH_BAR_X = 100.0; // Vị trí X
+    public static final double BOSS_HEALTH_BAR_Y = 40.0;  // Vị trí Y (cách top 20px)
+    public static final double BOSS_HEALTH_BAR_WIDTH = 400.0; // Chiều rộng tối đa (400px)
+    public static final double BOSS_HEALTH_BAR_HEIGHT = 20.0;
 
     public static final double VOLUME_STEP = 0.05;
 }

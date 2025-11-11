@@ -477,4 +477,47 @@ public class CollisionDetector {
          ball.setVx(newVx);
          ball.setVy(newVy);
      }
+
+    public static boolean handleBallBossCollision(Ball ball, object.Boss boss) {
+        if (boss.isDestroyed()) {
+            return false;
+        }
+
+        Circle ballShape = ball.getCollisionShape();
+        double ballCenterX = ballShape.getCenterX();
+        double ballCenterY = ballShape.getCenterY();
+        double radius = ballShape.getRadius();
+
+        Rectangle bossShape = boss.getCollisionShape();
+        double rectLeft = bossShape.getX();
+        double rectRight = bossShape.getX() + bossShape.getWidth();
+        double rectTop = bossShape.getY();
+        double rectBottom = bossShape.getY() + bossShape.getHeight();
+
+        double closestX = clamp(ballCenterX, rectLeft, rectRight);
+        double closestY = clamp(ballCenterY, rectTop, rectBottom);
+
+        double distanceX = ballCenterX - closestX;
+        double distanceY = ballCenterY - closestY;
+        double distanceSquared = distanceX * distanceX + distanceY * distanceY;
+
+        if (distanceSquared > radius * radius + EPSILON) {
+            return false;
+        }
+
+        double overlapX = radius - Math.abs(distanceX);
+        double overlapY = radius - Math.abs(distanceY);
+
+        if (overlapX < overlapY) {
+            ball.reverseX();
+            if (ballCenterX < rectLeft) ball.setCenterX(rectLeft - radius - SEPARATION_OFFSET);
+            else ball.setCenterX(rectRight + radius + SEPARATION_OFFSET);
+        } else {
+            ball.reverseY();
+            if (ballCenterY < rectTop) ball.setCenterY(rectTop - radius - SEPARATION_OFFSET);
+            else ball.setCenterY(rectBottom + radius + SEPARATION_OFFSET);
+        }
+
+        return true;
+    }
 }

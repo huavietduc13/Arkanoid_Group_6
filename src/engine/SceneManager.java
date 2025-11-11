@@ -165,7 +165,7 @@ public class SceneManager {
         startView.setFitWidth(SCREEN_WIDTH);
         startView.setFitHeight(SCREEN_HEIGHT);
 
-        //Lvl 1
+        //Lvl 1 (Level Number 0)
         Image level0 = new Image("file:assets/images/Level_0.png");
         ImageView level0Button = new ImageView(level0);
         level0Button.setFitWidth(200);
@@ -174,7 +174,7 @@ public class SceneManager {
         level0Button.setOnMouseExited(e -> level0Button.setOpacity(1.0));
         level0Button.setOnMouseClicked(e -> startGame(0));
 
-        //Lvl 2
+        //Lvl 2 (Level Number 1)
         Image level1 = new Image("file:assets/images/Level_1.png");
         ImageView level1Button = new ImageView(level1);
         level1Button.setFitWidth(200);
@@ -183,7 +183,7 @@ public class SceneManager {
         level1Button.setOnMouseExited(e -> level1Button.setOpacity(1.0));
         level1Button.setOnMouseClicked(e -> startGame(1));
 
-        //Lvl 3
+        //Lvl 3 (Level Number 2)
         Image level2 = new Image("file:assets/images/Level_2.png");
         ImageView level2Button = new ImageView(level2);
         level2Button.setFitWidth(200);
@@ -191,6 +191,35 @@ public class SceneManager {
         level2Button.setOnMouseEntered(e -> level2Button.setOpacity(0.9));
         level2Button.setOnMouseExited(e -> level2Button.setOpacity(1.0));
         level2Button.setOnMouseClicked(e -> startGame(2));
+
+        //Lvl 4 (Level Number 3)
+        Image level3 = new Image("file:assets/images/Level_2.png");
+        ImageView level3Button = new ImageView(level3);
+        level3Button.setFitWidth(200);
+        level3Button.setFitHeight(80);
+        level3Button.setOnMouseEntered(e -> level3Button.setOpacity(0.9));
+        level3Button.setOnMouseExited(e -> level3Button.setOpacity(1.0));
+        level3Button.setOnMouseClicked(e -> startGame(3)); // Gọi startGame(3)
+
+        //Lvl 5 (Level Number 4)
+        Image level4 = new Image("file:assets/images/Level_2.png");
+        ImageView level4Button = new ImageView(level4);
+        level4Button.setFitWidth(200);
+        level4Button.setFitHeight(80);
+        level4Button.setOnMouseEntered(e -> level4Button.setOpacity(0.9));
+        level4Button.setOnMouseExited(e -> level4Button.setOpacity(1.0));
+        level4Button.setOnMouseClicked(e -> startGame(4)); // Gọi startGame(4)
+
+        //Lvl 6 (Level Number 5)
+        Image level5 = new Image("file:assets/images/Level_2.png");
+        ImageView level5Button = new ImageView(level5);
+        level5Button.setFitWidth(200);
+        level5Button.setFitHeight(80);
+        level5Button.setOnMouseEntered(e -> level5Button.setOpacity(0.9));
+        level5Button.setOnMouseExited(e -> level5Button.setOpacity(1.0));
+        level5Button.setOnMouseClicked(e -> startGame(5)); // Gọi startGame(5)
+
+        // ------------------------------------
 
         //Back
         Image back = new Image("file:assets/images/mainMenuButton.png");
@@ -203,7 +232,10 @@ public class SceneManager {
 
         VBox buttonLayout = new VBox(20);
         buttonLayout.setAlignment(Pos.CENTER);
-        buttonLayout.getChildren().addAll(level0Button, level1Button, level2Button, backButton);
+
+        buttonLayout.getChildren().addAll(level0Button, level1Button, level2Button,
+                level3Button, level4Button, level5Button, // <-- ĐÃ THÊM
+                backButton);
 
         StackPane root = new StackPane();
         root.getChildren().addAll(startView, buttonLayout);

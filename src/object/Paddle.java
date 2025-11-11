@@ -22,6 +22,16 @@ public class Paddle extends GameObject {
     private boolean movingLeft = false;
     private boolean movingRight = false;
 
+    private boolean isInvincible = false;
+    private long invincibilityStartTime = 0;
+
+    private boolean isPreGameInvincible = false;
+
+    // Thời gian bất tử (ví dụ: 2 giây = 2000 mili giây)
+    private static final long INVINCIBILITY_DURATION = 5000;
+    // Tốc độ nhấp nháy (ví dụ: 150 mili giây)
+    private static final long BLINK_RATE = 150;
+
     private Image paddleLeftImage;
     private Image paddleRightImage;
     private Image gunLeftImage;
@@ -95,6 +105,45 @@ public class Paddle extends GameObject {
 
         updateLasers();
         updateGuns();
+
+        boolean shouldBeBlinking = false;
+
+        // 1. Kiểm tra bất tử 5s (dính bomb)
+        if (isInvincible) {
+            long elapsed = System.currentTimeMillis() - invincibilityStartTime;
+
+            if (elapsed > INVINCIBILITY_DURATION) {
+                isInvincible = false; // Hết 5 giây
+            } else {
+                shouldBeBlinking = true; // Vẫn đang trong 5 giây
+            }
+        }
+
+        // 2. Kiểm tra bất tử "chờ" (đầu game)
+        if (isPreGameInvincible) {
+            shouldBeBlinking = true;
+        }
+
+        // 3. Áp dụng nhấp nháy (nếu 1 trong 2 được bật)
+        if (shouldBeBlinking) {
+            // Dùng thời gian hiện tại để tính toán nhấp nháy
+            long blinkTime = System.currentTimeMillis();
+            double opacity = (blinkTime / BLINK_RATE) % 2 == 0 ? 1.0 : 0.3;
+
+            this.imageView.setOpacity(opacity);
+            // Cũng làm nhấp nháy súng
+            this.gunLeftImageView.setOpacity(opacity);
+            this.gunRightImageView.setOpacity(opacity);
+        } else {
+            // Nếu không bất tử -> hiện rõ
+            this.imageView.setOpacity(1.0);
+            this.gunLeftImageView.setOpacity(1.0);
+            this.gunRightImageView.setOpacity(1.0);
+        }
+    }
+
+    public void setPreGameInvincible(boolean value) {
+        this.isPreGameInvincible = value;
     }
 
     @Override
@@ -258,5 +307,25 @@ public class Paddle extends GameObject {
 
     public ImageView getGunRightImageView() {
         return gunRightImageView;
+    }
+
+    public void startInvincibility() {
+        if (this.isInvincible) {
+            return;
+        }
+
+        this.isInvincible = true;
+        this.invincibilityStartTime = System.currentTimeMillis();
+    }
+
+    public void takeHit() {
+        if (this.isInvincible) {
+            return;
+        }
+
+        loseLife();
+
+        this.isInvincible = true;
+        this.invincibilityStartTime = System.currentTimeMillis();
     }
 }

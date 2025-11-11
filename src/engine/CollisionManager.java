@@ -11,18 +11,20 @@ import object.brick.Brick;
 import object.brick.ElectricBrick;
 import object.brick.ExplodingBrick;
 import object.powerup.Laser;
+import object.Boss;
+import static utils.Constants.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static enums.BrickType.*;
-import static utils.Constants.*;
 
 public class CollisionManager {
     private ParticleEngine effect;
     private AudioManager audioManager;
     private LevelManager levelManager;
     private PowerUpManager powerUpManager;
+    private Paddle paddle;
 
     private int score = 0;
 
@@ -33,6 +35,7 @@ public class CollisionManager {
         this.audioManager = audioManager;
         this.levelManager = levelManager;
         this.powerUpManager = powerUpManager;
+        this.paddle = paddle;
     }
 
     public void handleBallBricksCollision(Pane root, List<Ball> balls) {
@@ -254,7 +257,30 @@ public class CollisionManager {
         }
     }
 
+    public void handleBallBossCollision(Ball ball, Boss boss) {
+        if (boss != null && CollisionDetector.handleBallBossCollision(ball, boss)) {
+            score += SCORE * SCORE_MULTIPLIER;
+        }
+    }
+
+    public void handleLaserBossCollision(Paddle paddle, Boss boss) {
+        if (boss == null) {
+            return;
+        }
+
+        for (Laser laser : paddle.getActiveLasers()) {
+            if (laser.isActive() && laser.intersects(boss)) {
+                laser.deactivate();
+                boss.takeHit();
+                score += SCORE * SCORE_MULTIPLIER;
+            }
+        }
+    }
     public int getScore() {
         return score;
+    }
+
+    public void resetScore() {
+        this.score = 0;
     }
 }
