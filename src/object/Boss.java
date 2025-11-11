@@ -21,35 +21,17 @@ public class Boss {
 
     private int hp;
     private long lastAttackTime = 0;
-    private final long ATTACK_COOLDOWN = 7000;
     private Rectangle collisionShape;
 
-    private static final int BURST_COUNT = 4;
-    private static final long BURST_DELAY = 200;
     private int bombsLeftInBurst = 0; // Đếm số bom còn lại trong loạt
     private long lastBurstFireTime = 0;
     private double vx; // Tốc độ ngang
     private double vy; // Tốc độ dọc (MỚI)
 
-    private static final String DEFAULT_IMAGE = "file:assets/images/haunter.gif";
-    private static final double DEFAULT_X = 100.0;
-    private static final double DEFAULT_Y = 100.0;
-    private static final double DEFAULT_WIDTH = 180.0;
-    private static final double DEFAULT_HEIGHT = 180.0;
-    private static final int DEFAULT_HEALTH = 50;
-
-    private static final double DEFAULT_MOVE_SPEED_X = 0.7;
-    private static final double DEFAULT_MOVE_SPEED_Y = 0.5;
-
-    private static final double BOMB_SPEED = 2.5;
-
-    private static final long SKILL_COOLDOWN = 19000;
-
-    private static final int HEAL_AMOUNT = 10;
     private long lastSkillTime = 0;
     private boolean isActive = false;
     public Boss() {
-        this(DEFAULT_IMAGE, DEFAULT_X, DEFAULT_Y, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_HEALTH);
+        this(DEFAULT_IMAGE, DEFAULT_BOSS_POS_X, DEFAULT_BOSS_POS_Y, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_HEALTH);
     }
 
     public Boss(String imagePath, double x, double y, double width, double height, int initialHealth) {
@@ -79,7 +61,7 @@ public class Boss {
         double newX = getX() + vx;
         double newY = getY() + vy;
 
-        if (newX < 0 || newX + getWidth() > SCREEN_WIDTH) {
+        if (newX < 0 || newX + getWidth() > GAME_AREA_WIDTH) {
             vx *= -1;
             newX = getX() + vx;
         }
@@ -260,7 +242,7 @@ public class Boss {
 
     public void playExplosionAnimation(Pane root, double x, double y, double durationInSeconds) {
 
-        Image explosionImage = new Image("file:assets/images/duccop.jpg");
+        Image explosionImage = new Image("file:assets/images/explode.gif");
         ImageView explosionView = new ImageView(explosionImage);
 
         double explosionSize = 80.0;

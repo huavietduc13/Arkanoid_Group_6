@@ -1,33 +1,30 @@
 package engine;
 
 import effect.ParticleEngine;
+import javafx.animation.PauseTransition;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.animation.PauseTransition;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import object.Ball;
+import object.Bomb;
 import object.Boss;
 import object.Paddle;
 import object.brick.Brick;
 import object.brick.IndestructibleBrick;
+import object.powerup.ExtraLifePowerUp;
 import object.powerup.Laser;
+import object.powerup.PowerUp;
 
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import static engine.SceneManager.showWinScreen;
-import object.powerup.ExtraLifePowerUp;
-import object.powerup.Laser;
-import object.Bomb;
-import object.powerup.PowerUp;
-
 import static utils.Constants.*;
 
 public class GameManager {
@@ -137,6 +134,7 @@ public class GameManager {
                 BALL_VX,
                 BALL_VY);
         balls.add(mainBall);
+        root.getChildren().addAll(mainBall.getImageView(), mainBall.getCollisionShape());
 
         textManager = new TextManager(root);
 
@@ -171,6 +169,7 @@ public class GameManager {
                     paddle.getGunRightImageView()
             );
         }
+    }
 
     private void loadLevel(int levelNumber) {
         levelManager.loadLevel(levelNumber);
@@ -243,22 +242,27 @@ public class GameManager {
             updateBossHealthBar();
 
             if (boss.isDestroyed() && running) {
-                running = false;
-
-                AudioManager.stopBackgroundMusic();
-
                 for (int i = 0; i < 5; i++) {
                     double x = 100 + Math.random() * 400;
                     double y = 100 + Math.random() * 200;
                     effect.firework(x, y);
                 }
 
-                textManager.showGameOver(true);
+                PauseTransition delay = new PauseTransition(Duration.seconds(2));
 
-                root.getChildren().remove(boss.getImageView());
-                if (healthBarBackground != null) {
-                    root.getChildren().removeAll(healthBarBackground, healthBarForeground);
-                }
+                delay.setOnFinished(event -> {
+                    running = false;
+
+                    AudioManager.stopBackgroundMusic();
+                    winGame();
+
+                    root.getChildren().remove(boss.getImageView());
+                    if (healthBarBackground != null) {
+                        root.getChildren().removeAll(healthBarBackground, healthBarForeground);
+                    }
+                });
+
+                delay.play();
 
                 return;
             }
@@ -570,3 +574,5 @@ public class GameManager {
         audioManager.playBackgroundMusic();
     }
 }
+
+

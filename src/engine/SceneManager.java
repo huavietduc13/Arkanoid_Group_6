@@ -111,7 +111,7 @@ public class SceneManager {
         }
         if (nextLevelButton != null) {
             // Not show next level button at the last level
-            boolean isLastLevel = currentLevel >= 2;
+            boolean isLastLevel = currentLevel >= 5;
             nextLevelButton.setVisible(show && !isLastLevel);
             if (show && !isLastLevel) nextLevelButton.toFront();
         }
@@ -135,7 +135,7 @@ public class SceneManager {
             }
 
             if (playAgainButton != null) {
-                if (currentLevel >= 2) {
+                if (currentLevel >= 5) {
                     playAgainButton.setX(centerX - playAgainButton.getFitWidth() / 2);
                     playAgainButton.setY(centerY);
                 } else {
@@ -144,7 +144,7 @@ public class SceneManager {
                 }
             }
 
-            if (nextLevelButton != null && currentLevel < 2) {
+            if (nextLevelButton != null && currentLevel < 5) {
                 nextLevelButton.setX(centerX + 20);
                 nextLevelButton.setY(centerY);
             }

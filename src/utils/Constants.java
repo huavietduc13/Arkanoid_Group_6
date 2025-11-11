@@ -11,6 +11,8 @@ public class Constants {
     public static final int EXTRA_BALLS = 2;
     public static int SCORE_MULTIPLIER = 1;
 
+    public static final double SPAWN_INTERVAL = 5;
+
     public static final double GAME_AREA_WIDTH = 600;
     public static final double INFO_PANEL_X = 600.0;
     public static final double INFO_PANEL_WIDTH = 180;
@@ -60,10 +62,24 @@ public class Constants {
     public static final double GAME_OVER_POS_X = 129.5;
     public static final double GAME_OVER_POS_Y = 380.0;
 
-    public static final double BOSS_HEALTH_BAR_X = 100.0; // Vị trí X
-    public static final double BOSS_HEALTH_BAR_Y = 40.0;  // Vị trí Y (cách top 20px)
-    public static final double BOSS_HEALTH_BAR_WIDTH = 400.0; // Chiều rộng tối đa (400px)
+    public static final double BOSS_HEALTH_BAR_X = 100.0;
+    public static final double BOSS_HEALTH_BAR_Y = 40.0;
+    public static final double BOSS_HEALTH_BAR_WIDTH = 400.0;
     public static final double BOSS_HEALTH_BAR_HEIGHT = 20.0;
+    public static final double DEFAULT_BOSS_POS_X = 100.0;
+    public static final double DEFAULT_BOSS_POS_Y = 100.0;
+    public static final long ATTACK_COOLDOWN = 7000;
+    public static final int BURST_COUNT = 4;
+    public static final long BURST_DELAY = 200;
+    public static final String DEFAULT_IMAGE = "file:assets/images/haunter.gif";
+    public static final double DEFAULT_WIDTH = 180.0;
+    public static final double DEFAULT_HEIGHT = 180.0;
+    public static final int DEFAULT_HEALTH = 10;
+    public static final double DEFAULT_MOVE_SPEED_X = 0.7;
+    public static final double DEFAULT_MOVE_SPEED_Y = 0.5;
+    public static final double BOMB_SPEED = 2.5;
+    public static final long SKILL_COOLDOWN = 19000;
+    public static final int HEAL_AMOUNT = 1;
 
     public static final double VOLUME_STEP = 0.05;
 }
