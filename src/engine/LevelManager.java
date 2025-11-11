@@ -24,6 +24,8 @@ public class LevelManager {
     private boolean spawningFromPattern = false;
     private int[][] levelPattern;
     private int currentRowToSpawn;
+    private boolean isScrollingActive = false;
+    private int initialBreakableBricks = 0;
     private List<Brick> justSpawnedBricks = new ArrayList<>();
     public LevelManager() {
         this.bricks = new ArrayList<>();
@@ -44,15 +46,10 @@ public class LevelManager {
         this.justSpawnedBricks.clear();
         this.currentRowToSpawn = 0;
         this.levelPattern = null;
-
+        this.isScrollingActive = false;
+        this.initialBreakableBricks = 0;
         if (levelNumber == 0) {
-            this.dynamicSpawning = true;
-            this.lastSpawnTime = 0;
-            this.nextSpawnPattern = true;
-
-            addNewRowAtTop(this.nextSpawnPattern);
-            this.nextSpawnPattern = !this.nextSpawnPattern;
-            return;
+            loadLevel0();
 
         }  else if (levelNumber == 1) {
             loadLevel1();
@@ -72,127 +69,143 @@ public class LevelManager {
         }
     }
 
+    private void loadLevel0() {
+        int[][] mapLevel0 = {
+                {1, 1, 1, 1, 1, 1, 1, 1},
+                {1, 2, 4, 4, 4, 4, 2, 1},
+                {2, 2, 3, 3, 3, 3, 2, 2},
+                {1, 2, 5, 5, 5, 5, 2, 1},
+                {1, 1, 1, 1, 1, 1, 1, 1}
+        };
+
+        createBricksFromMap(mapLevel0);
+        this.initialBreakableBricks = countBricksInMap(mapLevel0);
+    }
 
     private void loadLevel1() {
         int[][] mapStatic_G = {
                 {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 0, 4, 2, 2, 4, 0, 0},
+                {0, 4, 2, 0, 0, 0, 0, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 0, 2, 2, 2, 2, 0, 0}
+                {0, 5, 2, 0, 0, 0, 0, 0},
+                {0, 0, 2, 5, 2, 2, 0, 0}
         };
 
         int[][] mapDynamic_Rest = {
                 {0, 0, 2, 2, 2, 2, 0, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 5, 0, 0, 4, 2, 0},
+                {0, 2, 2, 4, 0, 2, 5, 0},
+                {0, 4, 2, 0, 0, 4, 2, 0},
+                {0, 2, 5, 0, 0, 5, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 2, 2, 2, 2, 0, 0, 0},
-                {0, 2, 2, 0, 0, 2, 0, 0},
-                {0, 2, 2, 0, 0, 2, 0, 0},
-                {0, 2, 2, 0, 0, 2, 0, 0},
-                {0, 2, 2, 2, 2, 0, 0, 0}
+                {0, 2, 4, 0, 0, 2, 0, 0},
+                {0, 2, 2, 5, 0, 5, 0, 0},
+                {0, 4, 2, 0, 4, 2, 0, 0},
+                {0, 5, 2, 2, 5, 0, 0, 0}
         };
         createBricksFromMap(mapStatic_G);
 
         this.levelPattern = mapDynamic_Rest;
         this.spawningFromPattern = true;
         this.lastSpawnTime = 0;
+        this.initialBreakableBricks = countBricksInMap(mapStatic_G) + countBricksInMap(mapDynamic_Rest);
     }
 
     private void loadLevel2() {
         int[][] mapStatic_G = {
                 {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 4, 2, 5, 2, 2, 0},
+                {0, 0, 0, 2, 5, 2, 0, 0},
                 {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0}
+                {0, 0, 0, 4, 2, 4, 0, 0},
+                {0, 0, 0, 5, 2, 5, 0, 0}
         };
 
         int[][] mapDynamic_Rest = {
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 4, 2, 5, 4, 2, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 0, 0},
+                {0, 2, 5, 2, 4, 2, 0, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 5, 2, 5, 2, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 0, 0, 4, 2, 4, 0, 0},
+                {0, 0, 0, 2, 5, 2, 0, 0},
                 {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 4, 2, 4, 2, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 0, 0, 2, 2, 0, 0, 0},
-                {0, 0, 2, 2, 2, 0, 0, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0}
+                {0, 0, 2, 5, 2, 0, 0, 0},
+                {0, 2, 4, 0, 0, 2, 5, 0},
+                {0, 2, 2, 4, 0, 2, 2, 0},
+                {0, 5, 2, 0, 0, 2, 5, 0}
         };
         createBricksFromMap(mapStatic_G);
 
         this.levelPattern = mapDynamic_Rest;
         this.spawningFromPattern = true;
         this.lastSpawnTime = 0;
+        this.initialBreakableBricks = countBricksInMap(mapStatic_G) + countBricksInMap(mapDynamic_Rest);
     }
 
     private void loadLevel3() {
         int[][] mapStatic_G = {
                 {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 4, 2, 5, 2, 2, 0},
+                {0, 0, 0, 2, 5, 0, 0, 0},
                 {0, 0, 0, 2, 2, 0, 0, 0},
-                {0, 0, 0, 2, 2, 0, 0, 0},
-                {0, 0, 0, 2, 2, 0, 0, 0},
-                {0, 0, 0, 2, 2, 0, 0, 0}
+                {0, 0, 0, 4, 2, 0, 0, 0},
+                {0, 0, 0, 2, 5, 0, 0, 0}
         };
 
         int[][] mapDynamic_Rest = {
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 2, 4, 2, 2, 2, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 0, 0},
+                {0, 2, 5, 2, 4, 2, 0, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
+                {0, 2, 5, 2, 2, 5, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 2, 2, 2, 2, 2, 2, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
-                {0, 0, 0, 2, 2, 2, 0, 0},
+                {0, 0, 0, 4, 2, 2, 0, 0},
+                {0, 0, 0, 2, 5, 2, 0, 0},
+                {0, 0, 0, 4, 2, 4, 0, 0},
                 {0, 2, 2, 2, 2, 2, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 0, 0, 2, 2, 0, 0, 0},
-                {0, 0, 2, 2, 2, 0, 0, 0},
+                {0, 0, 2, 5, 2, 0, 0, 0},
                 {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0}
+                {0, 2, 4, 4, 0, 2, 5, 0},
+                {0, 2, 2, 0, 5, 2, 2, 0}
         };
         createBricksFromMap(mapStatic_G);
 
         this.levelPattern = mapDynamic_Rest;
         this.spawningFromPattern = true;
         this.lastSpawnTime = 0;
+        this.initialBreakableBricks = countBricksInMap(mapStatic_G) + countBricksInMap(mapDynamic_Rest);
     }
+
     private void loadLevel4() {
         int[][] mapStatic_G = {
                 {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 2, 2, 2, 2, 2, 0},
+                {0, 0, 2, 5, 2, 2, 2, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 0, 2, 2, 2, 0},
+                {0, 2, 2, 0, 2, 5, 2, 0},
                 {0, 2, 2, 0, 4, 2, 2, 0},
-                {0, 0, 2, 2, 2, 2, 2, 0}
+                {0, 0, 2, 5, 2, 2, 2, 0}
         };
 
         int[][] mapDynamic_Rest = {
                 {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 2, 2, 2, 0},
+                {0, 2, 4, 0, 4, 2, 2, 0},
+                {0, 2, 2, 0, 2, 5, 2, 0},
                 {0, 2, 2, 2, 0, 2, 2, 0},
                 {0, 2, 2, 0, 0, 2, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
@@ -201,27 +214,27 @@ public class LevelManager {
                 {0, 2, 2, 0, 0, 2, 2, 0},
                 {0, 2, 2, 0, 5, 2, 2, 0},
                 {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 0, 2, 2, 2, 2, 0, 0},
+                {0, 0, 2, 4, 2, 2, 0, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 0, 2, 2, 2, 2, 0, 0},
-                {0, 2, 2, 2, 2, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {0, 2, 2, 0, 0, 2, 2, 0},
+                {0, 2, 4, 2, 4, 2, 2, 0},
+                {0, 2, 5, 0, 0, 2, 2, 0},
+                {0, 2, 2, 0, 5, 2, 2, 0},
                 {0, 0, 0, 0, 0, 0, 0, 0},
 
                 {0, 2, 2, 2, 2, 2, 2, 0},
                 {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 0, 0, 0, 0, 0},
-                {0, 2, 2, 0, 0, 0, 0, 0},
+                {0, 2, 2, 0, 5, 0, 0, 0},
+                {0, 2, 2, 0, 4, 0, 0, 0},
                 {0, 2, 2, 2, 2, 2, 2, 0}
         };
-
         createBricksFromMap(mapStatic_G);
 
         this.levelPattern = mapDynamic_Rest;
         this.spawningFromPattern = true;
         this.lastSpawnTime = 0;
+        this.initialBreakableBricks = countBricksInMap(mapStatic_G) + countBricksInMap(mapDynamic_Rest);
     }
 
 
@@ -295,10 +308,8 @@ public class LevelManager {
     }
 
     public boolean updateDynamicSpawning(long now) {
-        if (!dynamicSpawning && !scrollingEnabled && !spawningFromPattern) return false; // Thêm false
-
-        if (lastSpawnTime == 0) {
-            lastSpawnTime = now;
+        if ((!dynamicSpawning && !scrollingEnabled && !spawningFromPattern) || !isScrollingActive) {
+            return false;
         }
 
         double elapsedTime = (now - lastSpawnTime) / 1_000_000_000.0;
@@ -416,5 +427,43 @@ public class LevelManager {
 
     public void removeBrick(Brick brick) {
         bricks.remove(brick);
+    }
+
+    public void activateScrolling() {
+        if ((this.dynamicSpawning || this.spawningFromPattern) && !this.isScrollingActive) {
+            this.isScrollingActive = true;
+            this.lastSpawnTime = System.nanoTime();
+        }
+    }
+
+    private int countBricksInMap(int[][] map) {
+        int count = 0;
+        if (map == null) {
+            return 0;
+        }
+
+        for (int j = 0; j < map.length; j++) {
+            for (int i = 0; i < map[j].length; i++) {
+                int brickCode = map[j][i];
+                if (brickCode != 0 && brickCode != 3) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public int getInitialBreakableBricks() {
+        return this.initialBreakableBricks;
+    }
+
+    public int countRemainingBreakableBricks() {
+        int remaining = 0;
+        for (Brick brick : bricks) {
+            if (brick.getType() != enums.BrickType.INDESTRUCTIBLE && !brick.isDestroyed()) {
+                remaining++;
+            }
+        }
+        return remaining;
     }
 }

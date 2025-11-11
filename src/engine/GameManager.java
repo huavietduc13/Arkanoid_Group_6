@@ -131,7 +131,6 @@ public class GameManager {
             );
             healthBarForeground.setFill(Color.GREEN);
 
-            // Thêm Boss và thanh máu
             root.getChildren().addAll(
                     boss.getImageView(),
                     healthBarBackground,
@@ -215,6 +214,27 @@ public class GameManager {
         if (boss != null) {
             updateBossHealthBar();
 
+            if (boss.isDestroyed() && running) {
+                running = false;
+
+                AudioManager.stopBackgroundMusic();
+
+                for (int i = 0; i < 5; i++) {
+                    double x = 100 + Math.random() * 400;
+                    double y = 100 + Math.random() * 200;
+                    effect.firework(x, y);
+                }
+
+                textManager.showGameOver(true);
+
+                root.getChildren().remove(boss.getImageView());
+                if (healthBarBackground != null) {
+                    root.getChildren().removeAll(healthBarBackground, healthBarForeground);
+                }
+
+                return;
+            }
+
             if (boss.canUseSkill()) {
                 List<PowerUp> droppedItems = boss.useSkill();
 
@@ -276,6 +296,19 @@ public class GameManager {
 
         dockBallToPaddle();
         updateBalls();
+
+        if (running && boss == null) {
+
+            int totalBricks = levelManager.getInitialBreakableBricks();
+
+            int remainingBricks = levelManager.countRemainingBreakableBricks();
+
+            if (totalBricks > 0 && remainingBricks == 0) {
+                System.out.println("Tất cả " + totalBricks + " gạch đã bị phá hủy! Game Over.");
+                gameOver();
+                return;
+            }
+        }
 
         if (balls.isEmpty()) {
             respawnMainBall();
@@ -426,6 +459,7 @@ public class GameManager {
 
             if (ballWasLaunched) {
                 paddle.setPreGameInvincible(false);
+                levelManager.activateScrolling();
             }
         } else {
             paddle.handleKeyPressed(e.getCode());

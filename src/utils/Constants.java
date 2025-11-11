@@ -13,8 +13,8 @@ public class Constants {
 
     public static final double EPSILON = 0.05;
     public static final double SEPARATION_OFFSET = 0.05;
-    public static double MIN_SPEED = 3.0;
-    public static double MAX_SPEED = 3.0;
+    public static double MIN_SPEED = 5.0;
+    public static double MAX_SPEED = 5.0;
 
     public static final double BRICK_WIDTH = 63.0;
     public static final double BRICK_HEIGHT = 33.0;
@@ -32,7 +32,7 @@ public class Constants {
     public static final double BALL_POS_X = 280.0;
     public static final double BALL_POS_Y = 724.0;
     public static final double BALL_RADIUS = 12.0;
-    public static final double BALL_VX = 5.0;
+    public static final double BALL_VX = 3.0;
     public static final double BALL_VY = -BALL_VX;
 
     public static final double LASER_WIDTH = 4.0;

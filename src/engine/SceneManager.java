@@ -234,7 +234,7 @@ public class SceneManager {
         buttonLayout.setAlignment(Pos.CENTER);
 
         buttonLayout.getChildren().addAll(level0Button, level1Button, level2Button,
-                level3Button, level4Button, level5Button, // <-- ĐÃ THÊM
+                level3Button, level4Button, level5Button,
                 backButton);
 
         StackPane root = new StackPane();

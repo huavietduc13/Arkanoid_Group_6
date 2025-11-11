@@ -43,7 +43,7 @@ public class Boss {
 
     private static final double BOMB_SPEED = 2.5;
 
-    private static final long SKILL_COOLDOWN = 3000;
+    private static final long SKILL_COOLDOWN = 19000;
 
     private static final int HEAL_AMOUNT = 10;
     private long lastSkillTime = 0;
@@ -270,7 +270,6 @@ public class Boss {
         explosionView.setX(x - explosionSize / 2);
         explosionView.setY(y - explosionSize / 2);
 
-        // 'root' bây giờ được lấy từ tham số
         root.getChildren().add(explosionView);
 
         PauseTransition removeAfterDelay = new PauseTransition(Duration.seconds(durationInSeconds));
