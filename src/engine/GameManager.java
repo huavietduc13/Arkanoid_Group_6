@@ -29,6 +29,7 @@ public class GameManager {
     private TextManager textManager;
     private PowerUpManager powerUpManager;
     private CollisionManager collisionManager;
+    private InfoPanel infoPanel;
 
     private Paddle paddle;
     private List<Ball> balls = new ArrayList<>();
@@ -51,6 +52,7 @@ public class GameManager {
         this.levelManager = new LevelManager();
         this.powerUpManager = new PowerUpManager(effect);
         this.collisionManager = new CollisionManager(effect, audioManager, levelManager, powerUpManager);
+        this.infoPanel = new InfoPanel(gc);
 
         init();
     }
@@ -123,6 +125,7 @@ public class GameManager {
         if(gameWon) return;
 
         gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        gc.drawImage(backgroundImage, 0, 0, GAME_AREA_WIDTH, SCREEN_HEIGHT);
 
         collisionManager.handleBallBricksCollision(root, balls);
 
@@ -135,6 +138,10 @@ public class GameManager {
         powerUpManager.getShield().render(gc);
 
         effect.render();
+
+        infoPanel.render(score, paddle, levelNumber,
+                powerUpManager.getActivePowerUps(),
+                0.016);
     }
 
     public void update(long now) {
@@ -173,7 +180,7 @@ public class GameManager {
             gameOver();
         }
 
-        textManager.updateScoreAndLives(score, paddle);
+//        textManager.updateScoreAndLives(score, paddle);
         textManager.showLaunchHint(showLaunchText);
         checkWinCondition();
     }
@@ -335,7 +342,6 @@ public class GameManager {
         score = 0;
         running = true;
         showLaunchText = true;
-        gameWon = false;
         textManager.showGameOver(false);
         paddle.reset();
 

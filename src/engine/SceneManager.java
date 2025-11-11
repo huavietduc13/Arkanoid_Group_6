@@ -147,7 +147,7 @@ public class SceneManager {
         volumeIcon = new ImageView(volMedium);
         volumeIcon.setFitHeight(30);
         volumeIcon.setFitWidth(30);
-        volumeIcon.setLayoutX(SCREEN_WIDTH - 30 - 20);
+        volumeIcon.setLayoutX(GAME_AREA_WIDTH - 50);
         volumeIcon.setLayoutY(5);
         volumeIcon.setCursor(Cursor.HAND);
 
@@ -157,7 +157,7 @@ public class SceneManager {
         });
 
         volumeIcon.setOnScroll(e -> {
-            System.out.println("running");
+//            System.out.println("running");
             if(e.getDeltaY() > 0) volume += VOLUME_STEP;
             else if (e.getDeltaY() < 0) volume -= VOLUME_STEP;
             volume = Math.max(0.0, Math.min(1.0, volume));
@@ -176,16 +176,16 @@ public class SceneManager {
     public void createPauseMenu() {
         // Resume button
         ImageView resumeButton = new ImageView(new Image("file:assets/images/resumeButton.png"));
-        resumeButton.setFitWidth(200);
-        resumeButton.setFitHeight(80);
+        resumeButton.setFitWidth(BUTTON_WIDTH);
+        resumeButton.setFitHeight(BUTTON_HEIGHT);
         resumeButton.setOnMouseEntered(e -> resumeButton.setOpacity(0.7));
         resumeButton.setOnMouseExited(e -> resumeButton.setOpacity(1.0));
         resumeButton.setOnMouseClicked(e -> togglePauseMenu());
 
         // Restart button
         ImageView restartButton = new ImageView(new Image("file:assets/images/restartButton.png"));
-        restartButton.setFitWidth(200);
-        restartButton.setFitHeight(80);
+        restartButton.setFitWidth(BUTTON_WIDTH);
+        restartButton.setFitHeight(BUTTON_HEIGHT);
         restartButton.setOnMouseEntered(e -> restartButton.setOpacity(0.7));
         restartButton.setOnMouseExited(e -> restartButton.setOpacity(1.0));
         restartButton.setOnMouseClicked(e -> {
@@ -195,8 +195,8 @@ public class SceneManager {
 
         // To main menu button
         ImageView menuButton = new ImageView(new Image("file:assets/images/mainMenuButton.png"));
-        menuButton.setFitWidth(200);
-        menuButton.setFitHeight(80);
+        menuButton.setFitWidth(BUTTON_WIDTH);
+        menuButton.setFitHeight(BUTTON_HEIGHT);
         menuButton.setOnMouseEntered(e -> menuButton.setOpacity(0.7));
         menuButton.setOnMouseExited(e -> menuButton.setOpacity(1.0));
         menuButton.setOnMouseClicked(e -> returnToMenu());
@@ -233,16 +233,16 @@ public class SceneManager {
 
         Image buttonImg = new Image("file:assets/images/startButton.png");
         ImageView startButton = new ImageView(buttonImg);
-        startButton.setFitWidth(200);
-        startButton.setFitHeight(80);
+        startButton.setFitWidth(BUTTON_WIDTH);
+        startButton.setFitHeight(BUTTON_HEIGHT);
         startButton.setOnMouseEntered(e -> startButton.setOpacity(0.9));
         startButton.setOnMouseExited(e -> startButton.setOpacity(1.0));
         startButton.setOnMouseClicked(e -> priStage.setScene(levelSelectionScene));
 
         Image buttonImgExit = new Image("file:assets/images/exitButton.png");
         ImageView exitButton = new ImageView(buttonImgExit);
-        exitButton.setFitWidth(200);
-        exitButton.setFitHeight(80);
+        exitButton.setFitWidth(BUTTON_WIDTH);
+        exitButton.setFitHeight(BUTTON_HEIGHT);
         exitButton.setOnMouseEntered(e -> exitButton.setOpacity(0.9));
         exitButton.setOnMouseExited(e -> exitButton.setOpacity(1.0));
         exitButton.setOnMouseClicked(e -> System.exit(0));
@@ -266,8 +266,8 @@ public class SceneManager {
         //Lvl 1
         Image level0 = new Image("file:assets/images/Level_0.png");
         ImageView level0Button = new ImageView(level0);
-        level0Button.setFitWidth(200);
-        level0Button.setFitHeight(80);
+        level0Button.setFitWidth(BUTTON_WIDTH);
+        level0Button.setFitHeight(BUTTON_HEIGHT);
         level0Button.setOnMouseEntered(e -> level0Button.setOpacity(0.9));
         level0Button.setOnMouseExited(e -> level0Button.setOpacity(1.0));
         level0Button.setOnMouseClicked(e -> startGame(0));
@@ -275,8 +275,8 @@ public class SceneManager {
         //Lvl 2
         Image level1 = new Image("file:assets/images/Level_1.png");
         ImageView level1Button = new ImageView(level1);
-        level1Button.setFitWidth(200);
-        level1Button.setFitHeight(80);
+        level1Button.setFitWidth(BUTTON_WIDTH);
+        level1Button.setFitHeight(BUTTON_HEIGHT);
         level1Button.setOnMouseEntered(e -> level1Button.setOpacity(0.9));
         level1Button.setOnMouseExited(e -> level1Button.setOpacity(1.0));
         level1Button.setOnMouseClicked(e -> startGame(1));
@@ -284,8 +284,8 @@ public class SceneManager {
         //Lvl 3
         Image level2 = new Image("file:assets/images/Level_2.png");
         ImageView level2Button = new ImageView(level2);
-        level2Button.setFitWidth(200);
-        level2Button.setFitHeight(80);
+        level2Button.setFitWidth(BUTTON_WIDTH);
+        level2Button.setFitHeight(BUTTON_HEIGHT);
         level2Button.setOnMouseEntered(e -> level2Button.setOpacity(0.9));
         level2Button.setOnMouseExited(e -> level2Button.setOpacity(1.0));
         level2Button.setOnMouseClicked(e -> startGame(2));
@@ -293,8 +293,8 @@ public class SceneManager {
         //Back
         Image back = new Image("file:assets/images/mainMenuButton.png");
         ImageView backButton = new ImageView(back);
-        backButton.setFitWidth(200);
-        backButton.setFitHeight(80);
+        backButton.setFitWidth(BUTTON_WIDTH);
+        backButton.setFitHeight(BUTTON_HEIGHT);
         backButton.setOnMouseEntered(e -> backButton.setOpacity(0.9));
         backButton.setOnMouseExited(e -> backButton.setOpacity(1.0));
         backButton.setOnMouseClicked(e -> priStage.setScene(startMenuScene));

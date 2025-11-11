@@ -134,6 +134,8 @@ public class Paddle extends GameObject {
         setX(PADDLE_POS_X);
         setY(PADDLE_POS_Y);
         lives = DEFAULT_LIVES;
+        clearLasers();
+        setGunVisible(false);
     }
 
     public void loseLife() {
@@ -244,11 +246,22 @@ public class Paddle extends GameObject {
         activeLasers.clear();
     }
 
+    public void setGunVisible(boolean visible) {
+        this.gunLeftImageView.setVisible(visible);
+        this.gunRightImageView.setVisible(visible);
+    }
+
     public void addLaserImage(Pane root) {
         for (Laser laser : activeLasers) {
             if (!root.getChildren().contains(laser.getCollisionShape())) {
                 root.getChildren().addAll(laser.getImageView(), laser.getCollisionShape());
             }
+        }
+    }
+
+    public void removeLaserImage(Pane root) {
+        for (Laser laser : activeLasers) {
+            root.getChildren().removeAll(laser.getImageView(), laser.getCollisionShape());
         }
     }
 
