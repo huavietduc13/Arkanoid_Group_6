@@ -1,10 +1,10 @@
-package src.object.powerup;
+package object.powerup;
 
-import src.object.Ball;
-import src.object.Paddle;
+import object.Ball;
+import object.Paddle;
 
-import static src.enums.PowerUpType.*;
-import static src.utils.Constants.*;
+import static enums.PowerUpType.*;
+import static utils.Constants.*;
 
 public class SlowBallPowerUp extends PowerUp {
     private static final double SPEED_MULTIPLIER = 0.6;

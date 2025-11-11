@@ -1,11 +1,11 @@
-package src.object.brick;
+package object.brick;
 
 import javafx.animation.Timeline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static src.enums.BrickType.*;
+import static enums.BrickType.*;
 
 public class ExplodingBrick extends Brick {
     private static int INITIAL_STRENGTH = 1;

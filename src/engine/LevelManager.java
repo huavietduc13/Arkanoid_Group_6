@@ -1,8 +1,8 @@
-package src.engine;
+package engine;
 
-import src.enums.BrickType;
+import enums.BrickType;
 import javafx.scene.layout.Pane;
-import src.object.brick.Brick;
+import object.brick.Brick;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static src.enums.BrickType.*;
-import static src.utils.Constants.*;
+import static enums.BrickType.*;
+import static utils.Constants.*;
 
 public class LevelManager {
     private List<Brick> bricks;

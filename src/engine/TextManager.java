@@ -1,4 +1,4 @@
-package src.engine;
+package engine;
 
 import javafx.geometry.VPos;
 import javafx.scene.layout.Pane;
@@ -6,13 +6,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import src.object.Paddle;
+import object.Paddle;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public class TextManager {
     private Text scoreText;

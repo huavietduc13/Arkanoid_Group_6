@@ -1,9 +1,9 @@
-package src.object.powerup;
+package object.powerup;
 
-import src.object.Ball;
-import src.object.Paddle;
+import object.Ball;
+import object.Paddle;
 
-import static src.enums.PowerUpType.*;
+import static enums.PowerUpType.*;
 
 public class LaserPowerUp extends PowerUp {
     public LaserPowerUp(double x, double y) {

@@ -1,4 +1,4 @@
-package src.engine;
+package engine;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Insets;
@@ -14,8 +14,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import static src.engine.AudioManager.*;
-import static src.utils.Constants.*;
+import static engine.AudioManager.*;
+import static utils.Constants.*;
 
 public class SceneManager {
 

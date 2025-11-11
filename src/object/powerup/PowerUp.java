@@ -1,14 +1,14 @@
-package src.object.powerup;
+package object.powerup;
 
-import src.enums.PowerUpType;
+import enums.PowerUpType;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import src.object.Ball;
-import src.object.GameObject;
-import src.object.Paddle;
+import object.Ball;
+import object.GameObject;
+import object.Paddle;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public abstract class PowerUp extends GameObject {
     protected PowerUpType type;
@@ -178,6 +178,10 @@ public abstract class PowerUp extends GameObject {
                 return new LaserPowerUp(x, y);
             case SHIELD:
                 return new ShieldPowerUp(x, y);
+            case EXPLODING_BALL:
+                return new ExplodingBallPowerUp(x, y);
+            case ELECTRIC_BAll:
+                return new ElectricBallPowerUp(x, y);
             default:
                 return new ExtraLifePowerUp(x, y);
         }

@@ -1,12 +1,12 @@
-package src.object.powerup;
+package object.powerup;
 
 import javafx.geometry.Bounds;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import src.object.GameObject;
+import object.GameObject;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public class Laser extends GameObject {
     private double vy;
@@ -74,5 +74,17 @@ public class Laser extends GameObject {
     public void setY(double y) {
         super.setY(y);
         collisionShape.setY(y);
+    }
+
+    public boolean intersects(object.Boss boss) {
+        if (!active) {
+            return false;
+        }
+
+        Bounds laserBounds = collisionShape.getBoundsInParent();
+        // Lấy hình va chạm (hitbox) của Boss
+        Bounds bossBounds = boss.getCollisionShape().getBoundsInParent();
+
+        return laserBounds.intersects(bossBounds);
     }
 }

@@ -1,8 +1,8 @@
-package src.object.brick;
+package object.brick;
 
 import javafx.scene.image.Image;
 
-import static src.enums.BrickType.*;
+import static enums.BrickType.*;
 
 public class StrongBrick extends Brick{
     private static int INITIAL_STRENGTH = 3;

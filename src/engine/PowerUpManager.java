@@ -1,20 +1,20 @@
-package src.engine;
+package engine;
 
-import src.effect.ParticleEngine;
-import src.enums.PowerUpType;
+import effect.ParticleEngine;
+import enums.PowerUpType;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import src.object.Ball;
-import src.object.Paddle;
-import src.object.brick.Brick;
-import src.object.powerup.PowerUp;
-import src.object.powerup.Shield;
+import object.Ball;
+import object.Paddle;
+import object.brick.Brick;
+import object.powerup.PowerUp;
+import object.powerup.Shield;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static src.enums.PowerUpType.*;
-import static src.utils.Constants.*;
+import static enums.PowerUpType.*;
+import static utils.Constants.*;
 
 public class PowerUpManager {
     private List<PowerUp> powerUps;
@@ -121,6 +121,18 @@ public class PowerUpManager {
                 effect.shieldActivate(SCREEN_WIDTH, shield.getY());
             }
 
+            if (powerUp.getType() == EXPLODING_BALL) {
+                for (Ball ball : balls) {
+                    ball.setImagePath("file:assets/images/explodingBall.png");
+                }
+            }
+
+            if (powerUp.getType() == ELECTRIC_BAll) {
+                for (Ball ball : balls) {
+                    ball.setImagePath("file:assets/images/electricBall.png");
+                }
+            }
+
             for (Ball ball : balls) {
                 powerUp.collect(paddle, ball);
             }
@@ -160,6 +172,14 @@ public class PowerUpManager {
 
             applySpeedPowerUpsToNewBall(paddle, newBall);
 
+            if (findActivePowerUp(EXPLODING_BALL) != null) {
+                newBall.setImagePath("file:assets/images/explodingBall.png");
+            }
+
+            if (findActivePowerUp(ELECTRIC_BAll) != null) {
+                newBall.setImagePath("file:assets/images/electricBall.png");
+            }
+
             balls.add(newBall);
 
             root.getChildren().addAll(newBall.getImageView(), newBall.getCollisionShape());
@@ -173,6 +193,14 @@ public class PowerUpManager {
         }
         if (newPowerUp.getType() == SHRINK_PADDLE) {
             activePowerUps.removeIf(p -> p.getType() == EXPAND_PADDLE);
+        }
+
+        if (newPowerUp.getType() == EXPLODING_BALL) {
+            activePowerUps.removeIf(p -> p.getType() == ELECTRIC_BAll);
+        }
+
+        if (newPowerUp.getType() == ELECTRIC_BAll) {
+            activePowerUps.removeIf(p -> p.getType() == EXPLODING_BALL);
         }
 
         // Fast and Slow cannot coexist
@@ -219,6 +247,18 @@ public class PowerUpManager {
 
                 if (active.getType() == SHIELD) {
                     shield.deactivate();
+                }
+
+                if (active.getType() == EXPLODING_BALL) {
+                    for (Ball ball : balls) {
+                        ball.setImagePath("file:assets/images/ball.png"); 
+                    }
+                }
+
+                if (active.getType() == ELECTRIC_BAll) {
+                    for (Ball ball : balls) {
+                        ball.setImagePath("file:assets/images/ball.png"); 
+                    }
                 }
 
                 for (Ball ball : balls) {
@@ -332,5 +372,9 @@ public class PowerUpManager {
             redTrailEnabled = false;
             normalTrailEnabled = false;
         }
+    }
+
+    public boolean isActive(PowerUpType type) {
+        return findActivePowerUp(type) != null;
     }
 }

@@ -1,14 +1,14 @@
-package src.object.brick;
+package object.brick;
 
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Bounds;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import src.object.GameObject;
-import src.enums.BrickType;
+import object.GameObject;
+import enums.BrickType;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public abstract class Brick extends GameObject {
     protected BrickType type;

@@ -1,4 +1,4 @@
-package src.object;
+package object;
 
 import javafx.geometry.Bounds;
 import javafx.scene.image.Image;
@@ -7,12 +7,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import src.object.powerup.Laser;
+import object.powerup.Laser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public class Paddle extends GameObject {
     private double speed;

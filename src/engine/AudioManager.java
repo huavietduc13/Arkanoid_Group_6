@@ -1,4 +1,4 @@
-package src.engine;
+package engine;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -6,7 +6,7 @@ import javafx.scene.media.MediaPlayer;
 import java.io.File;
 import java.util.Random;
 
-import static src.utils.Constants.NUMBER_OF_RANDOM_SOUND;
+import static utils.Constants.NUMBER_OF_RANDOM_SOUND;
 
 public class AudioManager {
     private static MediaPlayer backgroundMusic;
@@ -16,7 +16,6 @@ public class AudioManager {
     protected static double volume = 0.5;
     private static double volumeBeforeMute;
     private static Media paddleCollidingSound;
-    private static Media wallCollidingSound;
     private static Media indestructibleBrickCollidingSound;
     private static Media powerUpSound;
     private static Media gameOverSound;
@@ -49,11 +48,6 @@ public class AudioManager {
         File paddleFile = new File("assets/sounds/paddle_colliding_sound.mp3");
         String paddlePath = paddleFile.toURI().toString();
         paddleCollidingSound = new Media(paddlePath);
-
-        // Wall Colliding Sound
-        File wallFile = new File("assets/sounds/wall_colliding_sound.mp3");
-        String wallPath = wallFile.toURI().toString();
-        wallCollidingSound = new Media(wallPath);
 
         // Indestructible Brick Colliding Sound
         File indestructibleFile = new File("assets/sounds/indestructable_brick_colliding_sound.mp3");
@@ -133,10 +127,6 @@ public class AudioManager {
 
     public void playPaddleCollisionSound() {
         playSound(paddleCollidingSound);
-    }
-
-    public void playWallCollisionSound() {
-        playSound(wallCollidingSound);
     }
 
     public void playIndestructibleBrickCollisionSound() {

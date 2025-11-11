@@ -1,4 +1,4 @@
-package src.object.powerup;
+package object.powerup;
 
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
@@ -6,9 +6,9 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import src.object.Ball;
+import object.Ball;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public class Shield {
     private double y;

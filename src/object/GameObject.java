@@ -1,4 +1,4 @@
-package src.object;
+package object;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,6 +10,7 @@ public abstract class GameObject {
     protected double width, height;
     protected Image image;
     protected ImageView imageView;
+    protected String imagePath;
 
     public GameObject(String imagePath, double x, double y,double width, double height) {
         image = new Image(imagePath);
@@ -64,5 +65,14 @@ public abstract class GameObject {
 
     public void render() {
 
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+        this.imageView.setImage(new Image(imagePath));
+    }
+
+    public String getImagePath() {
+        return imagePath;
     }
 }

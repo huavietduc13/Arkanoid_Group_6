@@ -1,4 +1,4 @@
-package src.enums;
+package enums;
 
 public enum BrickType {
     NORMAL,

@@ -1,19 +1,19 @@
-package src.engine;
+package engine;
 
-import src.effect.ParticleEngine;
+import effect.ParticleEngine;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import src.object.Ball;
-import src.object.Paddle;
-import src.object.brick.Brick;
+import object.Ball;
+import object.Paddle;
+import object.brick.Brick;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static src.utils.Constants.*;
+import static utils.Constants.*;
 
 public class GameManager {
     private GraphicsContext gc;
@@ -202,15 +202,12 @@ public class GameManager {
             }
 
             if (ball.hitLeftBound()) {
-                audioManager.playWallCollisionSound();
                 effect.hitLeftBound(ball.getX(), ball.getCenterY());
             }
             if (ball.hitRightBound()) {
-                audioManager.playWallCollisionSound();
                 effect.hitRightBound(ball.getX() + ball.getWidth(), ball.getCenterY());
             }
             if (ball.hitUpperBound()) {
-                audioManager.playWallCollisionSound();
                 effect.hitUpperBound(ball.getCenterX(), ball.getY());
             }
         }
