@@ -30,7 +30,6 @@ public class SceneManager {
     private AnimationTimer timer;
     private GameManager game;
 
-    private HBox volumeBox;
     private ImageView volumeIcon;
     private Image volHigh;
     private Image volMedium;
@@ -46,7 +45,7 @@ public class SceneManager {
 
     public SceneManager(Stage priStage) {
         this.priStage = priStage;
-        this.customFont = TextManager.loadFont("assets/fonts/font.ttf");
+        this.customFont = TextManager.loadFont();
         createPauseMenu();
         createVolumeButton();
         createWinScreenElements();

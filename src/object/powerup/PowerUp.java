@@ -126,7 +126,7 @@ public abstract class PowerUp extends GameObject {
         return duration;
     }
 
-    public long getDurationLeft() {
+    public long getRemainingTime() {
         return ((long) duration - (System.currentTimeMillis() - activationTime)) / 1000;
     }
 
@@ -162,24 +162,24 @@ public abstract class PowerUp extends GameObject {
 
     public static PowerUp createPowerUp(PowerUpType type, double x, double y) {
         switch (type) {
-            case EXPAND_PADDLE:
-                return new ExpandPaddlePowerUp(x, y);
-            case SHRINK_PADDLE:
-                return new ShrinkPaddlePowerUp(x, y);
-            case SLOW_BALL:
-                return new SlowBallPowerUp(x, y);
-            case FAST_BALL:
-                return new FastBallPowerUp(x, y);
-            case MULTI_BALL:
-                return new MultiBallPowerUp(x, y);
-            case POINTS_MULTIPLIER:
-                return new PointMultiplierPowerUp(x, y);
-            case LASER:
-                return new LaserPowerUp(x, y);
-            case SHIELD:
-                return new ShieldPowerUp(x, y);
+//            case EXPAND_PADDLE:
+//                return new ExpandPaddlePowerUp(x, y);
+//            case SHRINK_PADDLE:
+//                return new ShrinkPaddlePowerUp(x, y);
+//            case SLOW_BALL:
+//                return new SlowBallPowerUp(x, y);
+//            case FAST_BALL:
+//                return new FastBallPowerUp(x, y);
+//            case MULTI_BALL:
+//                return new MultiBallPowerUp(x, y);
+//            case POINTS_MULTIPLIER:
+//                return new PointMultiplierPowerUp(x, y);
+//            case LASER:
+//                return new LaserPowerUp(x, y);
+//            case SHIELD:
+//                return new ShieldPowerUp(x, y);
             default:
-                return new ExtraLifePowerUp(x, y);
+                return new ShieldPowerUp(x, y);
         }
     }
 

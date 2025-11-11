@@ -35,7 +35,7 @@ public class Constants {
     public static final double PADDLE_SPEED = 6.0;
 
     public static final double BALL_POS_X = 280.0;
-    public static final double BALL_POS_Y = 724.0;
+    public static final double BALL_POS_Y = 738.0;
     public static final double BALL_RADIUS = 12.0;
     public static final double BALL_VX = 5.0;
     public static final double BALL_VY = -BALL_VX;
@@ -51,8 +51,8 @@ public class Constants {
     public static final double GUN_WIDTH = 8;
     public static final double GUN_HEIGHT = 20;
 
-    public static final double SHIELD_HEIGHT = 47.5;
-    public static final double SHIELD_POS_Y = SCREEN_HEIGHT - 50.0;
+    public static final double SHIELD_HEIGHT = 20;
+    public static final double SHIELD_POS_Y = SCREEN_HEIGHT - 22.5;
 
     public static final double TEXT_SIZE = 20.0;
     public static final double LAUNCH_TEXT_POS_X = 146.0;

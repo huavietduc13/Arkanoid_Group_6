@@ -268,7 +268,7 @@ public class InfoPanel {
 
         // Duration bar
         if (powerUp.getDuration() > 0) {
-            double durationLeft = powerUp.getDurationLeft();
+            double durationLeft = powerUp.getRemainingTime();
             double totalDuration = powerUp.getDuration() / 1000.0;
             double progress = Math.max(0, Math.min(1, durationLeft / totalDuration));
 
