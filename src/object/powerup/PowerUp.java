@@ -126,7 +126,7 @@ public abstract class PowerUp extends GameObject {
         return duration;
     }
 
-    public long getDurationLeft() {
+    public long getRemainingTime() {
         return ((long) duration - (System.currentTimeMillis() - activationTime)) / 1000;
     }
 
@@ -178,6 +178,10 @@ public abstract class PowerUp extends GameObject {
                 return new LaserPowerUp(x, y);
             case SHIELD:
                 return new ShieldPowerUp(x, y);
+            case EXPLODING_BALL:
+                return new ExplodingBallPowerUp(x, y);
+            case ELECTRIC_BAll:
+                return new ElectricBallPowerUp(x, y);
             default:
                 return new ExtraLifePowerUp(x, y);
         }
@@ -231,6 +235,10 @@ public abstract class PowerUp extends GameObject {
                 return Color.LIGHTPINK;
             case EXTRA_LIFE:
                 return Color.PINK;
+            case EXPLODING_BALL:
+                return Color.LIGHTGREEN;
+            case ELECTRIC_BAll:
+                return Color.LIGHTYELLOW;
             default:
                 return Color.WHITE;
         }

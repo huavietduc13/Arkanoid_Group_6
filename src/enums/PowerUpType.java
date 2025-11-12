@@ -9,5 +9,7 @@ public enum PowerUpType {
     MULTI_BALL,
     LASER,
     SHIELD,
-    POINTS_MULTIPLIER
+    POINTS_MULTIPLIER,
+    ELECTRIC_BAll,
+    EXPLODING_BALL
 }

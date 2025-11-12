@@ -59,7 +59,7 @@ public class TextManager {
 //        alignTexts();
     }
 
-    private static Font loadFont() {
+    public static Font loadFont() {
         Font font = null;
         try {
             File fontFile = new File("assets/fonts/font.ttf");

@@ -66,7 +66,7 @@ public class GameManager {
         this.effect = new ParticleEngine(gc);
         this.audioManager = new AudioManager();
         this.levelManager = new LevelManager();
-        this.powerUpManager = new PowerUpManager(effect);
+        this.powerUpManager = new PowerUpManager(effect, audioManager);
         this.collisionManager = new CollisionManager(effect, audioManager, levelManager, powerUpManager);
         this.infoPanel = new InfoPanel(gc);
 
@@ -81,7 +81,7 @@ public class GameManager {
         init();
     }
 
-    void init() {
+    public void init() {
         // Xóa các đối tượng cũ nếu có
         if (paddle != null) {
             root.getChildren().removeAll(paddle.getImageView(), paddle.getCollisionShape());
@@ -182,7 +182,6 @@ public class GameManager {
     public void render(Pane root) {
         if(gameWon) return;
 
-        gc.drawImage(backgroundImage, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         gc.drawImage(backgroundImage, 0, 0, GAME_AREA_WIDTH, SCREEN_HEIGHT);
 
         if (boss != null) {
@@ -376,6 +375,7 @@ public class GameManager {
         running = true;
         score = 0;
         levelNumber++;
+        collisionManager.resetScore();
 
         init();
     }
@@ -536,7 +536,9 @@ public class GameManager {
         running = true;
         showLaunchText = true;
         gameWon = false;
+        collisionManager.resetScore();
         textManager.showGameOver(false);
+        paddle.removeLaserImage(root);
         paddle.reset();
 
         for (Ball ball : balls) {
@@ -549,6 +551,7 @@ public class GameManager {
     }
 
     private void gameOver() {
+        audioManager.playGameOverSound();
         running = false;
         AudioManager.stopBackgroundMusic();
         textManager.showGameOver(true);
