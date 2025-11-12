@@ -336,6 +336,10 @@ public class LevelManager {
         double paddleTopY = PADDLE_POS_Y;
 
         for (Brick brick : bricks) {
+            if (brick.isDestroyed()) {
+                continue;
+            }
+
             double newY = brick.getY() + (BRICK_HEIGHT + BRICK_PADDING);
 
             if (newY + BRICK_HEIGHT > paddleTopY) {

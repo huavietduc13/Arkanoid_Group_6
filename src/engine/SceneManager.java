@@ -484,7 +484,7 @@ public class SceneManager {
             game.resume();
         }
         game = null;
-        
+
         AudioManager.stopBackgroundMusic();
 
         StackPane startMenuRoot = (StackPane) startMenuScene.getRoot();
