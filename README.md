@@ -5,7 +5,7 @@
 |#|MSSV|Họ và tên|Trưởng nhóm|Công việc|
 |--|----|--------|----------|-------------------|
 |1|24021413|Hứa Việt Đức|✅ | Quản lý trạng thái game, hiển thị, scene game, các tính năng game|
-|2|24021363|Lê Nguyễn Việt Anh| |Quản lý Ball & Paddle Mechanics, effects, bricks, collision|
+|2|24021365|Lê Nguyễn Việt Anh| |Quản lý Ball & Paddle Mechanics, effects, bricks, collision|
 |3|24021397|Lê Hải Cường| | Tạo, thiết kế và quản lý level |
 |4|24021484|Hà Hải Hoàng| | Quản lý hiệu ứng, âm thanh, hình ảnh |
 # Gameplay
@@ -15,7 +15,8 @@
 - **Âm thanh**: Có các âm thanh đa dạng, có thể điều chỉnh âm lượng.
 - **Level**: Nhiều cấp độ chơi, có màn đánh boss.
 ## Demo
-- UML diagram of the project: ![UML](https://github.com/huavietduc13/Arkanoid_Group_6/blob/main/assets/demo/UMLPlant.png?raw=true)
+- UML diagram of the project:
+<img width="3405" height="1947" alt="diagram" src="https://github.com/user-attachments/assets/aff57abe-6230-4d6b-802e-596744b1161a" />
 
 - Gameplay picture:
   - <img width="1561" height="1594" alt="image" src="https://github.com/user-attachments/assets/8b3982c1-4eac-46b1-a804-1f931c25f71c" />
