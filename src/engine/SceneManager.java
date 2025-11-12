@@ -17,7 +17,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-import static engine.AudioManager.*;
 import static utils.Constants.*;
 
 public class SceneManager {
@@ -31,12 +30,6 @@ public class SceneManager {
     private AnimationTimer timer;
     private GameManager game;
     private AudioManager audioManager; // KHAI BÁO
-
-    private ImageView volumeIcon;
-    private Image volHigh;
-    private Image volMedium;
-    private Image volLow;
-    private Image volMute;
 
     private static ImageView playAgainButton;
     private static ImageView nextLevelButton;
@@ -56,7 +49,6 @@ public class SceneManager {
         this.customFont = TextManager.loadFont();
         this.audioManager = new AudioManager(); // KHỞI TẠO
         createPauseMenu();
-        createVolumeButton();
         createWinScreenElements();
         createSettingMenu();
     }
@@ -160,48 +152,6 @@ public class SceneManager {
                 nextLevelButton.setY(centerY);
             }
         }
-    }
-
-    public void createVolumeButton() {
-        volHigh = new Image("file:assets/images/volume_high.png");
-        volMedium = new Image("file:assets/images/volume_medium.png");
-        volLow = new Image("file:assets/images/volume_low.png");
-        volMute = new Image("file:assets/images/volume_mute.png");
-
-        volumeIcon = new ImageView(volMedium);
-        volumeIcon.setFitHeight(30);
-        volumeIcon.setFitWidth(30);
-        volumeIcon.setLayoutX(GAME_AREA_WIDTH - 50);
-        volumeIcon.setLayoutY(5);
-        volumeIcon.setCursor(Cursor.HAND);
-
-        // Âm thanh khi di chuột
-        volumeIcon.setOnMouseEntered(e -> volumeIcon.setOpacity(0.9));
-        volumeIcon.setOnMouseExited(e -> volumeIcon.setOpacity(1.0));
-
-        // Âm thanh khi nhấn
-        volumeIcon.setOnMousePressed(e -> audioManager.playButtonClickSound());
-
-        volumeIcon.setOnMouseClicked(e -> {
-            toggleMute();
-            updateVolumeIcon();
-        });
-
-        volumeIcon.setOnScroll(e -> {
-//            System.out.println("running");
-            if(e.getDeltaY() > 0) musicVolume += VOLUME_STEP;
-            else if (e.getDeltaY() < 0) musicVolume -= VOLUME_STEP;
-            musicVolume = Math.max(0.0, Math.min(1.0, musicVolume));
-            audioManager.setMusicVolume(musicVolume);
-            updateVolumeIcon();
-        });
-    }
-
-    private void updateVolumeIcon() {
-        if (musicVolume == 0) volumeIcon.setImage(volMute);
-        else if (musicVolume <= 0.4) volumeIcon.setImage(volLow);
-        else if (musicVolume <= 0.8) volumeIcon.setImage(volMedium);
-        else volumeIcon.setImage(volHigh);
     }
 
     public void createPauseMenu() {
@@ -525,6 +475,7 @@ public class SceneManager {
     public void returnToMenu() {
         if (timer != null) {
             timer.stop();
+            timer = null;
         }
 
         pauseMenu.setVisible(false);
@@ -532,8 +483,17 @@ public class SceneManager {
         if (game != null && game.isPaused()) {
             game.resume();
         }
-
+        game = null;
+        
         AudioManager.stopBackgroundMusic();
+
+        StackPane startMenuRoot = (StackPane) startMenuScene.getRoot();
+        if (!startMenuRoot.getChildren().contains(settingMenu)) {
+            startMenuRoot.getChildren().add(settingMenu);
+        }
+
+        settingMenu.setVisible(false);
+
         priStage.setScene(startMenuScene);
     }
 
@@ -541,7 +501,6 @@ public class SceneManager {
         Canvas canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         Pane root = new Pane(canvas);
-        root.getChildren().addAll(volumeIcon, pauseMenu, winOverlay, playAgainButton, nextLevelButton, menuButton, winText);
 
         showWinScreen(false, levelNumber);
 
